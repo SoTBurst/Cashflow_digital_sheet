@@ -37,8 +37,6 @@
 
     /* Bargeldkonto */
     .bargeldkonto h2 { margin-bottom: .5rem; }
-    .bargeldkonto .start { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
-    .bargeldkonto .start label { flex: 1 1 140px; }
     .bargeldkonto .balance { font-weight: bold; margin-bottom: 1rem; }
     .bargeldkonto button { padding: .5rem 1rem; margin-bottom: 1rem; }
     .bargeldkonto ul { list-style: none; padding: 0; }
@@ -66,7 +64,6 @@
       </select>
     </label>
   </div>
-
   <div class="container">
     <!-- Links: Zettel -->
     <div class="sheet">
@@ -129,7 +126,6 @@
         </div>
       </section>
     </div>
-
     <!-- Rechts: Bargeldkonto -->
     <div class="sheet bargeldkonto">
       <h2>Bargeldkonto – <span id="job-display"></span></h2>
@@ -141,41 +137,29 @@
         <label>Gesamte Ausgaben:<span id="sum-total-expenses">0 €</span></label>
         <label>Cashflow:<span id="sum-cashflow">0 €</span></label>
       </div>
-      <!-- Detail‑Konto -->
-      <div class="start">
-        <label>Startguthaben (Cashflow):
-          <input id="start-cashflow" type="number" placeholder="€">
-        </label>
-        <label>Startguthaben (Ersparnisse):
-          <input id="start-savings" type="number" placeholder="€">
-        </label>
-      </div>
       <div class="balance">Aktueller Kontostand: <span id="current-balance">0,00</span> €</div>
       <button id="add-entry">+/- Eintrag hinzufügen</button>
       <ul id="entries"></ul>
     </div>
   </div>
-
   <script>
     // Profil‑Daten mit vorab berechneten Steuern
     const profilesData = {
-      anwalt:      {bal:[2000,2400], inc:7500, exp:5100, ob:[[115000,1100],[78000,300],[11000,200],[7000,200]], taxes:3300},
-      arzt:        {bal:[3500,4900], inc:13200, exp:8300, ob:[[202000,1900],[150000,700],[19000,300],[10000,200]], taxes:5700},
-      hausmeister: {bal:[600,600],   inc:1600, exp:1000, ob:[[20000,200],[0,0],[4000,100],[3000,100]], taxes:600},
-      ingenieur:   {bal:[400,1700],  inc:4900, exp:3200, ob:[[75000,700],[12000,100],[7000,200],[5000,200]], taxes:2000},
-      krankenschwester:{bal:[500,1100],inc:3100,exp:2000,ob:[[47000,400],[6000,100],[5000,100],[4000,200]], taxes:1200},
-      lehrer:      {bal:[400,1200],  inc:3300, exp:2100, ob:[[50000,500],[12000,100],[5000,100],[4000,200]], taxes:1200},
-      'lkw-fahrer':{bal:[800,800],   inc:2500, exp:1700, ob:[[38000,400],[0,0],[4000,100],[3000,100]], taxes:1100},
-      manager:     {bal:[400,1600],  inc:4600, exp:3000, ob:[[75000,700],[12000,100],[6000,100],[4000,200]], taxes:1900},
-      mechaniker:  {bal:[700,700],   inc:2000, exp:1300, ob:[[31000,300],[0,0],[3000,100],[3000,100]], taxes:900},
-      pilot:       {bal:[2500,3500], inc:9500, exp:6000, ob:[[90000,1000],[0,0],[15000,300],[22000,700]], taxes:4000},
-      polizist:    {bal:[500,1100],  inc:3000, exp:1900, ob:[[46000,400],[0,0],[5000,100],[3000,100]], taxes:300},
-      sekretaer:   {bal:[700,800],   inc:2500, exp:1700, ob:[[38000,400],[0,0],[4000,100],[3000,100]], taxes:100}
+      anwalt:      {bal:[2000,2400],   inc:7500, exp:5100, ob:[[115000,1100],[78000,300],[11000,200],[7000,200]], taxes:3300},
+      arzt:        {bal:[3500,4900],   inc:13200,exp:8300, ob:[[202000,1900],[150000,700],[19000,300],[10000,200]],taxes:5700},
+      hausmeister: {bal:[600,600],     inc:1600, exp:1000, ob:[[20000,200],[0,0],[4000,100],[3000,100]],    taxes:600},
+      ingenieur:   {bal:[400,1700],    inc:4900, exp:3200, ob:[[75000,700],[12000,100],[7000,200],[5000,200]],taxes:2000},
+      krankenschwester:{bal:[500,1100],inc:3100,exp:2000, ob:[[47000,400],[6000,100],[5000,100],[4000,200]],taxes:1200},
+      lehrer:      {bal:[400,1200],    inc:3300, exp:2100, ob:[[50000,500],[12000,100],[5000,100],[4000,200]],taxes:1200},
+      'lkw-fahrer':{bal:[800,800],     inc:2500, exp:1700, ob:[[38000,400],[0,0],[4000,100],[3000,100]],    taxes:1100},
+      manager:     {bal:[400,1600],    inc:4600, exp:3000, ob:[[75000,700],[12000,100],[6000,100],[4000,200]],taxes:1900},
+      mechaniker:  {bal:[700,700],     inc:2000, exp:1300, ob:[[31000,300],[0,0],[3000,100],[3000,100]],    taxes:900},
+      pilot:       {bal:[2500,3500],   inc:9500, exp:6000, ob:[[90000,1000],[0,0],[15000,300],[22000,700]],taxes:4000},
+      polizist:    {bal:[500,1100],    inc:3000, exp:1900, ob:[[46000,400],[0,0],[5000,100],[3000,100]],    taxes:300},
+      sekretaer:   {bal:[700,800],     inc:2500, exp:1700, ob:[[38000,400],[0,0],[4000,100],[3000,100]],    taxes:100}
     };
-
     let balanceArray = [], baseIncome = 0, baseExpenses = 0, obligations = [];
     const sel = document.getElementById('profile-selector');
-
     // Zusammenfassung aktualisieren
     function updateSummary() {
       const salary = baseIncome;
@@ -183,86 +167,80 @@
                     + (+document.getElementById('input-income-property').value||0);
       const totalInc = salary + passive;
       const totalExp = baseExpenses;
-      document.getElementById('sum-salary').textContent        = salary + ' €';
-      document.getElementById('sum-passive').textContent       = passive + ' €';
-      document.getElementById('sum-total-income').textContent  = totalInc + ' €';
-      document.getElementById('sum-total-expenses').textContent= totalExp + ' €';
-      document.getElementById('sum-cashflow').textContent      = (totalInc - totalExp) + ' €';
+      document.getElementById('sum-salary').textContent         = salary + ' €';
+      document.getElementById('sum-passive').textContent        = passive + ' €';
+      document.getElementById('sum-total-income').textContent   = totalInc + ' €';
+      document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
+      document.getElementById('sum-cashflow').textContent       = (totalInc - totalExp) + ' €';
     }
-
     // Bargeldkonto‑Logik
     function updateBalance() {
-      let bal = (+document.getElementById('start-cashflow').value||0)
-              +(+document.getElementById('start-savings').value||0);
-      document.querySelectorAll('#entries input').forEach(i=> bal -= +i.value||0);
-      document.getElementById('current-balance').textContent = bal.toFixed(2).replace('.',',');
+      // Start aus Summary Cashflow
+      let cfText = document.getElementById('sum-cashflow').textContent;
+      let base = parseFloat(cfText.replace(/[^\d\-\.,]/g,'').replace(',','.'))||0;
+      // Nur user‑Entries subtrahieren
+      document.querySelectorAll('#entries input[type=number]').forEach(i=> base -= (+i.value||0));
+      document.getElementById('current-balance').textContent = base.toFixed(2).replace('.',',');
     }
     function generateArray() {
       let arr=[], j=0;
-      while(j<balanceArray.length||arr.length%2===0){
-        let i=arr.length;
-        if(i<balanceArray.length){ arr.push(balanceArray[i]); j++; }
-        else if(i%2===0){ arr.push(arr[i-1]+arr[i-2]); }
-        else{ arr.push(balanceArray[j]); j++; }
+      while(j<balanceArray.length||arr.length%2===0) {
+        let i = arr.length;
+        if(i<balanceArray.length) { arr.push(balanceArray[i]); j++; }
+        else if(i%2===0)        { arr.push(arr[i-1]+arr[i-2]); }
+        else                     { arr.push(balanceArray[j]); j++; }
       }
       return arr;
     }
     function createTable() {
-      const ul = document.getElementById('entries'); ul.innerHTML='';
+      const ul = document.getElementById('entries'); ul.innerHTML = '';
       generateArray().forEach((num,i)=>{
-        const li=document.createElement('li'), inp=document.createElement('input');
-        inp.readOnly=true; inp.type='text';
-        inp.value = (i%2? (num>=0?'+':'-')+Math.abs(num):Math.abs(num));
-        if(i%2===0) inp.style.background='#eee';
+        const li = document.createElement('li');
+        const inp = document.createElement('input');
+        inp.readOnly = true; inp.type = 'text';
+        inp.value = (i%2? (num>=0?'+':'-')+Math.abs(num) : Math.abs(num));
+        if(i%2===0) inp.style.background = '#eee';
         li.append(inp); ul.append(li);
       });
-      const li=document.createElement('li'), inp=document.createElement('input');
-      inp.type='number'; inp.placeholder='€'; inp.addEventListener('input',()=>{ updateBalance(); updateSummary(); });
+      // Editable user‑entry
+      const li = document.createElement('li');
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.placeholder = '€';
+      inp.addEventListener('input', ()=>{ updateBalance(); });
       li.append(inp); ul.append(li);
-      updateBalance(); updateSummary();
+      updateSummary(); updateBalance();
     }
-
-    // Profil laden und Felder vorbefüllen
+    // Profil laden
     function loadData(profile) {
       const data = profilesData[profile] || {bal:[0],inc:0,exp:0,ob:[[0,0],[0,0],[0,0],[0,0]],taxes:0};
       balanceArray  = data.bal;
       baseIncome    = data.inc;
       baseExpenses  = data.exp;
       obligations   = data.ob;
-
       // Header
       document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
       // Linke Felder
-      document.getElementById('input-income-salary').value   = baseIncome;
-      document.getElementById('input-income-interest').value = 0;
-      document.getElementById('input-income-property').value = 0;
-      document.getElementById('input-expenses-taxes').value  = data.taxes;
-      document.getElementById('input-expenses-mortgage').value    = obligations[0][1];
-      document.getElementById('input-liability-mortgage').value   = obligations[0][0];
-      document.getElementById('input-expenses-bafog').value       = obligations[1][1];
-      document.getElementById('input-liability-bafog').value      = obligations[1][0];
-      document.getElementById('input-expenses-autoloan').value    = obligations[2][1];
-      document.getElementById('input-liability-autoloan').value    = obligations[2][0];
-      document.getElementById('input-expenses-cc').value          = obligations[3][1];
-      document.getElementById('input-liability-cc').value          = obligations[3][0];
-
-      // Event-Listener für dynamische Aktualisierung
-      ['input-income-interest','input-income-property'].forEach(id=>
-        document.getElementById(id).addEventListener('input',updateSummary)
+      document.getElementById('input-income-salary').value    = baseIncome;
+      document.getElementById('input-income-interest').value  = 0;
+      document.getElementById('input-income-property').value  = 0;
+      document.getElementById('input-expenses-taxes').value   = data.taxes;
+      document.getElementById('input-expenses-mortgage').value= obligations[0][1];
+      document.getElementById('input-liability-mortgage').value= obligations[0][0];
+      document.getElementById('input-expenses-bafog').value    = obligations[1][1];
+      document.getElementById('input-liability-bafog').value   = obligations[1][0];
+      document.getElementById('input-expenses-autoloan').value = obligations[2][1];
+      document.getElementById('input-liability-autoloan').value = obligations[2][0];
+      document.getElementById('input-expenses-cc').value       = obligations[3][1];
+      document.getElementById('input-liability-cc').value      = obligations[3][0];
+      // Events
+      ['input-income-interest','input-income-property'].forEach(id =>
+        document.getElementById(id).addEventListener('input', ()=>{ updateSummary(); updateBalance(); })
       );
-
       createTable();
     }
-
-    document.addEventListener('DOMContentLoaded',()=>{
-      sel.addEventListener('change',()=> loadData(sel.value));
-      document.getElementById('add-entry').addEventListener('click',()=>{
-        const ul=document.getElementById('entries');
-        const li=document.createElement('li'), inp=document.createElement('input');
-        inp.type='number'; inp.placeholder='€'; inp.addEventListener('input',()=>{ updateBalance(); updateSummary(); });
-        li.append(inp); ul.append(li); inp.focus();
-      });
-      ['start-cashflow','start-savings'].forEach(id=> document.getElementById(id).addEventListener('input',updateBalance));
+    document.addEventListener('DOMContentLoaded', ()=>{
+      sel.addEventListener('change', ()=> loadData(sel.value));
+      document.getElementById('add-entry').addEventListener('click', createTable);
       loadData(sel.value);
     });
   </script>
