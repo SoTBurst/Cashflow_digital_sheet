@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Digitales Cashflow‑Tool</title>
+  <style>
+    /* Basis & Reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: sans-serif; }
+    input { font-size: 1rem; }
+
+    /* Profil‑Auswahl */
+    .profile-selection { padding: 1rem; border-bottom: 1px solid #ccc; }
+    .profile-selection label { font-weight: bold; }
+    .profile-selection select { margin-left: 0.5rem; padding: 0.25rem; font-size: 1rem; }
+
+    /* Container */
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      min-height: 100vh;
+    }
+    .sheet {
+      padding: 1rem;
+      flex: 1 1 320px;
+      border: 1px solid #ccc;
+    }
+    @media (max-width: 600px) { .container { flex-direction: column; } }
+
+    /* Labels & Inputs */
+    label { display: block; margin-bottom: .5rem; }
+    input[type="number"] {
+      width: 100%; padding: .5rem; inputmode: numeric;
+    }
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button {
+      -webkit-appearance: none; margin: 0;
+    }
+
+    /* 3‑Spalten Grid */
+    .grid3, .grid4 {
+      display: grid; grid-template-columns: 2fr 1fr 1fr;
+      grid-gap: .5rem; margin: .5rem 0;
+    }
+    .full-span { grid-column: 2 / 4; }
+
+    /* Bargeldkonto */
+    .bargeldkonto h2 { margin-bottom: .5rem; }
+    .bargeldkonto .start {
+      display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem;
+    }
+    .bargeldkonto .start label { flex: 1 1 140px; }
+    .bargeldkonto .balance { font-weight: bold; margin-bottom: 1rem; }
+    .bargeldkonto button { padding: .5rem 1rem; margin-bottom: 1rem; }
+    .bargeldkonto ul { list-style: none; padding: 0; }
+    .bargeldkonto li { display: flex; margin-bottom: .5rem; }
+    .bargeldkonto li input { flex: 1; }
+  </style>
+</head>
+<body>
+  <!-- Profil‑Auswahl -->
+  <div class="profile-selection">
+    <label>Profil auswählen:
+      <select id="profile-selector">
+        <option value="anwalt">⚖️ Anwalt</option>
+        <option value="arzt">🩺 Arzt</option>
+        <option value="hausmeister">🏠 Hausmeister</option>
+        <option value="ingenieur">👷 Ingenieur</option>
+        <option value="krankenschwester">🏥 Krankenschwester</option>
+        <option value="lehrer">📚 Lehrer</option>
+        <option value="lkw-fahrer">🚚 LKW‑Fahrer</option>
+        <option value="manager">💼 Manager</option>
+        <option value="mechaniker">🔧 Mechaniker</option>
+        <option value="pilot">✈️ Pilot</option>
+        <option value="polizist">👮 Polizist</option>
+        <option value="sekretaer">🗂️ Sekretär</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="container">
+    <!-- Links: Zettel -->
+    <div class="sheet">
+      <section><h2>1) Einkommen</h2>
+        <label>Gehalt:
+          <input id="input-income-salary" type="number" placeholder="€">
+        </label>
+        <label>Zinsen/Dividenden:
+          <input id="input-income-interest" type="number" placeholder="€">
+        </label>
+        <label>Immobilien/Unternehmen:
+          <input id="input-income-property" type="number" placeholder="€">
+        </label>
+      </section>
+      <section><h2>2) Ausgaben</h2>
+        <label>Steuern:
+          <input id="input-expenses-taxes" type="number" placeholder="€">
+        </label>
+        <label>Eigenheim‑Hypothek / Miete:
+          <input id="input-expenses-mortgage" type="number" placeholder="€">
+        </label>
+        <label>BAföG Darlehenszahlung:
+          <input id="input-expenses-bafog" type="number" placeholder="€">
+        </label>
+        <label>Autokredit‑Zahlung:
+          <input id="input-expenses-autoloan" type="number" placeholder="€">
+        </label>
+        <label>Kreditkarten‑Zahlung:
+          <input id="input-expenses-cc" type="number" placeholder="€">
+        </label>
+      </section>
+      <section><h2>3) Vermögenswerte</h2>
+        <div class="grid3">
+          <div class="label">Ersparnisse:</div>
+          <input id="input-asset-savings" type="number" class="full-span" placeholder="€">
+          <div class="label">Edelmetalle etc.:</div>
+          <input id="input-asset-metals" type="number" class="full-span" placeholder="€">
+          <div class="label">Aktien/Fonds/CDs:</div>
+          <input id="input-asset-stocks-qty" type="number" placeholder="Anzahl">
+          <input id="input-asset-stocks-cost" type="number" placeholder="Kosten/Anteil">
+          <div class="label">Immobilien/Unternehmen:</div>
+          <input id="input-asset-property-down" type="number" placeholder="Anzahlung">
+          <input id="input-asset-property-cost" type="number" placeholder="Kosten">
+        </div>
+      </section>
+      <section><h2>4) Verbindlichkeiten</h2>
+        <div class="grid4">
+          <div class="label">Eigenheim‑Hypothek:</div>
+          <input id="input-liability-mortgage" type="number" class="full-span" placeholder="€">
+          <div class="label">BAföG Darlehen:</div>
+          <input id="input-liability-bafog" type="number" class="full-span" placeholder="€">
+          <div class="label">Autokredit:</div>
+          <input id="input-liability-autoloan" type="number" class="full-span" placeholder="€">
+          <div class="label">Kreditkartenschulden:</div>
+          <input id="input-liability-cc" type="number" class="full-span" placeholder="€">
+        </div>
+      </section>
+    </div>
+
+    <!-- Rechts: Bargeldkonto -->
+    <div class="sheet bargeldkonto">
+      <h2>Bargeldkonto – <span id="job-display"></span></h2>
+      <div class="start">
+        <label>Startguthaben (Cashflow):
+          <input id="start-cashflow" type="number" placeholder="€">
+        </label>
+        <label>Startguthaben (Ersparnisse):
+          <input id="start-savings" type="number" placeholder="€">
+        </label>
+      </div>
+      <div class="balance">
+        Aktueller Kontostand: <span id="current-balance">0,00</span> €
+      </div>
+      <button id="add-entry">+/- Eintrag hinzufügen</button>
+      <ul id="entries"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Daten & Logik
+    let balanceArray = [], baseIncome = 0, baseExpenses = 0, obligations = [], job = '';
+    const profiles = ['anwalt','arzt','hausmeister','ingenieur','krankenschwester','lehrer','lkw-fahrer','manager','mechaniker','pilot','polizist','sekretaer'];
+
+    function loadData(profile) {
+      // Profilwerte setzen
+      job = profile;
+      switch(profile) {
+        case 'anwalt': balanceArray=[2000,2400], baseIncome=7500, baseExpenses=5100, obligations=[[115000,1100],[78000,300],[11000,200],[7000,200]]; break;
+        case 'arzt': balanceArray=[3500,4900], baseIncome=13200, baseExpenses=8300, obligations=[[202000,1900],[150000,700],[19000,300],[10000,200]]; break;
+        case 'hausmeister': balanceArray=[600,600], baseIncome=1600, baseExpenses=1000, obligations=[[20000,200],[0,0],[4000,100],[3000,100]]; break;
+        case 'ingenieur': balanceArray=[400,1700], baseIncome=4900, baseExpenses=3200, obligations=[[75000,700],[12000,100],[7000,200],[5000,200]]; break;
+        case 'krankenschwester': balanceArray=[500,1100], baseIncome=3100, baseExpenses=2000, obligations=[[47000,400],[6000,100],[5000,100],[4000,200]]; break;
+        case 'lehrer': balanceArray=[400,1200], baseIncome=3300, baseExpenses=2100, obligations=[[50000,500],[12000,100],[5000,100],[4000,200]]; break;
+        case 'lkw-fahrer': balanceArray=[800,800], baseIncome=2500, baseExpenses=1700, obligations=[[38000,400],[0,0],[4000,100],[3000,100]]; break;
+        case 'manager': balanceArray=[400,1600], baseIncome=4600, baseExpenses=3000, obligations=[[75000,700],[12000,100],[6000,100],[4000,200]]; break;
+        case 'mechaniker': balanceArray=[700,700], baseIncome=2000, baseExpenses=1300, obligations=[[31000,300],[0,0],[3000,100],[3000,100]]; break;
+        case 'pilot': balanceArray=[2500,3500], baseIncome=9500, baseExpenses=6000, obligations=[[90000,1000],[0,0],[15000,300],[22000,700]]; break;
+        case 'polizist': balanceArray=[500,1100], baseIncome=3000, baseExpenses=1900, obligations=[[46000,400],[0,0],[5000,100],[3000,100]]; break;
+        case 'sekretaer': balanceArray=[700,800], baseIncome=2500, baseExpenses=1700, obligations=[[38000,400],[0,0],[4000,100],[3000,100]]; break;
+        default: balanceArray=[0], baseIncome=0, baseExpenses=0, obligations=[[0,0],[0,0],[0,0],[0,0]];
+      }
+      // Header & linke Felder befüllen
+      const sel = document.getElementById('profile-selector');
+      document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
+      document.getElementById('input-income-salary').value = baseIncome;
+      document.getElementById('input-income-salary').readOnly = true;
+      document.getElementById('input-income-interest').value = 0;
+      document.getElementById('input-income-property').value = 0;
+      document.getElementById('input-expenses-taxes').value = baseExpenses;
+      // Verpflichtungen & zugehörige Ausgaben
+      if (obligations.length >=4) {
+        document.getElementById('input-liability-mortgage').value = obligations[0][0];
+        document.getElementById('input-expenses-mortgage').value    = obligations[0][1];
+        document.getElementById('input-liability-bafog').value    = obligations[1][0];
+        document.getElementById('input-expenses-bafog').value      = obligations[1][1];
+        document.getElementById('input-liability-autoloan').value = obligations[2][0];
+        document.getElementById('input-expenses-autoloan').value   = obligations[2][1];
+        document.getElementById('input-liability-cc').value       = obligations[3][0];
+        document.getElementById('input-expenses-cc').value         = obligations[3][1];
+      }
+      createTable();
+    }
+
+    // Bargeldkonto‑Logik
+    function updateBalance() {
+      let bal = (parseFloat(document.getElementById('start-cashflow').value)||0)
+              + (parseFloat(document.getElementById('start-savings').value)||0);
+      document.querySelectorAll('#entries input').forEach(i=> bal -= parseFloat(i.value)||0);
+      document.getElementById('current-balance').textContent = bal.toFixed(2).replace('.',',');
+    }
+    function generateArray() {
+      let arr = [], j=0;
+      while(j < balanceArray.length || arr.length%2===0) {
+        let i=arr.length;
+        if (i< balanceArray.length) { arr.push(balanceArray[i]); j++; }
+        else if (i%2===0) { arr.push(arr[i-1]+arr[i-2]); }
+        else        { arr.push(balanceArray[j]); j++; }
+      }
+      return arr;
+    }
+    function createTable() {
+      const tbl = document.getElementById('entries'); tbl.innerHTML='';
+      generateArray().forEach((num,i)=>{
+        const li=document.createElement('li'), cell=document.createElement('input');
+        if(i%2) cell.value = (num>=0?'+':'-')+Math.abs(num);
+        else    { cell.value=Math.abs(num); cell.style.background='#eee'; }
+        cell.readOnly=true; li.append(cell); tbl.append(li);
+      });
+      // letzte Zeile editierbar
+      const li=document.createElement('li'), inp=document.createElement('input');
+      inp.type='number'; inp.placeholder='€'; inp.addEventListener('input',updateBalance);
+      li.append(inp); tbl.append(li);
+      updateBalance();
+    }
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      const sel=document.getElementById('profile-selector');
+      sel.addEventListener('change',()=> loadData(sel.value));
+      document.getElementById('add-entry').addEventListener('click',()=>{
+        const li=document.createElement('li'), inp=document.createElement('input');
+        inp.type='number'; inp.placeholder='€'; inp.addEventListener('input',updateBalance);
+        li.append(inp); document.getElementById('entries').append(li); inp.focus();
+      });
+      ['start-cashflow','start-savings'].forEach(id=> document.getElementById(id).addEventListener('input',updateBalance));
+      loadData(sel.value);
+    });
+  </script>
+</body>
+</html>
