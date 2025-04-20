@@ -25,7 +25,7 @@
     .summary span{ margin-left:.5rem; }
     .bargeldkonto h2{ margin-bottom:.5rem; }
     .bargeldkonto .balance{ font-weight:bold; margin-bottom:1rem; }
-    .bargeldkonto button{ padding:.5rem 1rem; margin-bottom:1rem; }
+    /* Button removed */
     .bargeldkonto ul{ list-style:none; padding:0; }
     .bargeldkonto li{ display:flex; margin-bottom:.5rem; }
     .bargeldkonto li input{ flex:1; }
@@ -91,23 +91,115 @@
         <label>Cashflow:<span id="sum-cashflow">0 €</span></label>
       </div>
       <div class="balance">Aktueller Kontostand: <span id="current-balance">0,00</span> €</div>
-      <button id="add-entry">+/- Eintrag hinzufügen</button>
+      <!-- Button for adding entries removed -->
       <ul id="entries"></ul>
     </div>
   </div>
   <script>
     const profilesData = {anwalt:{bal:[2000,2400],inc:7500,exp:5100,ob:[[115000,1100],[78000,300],[11000,200],[7000,200]],taxes:3300},arzt:{bal:[3500,4900],inc:13200,exp:8300,ob:[[202000,1900],[150000,700],[19000,300],[10000,200]],taxes:5700},hausmeister:{bal:[600,600],inc:1600,exp:1000,ob:[[20000,200],[0,0],[4000,100],[3000,100]],taxes:600},ingenieur:{bal:[400,1700],inc:4900,exp:3200,ob:[[75000,700],[12000,100],[7000,200],[5000,200]],taxes:2000},krankenschwester:{bal:[500,1100],inc:3100,exp:2000,ob:[[47000,400],[6000,100],[5000,100],[4000,200]],taxes:1200},lehrer:{bal:[400,1200],inc:3300,exp:2100,ob:[[50000,500],[12000,100],[5000,100],[4000,200]],taxes:1200},"lkw-fahrer":{bal:[800,800],inc:2500,exp:1700,ob:[[38000,400],[0,0],[4000,100],[3000,100]],taxes:1100},manager:{bal:[400,1600],inc:4600,exp:3000,ob:[[75000,700],[12000,100],[6000,100],[4000,200]],taxes:1900},mechaniker:{bal:[700,700],inc:2000,exp:1300,ob:[[31000,300],[0,0],[3000,100],[3000,100]],taxes:900},pilot:{bal:[2500,3500],inc:9500,exp:6000,ob:[[90000,1000],[0,0],[15000,300],[22000,700]],taxes:4000},polizist:{bal:[500,1100],inc:3000,exp:1900,ob:[[46000,400],[0,0],[5000,100],[3000,100]],taxes:300},sekretaer:{bal:[700,800],inc:2500,exp:1700,ob:[[38000,400],[0,0],[4000,100],[3000,100]],taxes:100}};
-    let balanceArray=[],baseIncome=0,baseExpenses=0,obligations=[];
-    let initialBalance=0,runningBalance=0;
-    const sel=document.getElementById('profile-selector'),addBtn=document.getElementById('add-entry');
-    function generateArray(){const arr=[],b=balanceArray;let j=0;while(j<b.length||arr.length%2===0){let i=arr.length;if(i<b.length){arr.push(b[i]);j++}else if(i%2===0){arr.push(arr[i-1]+arr[i-2])}else{arr.push(b[j]);j++}}return arr}
-    function renderBaseEntries(){const ul=document.getElementById('entries');ul.innerHTML='';const arr=generateArray();initialBalance=arr[arr.length-1]||0;runningBalance=initialBalance;arr.forEach((num,i)=>{const li=document.createElement('li'),inp=document.createElement('input');inp.type='text';inp.readOnly=true;if(i%2){inp.value=(num>=0?'+':'')+num}else{inp.value=Math.abs(num);inp.style.background='#eee'}li.append(inp);ul.append(li)});updateDisplayBalance()}
-    function addEntry(){const ul=document.getElementById('entries'),li=document.createElement('li'),inp=document.createElement('input');inp.type='number';inp.placeholder='€';inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();finalizeEntry(inp)}});li.append(inp);ul.append(li);inp.focus()}
-    function finalizeEntry(inp){const val=parseFloat(inp.value)||0;runningBalance+=val;inp.readOnly=true;inp.type='text';inp.value=(val>=0?'+':'')+Math.abs(val);const sumLi=document.createElement('li'),sumInp=document.createElement('input');sumInp.type='text';sumInp.readOnly=true;sumInp.value=runningBalance;sumInp.style.background='#eee';sumLi.append(sumInp);inp.parentNode.after(sumLi);updateDisplayBalance();addEntry()}
-    function updateDisplayBalance(){document.getElementById('current-balance').textContent=runningBalance.toFixed(2).replace('.',',')}
-    function updateSummary(){const salary=baseIncome;const passive=(+document.getElementById('input-income-interest').value||0)+(+document.getElementById('input-income-property').value||0);const totalInc=salary+passive;const totalExp=baseExpenses;document.getElementById('sum-salary').textContent=salary+' €';document.getElementById('sum-passive').textContent=passive+' €';document.getElementById('sum-total-income').textContent=totalInc+' €';document.getElementById('sum-total-expenses').textContent=totalExp+' €';document.getElementById('sum-cashflow').textContent=(totalInc-totalExp)+' €'}
-    function loadData(profile){const data=profilesData[profile]||profilesData['anwalt'];balanceArray=data.bal;baseIncome=data.inc;baseExpenses=data.exp;obligations=data.ob;document.getElementById('input-income-salary').value=baseIncome;document.getElementById('input-income-interest').value=0;document.getElementById('input-income-property').value=0;document.getElementById('input-expenses-taxes').value=data.taxes;document.getElementById('input-expenses-mortgage').value=obligations[0][1];document.getElementById('input-expenses-bafog').value=obligations[1][1];document.getElementById('input-expenses-autoloan').value=obligations[2][1];document.getElementById('input-expenses-cc').value=obligations[3][1];document.getElementById('job-display').textContent=sel.options[sel.selectedIndex].text;['input-income-interest','input-income-property'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{updateSummary()}));updateSummary();renderBaseEntries()}
-    document.addEventListener('DOMContentLoaded',()=>{sel.addEventListener('change',()=>loadData(sel.value));addBtn.addEventListener('click',addEntry);loadData(sel.value)})
+    let balanceArray = [], baseIncome = 0, baseExpenses = 0, obligations = [];
+    let initialBalance = 0, runningBalance = 0;
+    const sel = document.getElementById('profile-selector');
+
+    function generateArray(){
+      const arr = [], b = balanceArray; let j = 0;
+      while(j < b.length || arr.length % 2 === 0){
+        let i = arr.length;
+        if(i < b.length){ arr.push(b[i]); j++; }
+        else if(i % 2 === 0){ arr.push(arr[i-1] + arr[i-2]); }
+        else{ arr.push(b[j]); j++; }
+      }
+      return arr;
+    }
+
+    function renderBaseEntries(){
+      const ul = document.getElementById('entries');
+      ul.innerHTML = '';
+      const arr = generateArray();
+      initialBalance = arr[arr.length-1] || 0;
+      runningBalance = initialBalance;
+      arr.forEach((num, i) => {
+        const li = document.createElement('li');
+        const inp = document.createElement('input');
+        inp.type = 'text'; inp.readOnly = true;
+        if(i % 2){ inp.value = (num >= 0 ? '+' : '') + num; }
+        else{ inp.value = Math.abs(num); inp.style.background = '#eee'; }
+        li.append(inp);
+        ul.append(li);
+      });
+      updateDisplayBalance();
+    }
+
+    function addEntry(){
+      const ul = document.getElementById('entries');
+      const li = document.createElement('li');
+      const inp = document.createElement('input');
+      inp.type = 'number'; inp.placeholder = '€';
+      inp.addEventListener('keydown', e => {
+        if(e.key === 'Enter'){ e.preventDefault(); finalizeEntry(inp); }
+      });
+      li.append(inp); ul.append(li); inp.focus();
+    }
+
+    function finalizeEntry(inp){
+      const val = parseFloat(inp.value) || 0;
+      runningBalance += val;
+      inp.readOnly = true; inp.type = 'text'; inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
+      const sumLi = document.createElement('li');
+      const sumInp = document.createElement('input');
+      sumInp.type = 'text'; sumInp.readOnly = true;
+      sumInp.value = runningBalance;
+      sumInp.style.background = '#eee';
+      sumLi.append(sumInp);
+      inp.parentNode.after(sumLi);
+      updateDisplayBalance();
+      addEntry();
+    }
+
+    function updateDisplayBalance(){
+      document.getElementById('current-balance').textContent = runningBalance.toFixed(2).replace('.', ',');
+    }
+
+    function updateSummary(){
+      const salary = baseIncome;
+      const passive = (+document.getElementById('input-income-interest').value || 0) + (+document.getElementById('input-income-property').value || 0);
+      const totalInc = salary + passive;
+      const totalExp = baseExpenses;
+      document.getElementById('sum-salary').textContent = salary + ' €';
+      document.getElementById('sum-passive').textContent = passive + ' €';
+      document.getElementById('sum-total-income').textContent = totalInc + ' €';
+      document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
+      document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
+    }
+
+    function loadData(profile){
+      const data = profilesData[profile] || profilesData['anwalt'];
+      balanceArray = data.bal;
+      baseIncome = data.inc;
+      baseExpenses = data.exp;
+      obligations = data.ob;
+      document.getElementById('input-income-salary').value = baseIncome;
+      document.getElementById('input-income-interest').value = 0;
+      document.getElementById('input-income-property').value = 0;
+      document.getElementById('input-expenses-taxes').value = data.taxes;
+      document.getElementById('input-expenses-mortgage').value = obligations[0][1];
+      document.getElementById('input-expenses-bafog').value = obligations[1][1];
+      document.getElementById('input-expenses-autoloan').value = obligations[2][1];
+      document.getElementById('input-expenses-cc').value = obligations[3][1];
+      document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
+      ['input-income-interest', 'input-income-property'].forEach(id =>
+        document.getElementById(id).addEventListener('input', updateSummary)
+      );
+      updateSummary();
+      renderBaseEntries();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      sel.addEventListener('change', () => loadData(sel.value));
+      loadData(sel.value);
+      // Add an empty input field at startup
+      addEntry();
+    });
   </script>
 </body>
 </html>
