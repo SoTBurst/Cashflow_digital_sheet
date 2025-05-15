@@ -2,6 +2,8 @@
 
 // Global variables for easy debugging
 let stocksBuyBtn, stocksSellBtn;
+// Array to store stock names
+let stockNames = [];
 
 // Initialize functionality when DOM is ready
 document.addEventListener('DOMContentLoaded', function () {
@@ -78,10 +80,14 @@ function setupStocksBuyPopup() {
 
       document.getElementById('input-asset-stocks-qty').value = currentStocksQty + shares;
       document.getElementById('input-asset-stocks-cost').value = currentStocksCost + price;
-      
-      // Update the stocks name field if provided
+        // Update the stocks name field if provided
       if (stockName) {
         document.getElementById('input-asset-stocks-name').value = stockName;
+        
+        // Add stock name to the array if it doesn't exist already
+        if (stockName && !stockNames.includes(stockName)) {
+          stockNames.push(stockName);
+        }
       }
 
       // Update account balance display
@@ -240,11 +246,11 @@ function setupStocksSellPopup() {
   priceInput.addEventListener('input', updateStocksSellPriceCalculation);
   // Confirm button
   confirmBtn.addEventListener('click', function () {
-    console.log('Stock sell confirm clicked');
-    const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+    console.log('Stock sell confirm clicked');    const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
     const totalCost = parseInt(document.getElementById('input-asset-stocks-cost').value) || 0;
     const sharesToSell = parseInt(sharesInput.value) || 0;
-    const stockName = document.getElementById('stocks-sell-name').value.trim();
+    const stockNameSelect = document.getElementById('stocks-sell-name');
+    const stockName = stockNameSelect.value;
     let price;
 
     price = (parseFloat(priceInput.value) || 0) * sharesToSell;
@@ -330,9 +336,44 @@ function showStocksSellPopup() {
   console.log('Showing stocks sell popup');
   const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
   const currentStockName = document.getElementById('input-asset-stocks-name').value || '';
+  
+  // Get the select element
+  const stockNameSelect = document.getElementById('stocks-sell-name');
+  
+  // Clear existing options
+  stockNameSelect.innerHTML = '';
+  
+  // If we have a current stock name, make sure it's in the array
+  if (currentStockName && !stockNames.includes(currentStockName)) {
+    stockNames.push(currentStockName);
+  }
+  
+  // If we don't have any names in the array yet but have a current name
+  if (stockNames.length === 0 && currentStockName) {
+    stockNames.push(currentStockName);
+  }
+  
+  // Add an empty option
+  const emptyOption = document.createElement('option');
+  emptyOption.value = '';
+  emptyOption.textContent = 'Bitte wählen';
+  stockNameSelect.appendChild(emptyOption);
+  
+  // Add all stock names as options
+  stockNames.forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    
+    // If this is the current stock name, select it
+    if (name === currentStockName) {
+      option.selected = true;
+    }
+    
+    stockNameSelect.appendChild(option);
+  });
 
   // Reset and show popup
-  document.getElementById('stocks-sell-name').value = currentStockName;
   document.getElementById('stocks-sell-shares').value = '1';
   document.getElementById('stocks-sell-price').value = '';
   document.getElementById('stocks-sell-price').placeholder = 'Preis pro Aktie';

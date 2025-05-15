@@ -116,13 +116,14 @@
       </div>
     </div>
   </div>
-    <!-- Popup für Aktien Verkauf -->
-  <div id="stocks-sell-popup" class="popup-overlay">
+    <!-- Popup für Aktien Verkauf -->  <div id="stocks-sell-popup" class="popup-overlay">
     <div class="popup-content">
       <h3>Aktien verkaufen</h3>
       <div class="popup-grid">
         <label>Name:</label>
-        <input id="stocks-sell-name" type="text" value="" placeholder="Name der Aktie">
+        <select id="stocks-sell-name">
+          <!-- Options will be populated dynamically -->
+        </select>
         
         <label>Anzahl Aktien:</label>
         <input id="stocks-sell-shares" type="number" min="1" value="1">
