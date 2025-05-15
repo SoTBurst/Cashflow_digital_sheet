@@ -5,30 +5,133 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Digitales Cashflow‑Tool</title>
   <style>
+    :root {
+      --bg: #f5f7fa;
+      --surface: #ffffff;
+      --primary: #2a9d8f;
+      --secondary: #264653;
+      --accent: #e9c46a;
+      --text: #333333;
+      --border: #dddddd;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; font-family: sans-serif; }
-    input { font-size: 1rem; }
-    .profile-selection { padding: 1rem; border-bottom: 1px solid #ccc; }
-    .profile-selection label { font-weight: bold; }
-    .profile-selection select { margin-left: .5rem; padding: .25rem; font-size: 1rem; }
-    .container { display: flex; flex-wrap: wrap; min-height: 100vh; }
-    @media (max-width:600px){ .container{ flex-direction: column; } }
-    .sheet{ padding:1rem; flex:1 1 320px; border:1px solid #ccc; }
-    label{ display:block; margin-bottom:.5rem; }
-    input[type="number"], input[type="text"]{ width:100%; padding:.5rem; }
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button{ -webkit-appearance:none; margin:0; }
-    .grid3, .grid4{ display:grid; grid-template-columns:2fr 1fr 1fr; gap:.5rem; margin:.5rem 0; }
-    .full-span{ grid-column:2/4; }
-    .summary{ margin-bottom:1rem; }
-    .summary label{ font-weight:bold; margin-bottom:.25rem; display:block; }
-    .summary span{ margin-left:.5rem; }
-    .bargeldkonto h2{ margin-bottom:.5rem; }
-    .bargeldkonto .balance{ font-weight:bold; margin-bottom:1rem; }
-    /* Button removed */
-    .bargeldkonto ul{ list-style:none; padding:0; }
-    .bargeldkonto li{ display:flex; margin-bottom:.5rem; }
-    .bargeldkonto li input{ flex:1; }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      padding: 1rem;
+    }
+
+    input, select {
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.5rem;
+      transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 5px rgba(42,157,143,0.5);
+      outline: none;
+    }
+
+    .profile-selection {
+      background: var(--surface);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .sheet {
+      flex: 1 1 320px;
+      background: var(--surface);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 1.5rem;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+    .sheet:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    h2 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.25rem;
+    }
+
+    section + section {
+      margin-top: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 0.75rem;
+      margin: 0.75rem 0;
+    }
+
+    .grid4 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 0.75rem;
+      margin: 0.75rem 0;
+    }
+
+    .summary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #ffffff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .summary label {
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+
+    .balance {
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+
+    #entries li {
+      display: flex;
+      margin-bottom: 0.5rem;
+      opacity: 0;
+      animation: fadeIn 0.4s ease-out forwards;
+    }
+
+    #entries input {
+      flex: 1;
+      padding: 0.5rem;
+      border-radius: 4px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
   </style>
 </head>
 <body>
@@ -91,57 +194,81 @@
         <label>Cashflow:<span id="sum-cashflow">0 €</span></label>
       </div>
       <div class="balance">Aktueller Kontostand: <span id="current-balance">0,00</span> €</div>
-      <!-- Button for adding entries removed -->
       <ul id="entries"></ul>
     </div>
   </div>
   <script>
-    const profilesData = {anwalt:{bal:[2000,2400],inc:7500,exp:5100,ob:[[115000,1100],[78000,300],[11000,200],[7000,200]],taxes:3300},arzt:{bal:[3500,4900],inc:13200,exp:8300,ob:[[202000,1900],[150000,700],[19000,300],[10000,200]],taxes:5700},hausmeister:{bal:[600,600],inc:1600,exp:1000,ob:[[20000,200],[0,0],[4000,100],[3000,100]],taxes:600},ingenieur:{bal:[400,1700],inc:4900,exp:3200,ob:[[75000,700],[12000,100],[7000,200],[5000,200]],taxes:2000},krankenschwester:{bal:[500,1100],inc:3100,exp:2000,ob:[[47000,400],[6000,100],[5000,100],[4000,200]],taxes:1200},lehrer:{bal:[400,1200],inc:3300,exp:2100,ob:[[50000,500],[12000,100],[5000,100],[4000,200]],taxes:1200},"lkw-fahrer":{bal:[800,800],inc:2500,exp:1700,ob:[[38000,400],[0,0],[4000,100],[3000,100]],taxes:1100},manager:{bal:[400,1600],inc:4600,exp:3000,ob:[[75000,700],[12000,100],[6000,100],[4000,200]],taxes:1900},mechaniker:{bal:[700,700],inc:2000,exp:1300,ob:[[31000,300],[0,0],[3000,100],[3000,100]],taxes:900},pilot:{bal:[2500,3500],inc:9500,exp:6000,ob:[[90000,1000],[0,0],[15000,300],[22000,700]],taxes:4000},polizist:{bal:[500,1100],inc:3000,exp:1900,ob:[[46000,400],[0,0],[5000,100],[3000,100]],taxes:300},sekretaer:{bal:[700,800],inc:2500,exp:1700,ob:[[38000,400],[0,0],[4000,100],[3000,100]],taxes:100}};
+    const profilesData = {
+      anwalt: { bal: [2000, 2400], inc: 7500, exp: 5100, ob: [[115000,1100],[78000,300],[11000,200],[7000,200]], taxes:3300 },
+      arzt: { bal: [3500, 4900], inc: 13200, exp: 8300, ob: [[202000,1900],[150000,700],[19000,300],[10000,200]], taxes:5700 },
+      hausmeister: { bal: [600, 600], inc: 1600, exp: 1000, ob: [[20000,200],[0,0],[4000,100],[3000,100]], taxes:600 },
+      ingenieur: { bal: [400, 1700], inc: 4900, exp: 3200, ob: [[75000,700],[12000,100],[7000,200],[5000,200]], taxes:2000 },
+      krankenschwester: { bal: [500, 1100], inc: 3100, exp: 2000, ob: [[47000,400],[6000,100],[5000,100],[4000,200]], taxes:1200 },
+      lehrer: { bal: [400, 1200], inc: 3300, exp: 2100, ob: [[50000,500],[12000,100],[5000,100],[4000,200]], taxes:1200 },
+      "lkw-fahrer": { bal: [800, 800], inc: 2500, exp: 1700, ob: [[38000,400],[0,0],[4000,100],[3000,100]], taxes:1100 },
+      manager: { bal: [400, 1600], inc: 4600, exp: 3000, ob: [[75000,700],[12000,100],[6000,100],[4000,200]], taxes:1900 },
+      mechaniker: { bal: [700, 700], inc: 2000, exp: 1300, ob: [[31000,300],[0,0],[3000,100],[3000,100]], taxes:900 },
+      pilot: { bal: [2500, 3500], inc: 9500, exp: 6000, ob: [[90000,1000],[0,0],[15000,300],[22000,700]], taxes:4000 },
+      polizist: { bal: [500, 1100], inc: 3000, exp: 1900, ob: [[46000,400],[0,0],[5000,100],[3000,100]], taxes:300 },
+      sekretaer: { bal: [700, 800], inc: 2500, exp: 1700, ob: [[38000,400],[0,0],[4000,100],[3000,100]], taxes:100 }
+    };
     let balanceArray = [], baseIncome = 0, baseExpenses = 0, obligations = [];
     let initialBalance = 0, runningBalance = 0;
     const sel = document.getElementById('profile-selector');
 
-    function generateArray(){
-      const arr = [], b = balanceArray; let j = 0;
-      while(j < b.length || arr.length % 2 === 0){
+    function generateArray() {
+      const arr = [];
+      let j = 0;
+      while (j < balanceArray.length || arr.length % 2 === 0) {
         let i = arr.length;
-        if(i < b.length){ arr.push(b[i]); j++; }
-        else if(i % 2 === 0){ arr.push(arr[i-1] + arr[i-2]); }
-        else{ arr.push(b[j]); j++; }
+        if (i < balanceArray.length) {
+          arr.push(balanceArray[i]); j++;
+        } else if (i % 2 === 0) {
+          arr.push(arr[i-1] + arr[i-2]);
+        } else {
+          arr.push(balanceArray[j]); j++;
+        }
       }
       return arr;
     }
 
-    function renderBaseEntries(){
+    function renderBaseEntries() {
       const ul = document.getElementById('entries');
       ul.innerHTML = '';
       const arr = generateArray();
-      initialBalance = arr[arr.length-1] || 0;
+      initialBalance = arr[arr.length - 1] || 0;
       runningBalance = initialBalance;
       arr.forEach((num, i) => {
         const li = document.createElement('li');
         const inp = document.createElement('input');
-        inp.type = 'text'; inp.readOnly = true;
-        if(i % 2){ inp.value = (num >= 0 ? '+' : '') + num; }
-        else{ inp.value = Math.abs(num); inp.style.background = '#eee'; }
+        if (i === 0) {
+          inp.type = 'text';
+          inp.readOnly = true;
+          inp.value = Math.abs(num);
+          inp.style.background = '#eee';
+        } else {
+          inp.type = 'number';
+          inp.readOnly = false;
+          inp.value = num;
+        }
         li.append(inp);
         ul.append(li);
       });
       updateDisplayBalance();
     }
 
-    function addEntry(){
+    function addEntry() {
       const ul = document.getElementById('entries');
       const li = document.createElement('li');
       const inp = document.createElement('input');
       inp.type = 'number'; inp.placeholder = '€';
       inp.addEventListener('keydown', e => {
-        if(e.key === 'Enter'){ e.preventDefault(); finalizeEntry(inp); }
+        if (e.key === 'Enter') { e.preventDefault(); finalizeEntry(inp); }
       });
       li.append(inp); ul.append(li); inp.focus();
     }
 
-    function finalizeEntry(inp){
+    function finalizeEntry(inp) {
       const val = parseFloat(inp.value) || 0;
       runningBalance += val;
       inp.readOnly = true; inp.type = 'text'; inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
@@ -156,11 +283,11 @@
       addEntry();
     }
 
-    function updateDisplayBalance(){
+    function updateDisplayBalance() {
       document.getElementById('current-balance').textContent = runningBalance.toFixed(2).replace('.', ',');
     }
 
-    function updateSummary(){
+    function updateSummary() {
       const salary = baseIncome;
       const passive = (+document.getElementById('input-income-interest').value || 0) + (+document.getElementById('input-income-property').value || 0);
       const totalInc = salary + passive;
@@ -172,7 +299,7 @@
       document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
     }
 
-    function loadData(profile){
+    function loadData(profile) {
       const data = profilesData[profile] || profilesData['anwalt'];
       balanceArray = data.bal;
       baseIncome = data.inc;
@@ -187,7 +314,7 @@
       document.getElementById('input-expenses-autoloan').value = obligations[2][1];
       document.getElementById('input-expenses-cc').value = obligations[3][1];
       document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
-      ['input-income-interest', 'input-income-property'].forEach(id =>
+      ['input-income-interest','input-income-property'].forEach(id =>
         document.getElementById(id).addEventListener('input', updateSummary)
       );
       updateSummary();
@@ -197,7 +324,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       sel.addEventListener('change', () => loadData(sel.value));
       loadData(sel.value);
-      // Add an empty input field at startup
       addEntry();
     });
   </script>
