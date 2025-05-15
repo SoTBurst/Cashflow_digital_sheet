@@ -366,9 +366,9 @@
       inp.type = 'text'; 
       inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
       
-      // Wenn manuelle Eingabe erfolgt, Bankkredit-Sequenz zurücksetzen (für setupBankLoanButtons)
-      window.currentBankEntryAmount = 0;
-      window.currentBankEntryElement = null;
+      // Nach manueller Eingabe setzen wir eine globale Flag, damit updateBankEntryInList weiß,
+      // dass es einen neuen Eintrag erstellen soll
+      window.lastActionWasManualEntry = true;
       
       const sumLi = document.createElement('li');
       const sumInp = document.createElement('input');      
@@ -505,11 +505,13 @@
       // addEntry() wird nicht mehr hier aufgerufen, da es bereits in renderBaseEntries() aufgerufen wird
       setupPayButtons();
       setupBankLoanButtons();
-    });
-      function setupBankLoanButtons() {
+    });      function setupBankLoanButtons() {
       // Tracking-Variable für die aktuelle Sequenz von Bankkrediten
       let currentBankEntryAmount = 0;
       let currentBankEntryElement = null;
+      
+      // Flag, um zu prüfen, ob seit der letzten Bankkredit-Aktualisierung eine manuelle Eingabe erfolgt ist
+      window.lastActionWasManualEntry = false;
       
       // Knopf zum Abbezahlen von 1000 Euro
       document.getElementById('btn-pay-bank-1000').addEventListener('click', () => {
@@ -530,6 +532,9 @@
           
           // Kontostandanzeige im Bargeldkonto aktualisieren
           updateBankEntryInList(-1000);
+          
+          // Nach Bankkredit-Aktion Flag zurücksetzen
+          window.lastActionWasManualEntry = false;
           
           // Oberfläche aktualisieren
           updateDisplayBalance();
@@ -557,23 +562,33 @@
         // Kontostandanzeige im Bargeldkonto aktualisieren
         updateBankEntryInList(1000);
         
+        // Nach Bankkredit-Aktion Flag zurücksetzen
+        window.lastActionWasManualEntry = false;
+        
         // Oberfläche aktualisieren
         updateDisplayBalance();
         updateSummary();
-      });
-        // Funktion zum Aktualisieren des Bankkredit-Eintrags in der Liste
+      });        // Funktion zum Aktualisieren des Bankkredit-Eintrags in der Liste
       function updateBankEntryInList(amount) {
         const ul = document.getElementById('entries');
         const entriesChildren = Array.from(ul.children);
         const lastEntryIndex = entriesChildren.length - 1;
         
-        // Prüfen, ob ein bestehender Bankkredit-Eintrag existiert (überprüfen der letzten Einträge)
-        // Wir suchen in umgekehrter Reihenfolge, beginnend mit dem letzten nicht-leeren Eintrag
-        let bankCreditEntryIndex = -1;
-        
         // Zuerst check, ob wir ein leeres Eingabefeld am Ende haben
         const isLastEntryEmpty = lastEntryIndex >= 0 && 
                                entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+        
+        // Wenn die letzte Aktion eine manuelle Eingabe war, erstellen wir immer einen neuen Eintrag
+        if (window.lastActionWasManualEntry) {
+          // Neuen Eintrag für die Bankkredit-Änderung erstellen
+          currentBankEntryAmount = amount;
+          createNewBankEntry(amount, isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null);
+          return;
+        }
+        
+        // Prüfen, ob ein bestehender Bankkredit-Eintrag existiert (überprüfen der letzten Einträge)
+        // Wir suchen in umgekehrter Reihenfolge, beginnend mit dem letzten nicht-leeren Eintrag
+        let bankCreditEntryIndex = -1;
         
         // Wir starten die Suche beim vorletzten oder letzten Element (je nach leerem Feld am Ende)
         const startIndex = isLastEntryEmpty ? lastEntryIndex - 1 : lastEntryIndex;
@@ -622,6 +637,12 @@
         
         // Fall 2: Es gibt keinen existierenden Bankkredit-Eintrag, also erstellen wir einen neuen
         currentBankEntryAmount = amount;
+        createNewBankEntry(amount, isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null);
+      }
+      
+      // Hilfsfunktion zum Erstellen eines neuen Bankkredit-Eintrags
+      function createNewBankEntry(amount, insertBeforeElement) {
+        const ul = document.getElementById('entries');
         
         // Neuen Eintrag für die Bankkredit-Änderung erstellen
         const li = document.createElement('li');
@@ -636,9 +657,6 @@
         }
         
         li.append(inp);
-        
-        // Position zum Einfügen ermitteln
-        const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
         
         if (insertBeforeElement) {
           // Einfügen vor dem leeren Eingabefeld
