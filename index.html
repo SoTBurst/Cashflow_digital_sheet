@@ -33,15 +33,14 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-    }
-
-    input,
+    }    input,
     select {
       font-size: 1rem;
       border: 1px solid var(--border);
       border-radius: 4px;
       padding: 0.5rem;
       transition: box-shadow 0.3s ease, border-color 0.3s ease;
+      width: 100%;
     }
 
     input:focus,
@@ -264,21 +263,32 @@
     </div>
   </div>
   <div class="container">
-    <div class="sheet">
-      <section>
+    <div class="sheet">      <section>
         <h2>1) Einkommen</h2>
-        <label>Gehalt:<input id="input-income-salary" type="number" readonly></label>
-        <label>Immobilien/Unternehmen:<input id="input-income-property" type="number" readonly></label>
+        <div class="grid4">
+          <div class="label">Gehalt:</div>
+          <input id="input-income-salary" type="number" readonly>
+          <div class="label">Immobilien/Unternehmen:</div>
+          <input id="input-income-property" type="number" readonly>
+        </div>
       </section>
       <section>
         <h2>2) Ausgaben</h2>
-        <label>Steuern:<input id="input-expenses-taxes" type="number" readonly></label>
-        <label>Eigenheim‑Hypothek:<input id="input-expenses-mortgage" type="number" readonly></label>
-        <label>BAföG Darlehenszahlung:<input id="input-expenses-bafog" type="number" readonly></label>
-        <label>Autokredit‑Zahlung:<input id="input-expenses-autoloan" type="number" readonly></label>
-        <label>Kreditkarten‑Zahlung:<input id="input-expenses-cc" type="number" readonly></label>
-        <label>Bankkredit‑Zahlung:<input id="input-expenses-bank" type="number" readonly></label>
-      </section>      <section>
+        <div class="grid4">
+          <div class="label">Steuern:</div>
+          <input id="input-expenses-taxes" type="number" readonly>
+          <div class="label">Eigenheim‑Hypothek:</div>
+          <input id="input-expenses-mortgage" type="number" readonly>
+          <div class="label">BAföG Darlehenszahlung:</div>
+          <input id="input-expenses-bafog" type="number" readonly>
+          <div class="label">Autokredit‑Zahlung:</div>
+          <input id="input-expenses-autoloan" type="number" readonly>
+          <div class="label">Kreditkarten‑Zahlung:</div>
+          <input id="input-expenses-cc" type="number" readonly>
+          <div class="label">Bankkredit‑Zahlung:</div>
+          <input id="input-expenses-bank" type="number" readonly>
+        </div>
+      </section><section>
         <h2>3) Vermögenswerte</h2>
         <div class="grid3">
           <div class="label">Edelmetalle etc.:</div>
