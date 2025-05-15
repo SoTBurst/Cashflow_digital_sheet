@@ -97,19 +97,14 @@
     <div class="popup-content">
       <h3>Aktien kaufen</h3>
       <div class="popup-grid">
-        <label>Kaufart:</label>
-        <select id="stocks-buy-type">
-          <option value="total">Gesamtpreis</option>
-          <option value="per-share">Preis pro Aktie</option>
-        </select>
         
         <label>Anzahl Aktien:</label>
         <input id="stocks-shares" type="number" min="1" value="1">
         
         <label>Preis:</label>
         <input id="stocks-price" type="number" min="0" value="0">
-          <div id="stocks-total-container" style="display: none">
-          <label>Gesamtpreis:</label>
+          <div id="stocks-total-container">
+            <label>Gesamtpreis:</label>
           <span id="stocks-total-price">0 €</span>
         </div>
       </div>
@@ -126,11 +121,6 @@
     <div class="popup-content">
       <h3>Aktien verkaufen</h3>
       <div class="popup-grid">
-        <label>Verkaufsart:</label>
-        <select id="stocks-sell-type">
-          <option value="total">Gesamtpreis</option>
-          <option value="per-share">Preis pro Aktie</option>
-        </select>
         
         <label>Anzahl Aktien:</label>
         <input id="stocks-sell-shares" type="number" min="1" value="1">
