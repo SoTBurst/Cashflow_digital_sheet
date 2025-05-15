@@ -1,0 +1,403 @@
+// Export updateSellButtonStates to make it available globally
+window.updateSellButtonStates = updateSellButtonStates;
+
+// Metals functionality - buying and selling
+
+function setupBuyButtons() {
+  // Edelmetalle Kauf-Button
+  document.getElementById('btn-buy-metals').addEventListener('click', () => {
+    showMetalsPopup();
+  });
+  
+  // Aktien Kauf-Button (noch ohne Funktion)
+  document.getElementById('btn-buy-stocks').addEventListener('click', () => {
+    // Functionality to be implemented
+  });
+  
+  // Immobilien Kauf-Button (noch ohne Funktion)
+  document.getElementById('btn-buy-property').addEventListener('click', () => {
+    // Functionality to be implemented
+  });
+  
+  // Setup für das Edelmetalle-Popup
+  setupMetalsPopup();
+}
+
+function setupMetalsPopup() {
+  const popup = document.getElementById('metals-popup');
+  const buyTypeSelect = document.getElementById('metals-buy-type');
+  const coinsInput = document.getElementById('metals-coins');
+  const priceInput = document.getElementById('metals-price');
+  const totalContainer = document.getElementById('metals-total-container');
+  const totalPrice = document.getElementById('metals-total-price');
+  const confirmBtn = document.getElementById('metals-buy-confirm');
+  const cancelBtn = document.getElementById('metals-buy-cancel');
+  
+  // Kaufart-Wechsel
+  buyTypeSelect.addEventListener('change', updateMetalsPriceCalculation);
+  
+  // Input-Änderungen
+  coinsInput.addEventListener('input', updateMetalsPriceCalculation);
+  priceInput.addEventListener('input', updateMetalsPriceCalculation);
+  
+  // Buttons
+  confirmBtn.addEventListener('click', () => {
+    const coins = parseInt(coinsInput.value) || 0;
+    let price;
+    
+    if (buyTypeSelect.value === 'total') {
+      price = parseFloat(priceInput.value) || 0;
+    } else {
+      price = (parseFloat(priceInput.value) || 0) * coins;
+    }
+    
+    if (coins > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
+      // Betrag vom Kontostand abziehen
+      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);
+      
+      // Anzahl der Münzen zu den Edelmetallen hinzufügen
+      const currentMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
+      document.getElementById('input-asset-metals').value = currentMetals + coins;
+        // Kontostandanzeige aktualisieren
+      addMetalsPurchaseToEntries(coins, price);
+      window.CashflowCore.updateDisplayBalance();
+      window.updateSellButtonStates();
+      
+      // Popup schließen
+      hideMetalsPopup();
+    } else {
+      // Fehlermeldung bei unzureichendem Guthaben oder ungültigen Werten
+      if (window.CashflowCore.runningBalance() < price) {
+        alert('Nicht genügend Guthaben für diesen Kauf!');
+      } else {
+        alert('Bitte geben Sie gültige Werte ein!');
+      }
+    }
+  });
+  
+  cancelBtn.addEventListener('click', hideMetalsPopup);
+  
+  // Klick außerhalb des Popups schließt es
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) {
+      hideMetalsPopup();
+    }
+  });
+}
+
+function updateMetalsPriceCalculation() {
+  const buyTypeSelect = document.getElementById('metals-buy-type');
+  const coinsInput = document.getElementById('metals-coins');
+  const priceInput = document.getElementById('metals-price');
+  const totalContainer = document.getElementById('metals-total-container');
+  const totalPrice = document.getElementById('metals-total-price');
+  
+  const coins = parseInt(coinsInput.value) || 0;
+  const inputPrice = parseFloat(priceInput.value) || 0;
+  
+  if (buyTypeSelect.value === 'total') {
+    // Gesamtpreis ausgewählt
+    priceInput.placeholder = 'Gesamtpreis';
+    totalContainer.style.display = 'none';
+  } else {
+    // Preis pro Münze ausgewählt
+    priceInput.placeholder = 'Preis pro Münze';
+    totalContainer.style.display = 'contents';
+    totalPrice.textContent = (inputPrice * coins).toFixed(2) + " €";
+  }
+}
+
+function showMetalsPopup() {
+  // Popup zurücksetzen und anzeigen
+  document.getElementById('metals-buy-type').value = 'total';
+  document.getElementById('metals-coins').value = '1';
+  document.getElementById('metals-price').value = '';
+  document.getElementById('metals-price').placeholder = 'Gesamtpreis';
+  document.getElementById('metals-total-container').style.display = 'none';
+  
+  const popup = document.getElementById('metals-popup');
+  popup.style.display = 'flex';
+}
+
+function hideMetalsPopup() {
+  document.getElementById('metals-popup').style.display = 'none';
+}
+
+function addMetalsPurchaseToEntries(coins, price) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const lastEntryIndex = entriesChildren.length - 1;
+  
+  // Prüfen, ob das letzte Element ein leeres Eingabefeld ist
+  const isLastEntryEmpty = lastEntryIndex >= 0 && 
+                         entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  
+  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  
+  // Eintrag für den Edelmetallkauf erstellen
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '-' + price.toFixed(2);
+  inp.style.color = 'var(--danger)';
+  inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} gekauft`;
+  
+  li.append(inp);
+  
+  if (insertBeforeElement) {
+    ul.insertBefore(li, insertBeforeElement);
+  } else {
+    ul.appendChild(li);
+  }
+  
+  // Aktualisierte Kontostandsanzeige
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.style.background = '#eee';
+  
+  if (window.CashflowCore.runningBalance() < 0) {
+    sumInp.style.color = 'var(--danger)';
+  }
+  
+  sumLi.append(sumInp);
+  
+  if (insertBeforeElement) {
+    ul.insertBefore(sumLi, insertBeforeElement);
+  } else {
+    ul.appendChild(sumLi);
+  }
+  
+  // Globale Flag setzen (für die Bank-Logik)
+  window.lastActionWasManualEntry = true;
+}
+
+// Funktion zum Aktualisieren der "Verkaufen"-Buttons
+function updateSellButtonStates() {
+  // Edelmetalle
+  const metalsAmount = parseInt(document.getElementById('input-asset-metals').value) || 0;
+  const btnSellMetals = document.getElementById('btn-sell-metals');
+  btnSellMetals.disabled = metalsAmount <= 0;
+  if (btnSellMetals.disabled) {
+    btnSellMetals.classList.add('btn-disabled');
+    btnSellMetals.title = 'Keine Edelmetalle zum Verkaufen vorhanden';
+  } else {
+    btnSellMetals.classList.remove('btn-disabled');
+    btnSellMetals.title = 'Edelmetalle verkaufen';
+  }
+  
+  // Aktien
+  const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+  const btnSellStocks = document.getElementById('btn-sell-stocks');
+  btnSellStocks.disabled = stocksQty <= 0;
+  if (btnSellStocks.disabled) {
+    btnSellStocks.classList.add('btn-disabled');
+    btnSellStocks.title = 'Keine Aktien zum Verkaufen vorhanden';
+  } else {
+    btnSellStocks.classList.remove('btn-disabled');
+    btnSellStocks.title = 'Aktien verkaufen';
+  }
+  
+  // Immobilien
+  const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
+  const btnSellProperty = document.getElementById('btn-sell-property');
+  btnSellProperty.disabled = propertyDown <= 0;
+  if (btnSellProperty.disabled) {
+    btnSellProperty.classList.add('btn-disabled');
+    btnSellProperty.title = 'Keine Immobilien zum Verkaufen vorhanden';
+  } else {
+    btnSellProperty.classList.remove('btn-disabled');
+    btnSellProperty.title = 'Immobilien verkaufen';
+  }
+}
+
+function setupSellButtons() {
+  // Verkauf-Buttons mit den Popup-Funktionen
+  document.getElementById('btn-sell-metals').addEventListener('click', () => {
+    const metalsAmount = parseInt(document.getElementById('input-asset-metals').value) || 0;
+    if (metalsAmount > 0) {
+      showMetalsSellPopup();
+    }
+  });
+  
+  document.getElementById('btn-sell-stocks').addEventListener('click', () => {
+    const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+    if (stocksQty > 0) {
+      // Funktion für den Verkauf (kann später implementiert werden)
+      alert('Verkauf-Funktion für Aktien wird noch implementiert.');
+    }
+  });
+  
+  document.getElementById('btn-sell-property').addEventListener('click', () => {
+    const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
+    if (propertyDown > 0) {
+      // Funktion für den Verkauf (kann später implementiert werden)
+      alert('Verkauf-Funktion für Immobilien wird noch implementiert.');
+    }
+  });
+  
+  // Setup für das Edelmetalle-Verkauf-Popup
+  setupMetalsSellPopup();
+}
+
+function setupMetalsSellPopup() {
+  const popup = document.getElementById('metals-sell-popup');
+  const sellTypeSelect = document.getElementById('metals-sell-type');
+  const coinsInput = document.getElementById('metals-sell-coins');
+  const priceInput = document.getElementById('metals-sell-price');
+  const totalContainer = document.getElementById('metals-sell-total-container');
+  const totalPrice = document.getElementById('metals-sell-total-price');
+  const confirmBtn = document.getElementById('metals-sell-confirm');
+  const cancelBtn = document.getElementById('metals-sell-cancel');
+  
+  // Verkaufsart-Wechsel
+  sellTypeSelect.addEventListener('change', updateMetalsSellPriceCalculation);
+  
+  // Input-Änderungen
+  coinsInput.addEventListener('input', updateMetalsSellPriceCalculation);
+  priceInput.addEventListener('input', updateMetalsSellPriceCalculation);
+  
+  // Buttons
+  confirmBtn.addEventListener('click', () => {
+    const totalMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
+    const coinsToSell = parseInt(coinsInput.value) || 0;
+    let price;
+    
+    if (sellTypeSelect.value === 'total') {
+      price = parseFloat(priceInput.value) || 0;
+    } else {
+      price = (parseFloat(priceInput.value) || 0) * coinsToSell;
+    }
+    
+    // Prüfen, ob genügend Münzen vorhanden sind und der Preis gültig ist
+    if (coinsToSell > 0 && price > 0 && coinsToSell <= totalMetals) {
+      // Erlös zum Kontostand hinzufügen
+      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + price);
+      
+      // Anzahl der Münzen von den Edelmetallen abziehen
+      document.getElementById('input-asset-metals').value = totalMetals - coinsToSell;
+      
+      // Kontostandanzeige aktualisieren
+      addMetalsSaleToEntries(coinsToSell, price);
+      window.CashflowCore.updateDisplayBalance();
+      
+      // Popup schließen
+      hideMetalsSellPopup();
+    } else {
+      // Fehlermeldung bei unzureichenden Münzen oder ungültigen Werten
+      if (coinsToSell > totalMetals) {
+        alert('Sie besitzen nicht genügend Münzen für diesen Verkauf!');
+      } else {
+        alert('Bitte geben Sie gültige Werte ein!');
+      }
+    }
+  });
+  
+  cancelBtn.addEventListener('click', hideMetalsSellPopup);
+  
+  // Klick außerhalb des Popups schließt es
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) {
+      hideMetalsSellPopup();
+    }
+  });
+}
+
+function updateMetalsSellPriceCalculation() {
+  const sellTypeSelect = document.getElementById('metals-sell-type');
+  const coinsInput = document.getElementById('metals-sell-coins');
+  const priceInput = document.getElementById('metals-sell-price');
+  const totalContainer = document.getElementById('metals-sell-total-container');
+  const totalPrice = document.getElementById('metals-sell-total-price');
+  
+  const coins = parseInt(coinsInput.value) || 0;
+  const inputPrice = parseFloat(priceInput.value) || 0;
+  
+  if (sellTypeSelect.value === 'total') {
+    // Gesamtpreis ausgewählt
+    priceInput.placeholder = 'Gesamterlös';
+    totalContainer.style.display = 'none';
+  } else {
+    // Preis pro Münze ausgewählt
+    priceInput.placeholder = 'Preis pro Münze';
+    totalContainer.style.display = 'contents';
+    totalPrice.textContent = (inputPrice * coins).toFixed(2) + " €";
+  }
+}
+
+function showMetalsSellPopup() {
+  const totalMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
+  
+  // Popup zurücksetzen und anzeigen
+  document.getElementById('metals-sell-type').value = 'total';
+  document.getElementById('metals-sell-coins').value = '1';
+  document.getElementById('metals-sell-price').value = '';
+  document.getElementById('metals-sell-price').placeholder = 'Gesamterlös';
+  document.getElementById('metals-sell-total-container').style.display = 'none';
+  document.getElementById('metals-available').textContent = totalMetals;
+  
+  // Max-Wert für die Coin-Anzahl setzen
+  document.getElementById('metals-sell-coins').max = totalMetals;
+  
+  const popup = document.getElementById('metals-sell-popup');
+  popup.style.display = 'flex';
+}
+
+function hideMetalsSellPopup() {
+  document.getElementById('metals-sell-popup').style.display = 'none';
+}
+
+function addMetalsSaleToEntries(coins, price) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const lastEntryIndex = entriesChildren.length - 1;
+  
+  // Prüfen, ob das letzte Element ein leeres Eingabefeld ist
+  const isLastEntryEmpty = lastEntryIndex >= 0 && 
+                         entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  
+  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  
+  // Eintrag für den Edelmetallverkauf erstellen
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '+' + price.toFixed(2);
+  inp.style.color = ''; // Positive Beträge in Standardfarbe
+  inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} verkauft`;
+  
+  li.append(inp);
+  
+  if (insertBeforeElement) {
+    ul.insertBefore(li, insertBeforeElement);
+  } else {
+    ul.appendChild(li);
+  }
+  
+  // Aktualisierte Kontostandsanzeige
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.style.background = '#eee';
+  
+  if (window.CashflowCore.runningBalance() < 0) {
+    sumInp.style.color = 'var(--danger)';
+  }
+  
+  sumLi.append(sumInp);
+  
+  if (insertBeforeElement) {
+    ul.insertBefore(sumLi, insertBeforeElement);
+  } else {
+    ul.appendChild(sumLi);
+  }
+  
+  // Globale Flag setzen (für die Bank-Logik)
+  window.lastActionWasManualEntry = true;
+}
