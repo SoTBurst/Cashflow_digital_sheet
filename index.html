@@ -305,8 +305,7 @@
       const arr = generateArray();
       // Erstes Element (der alte Kontostand) überspringen, und den letzten Wert als initialBalance verwenden
       initialBalance = arr.length > 1 ? arr[arr.length - 1] : 0;
-      runningBalance = initialBalance;
-        // Schleife beginnt bei Index 1, um den ersten Wert zu überspringen
+      runningBalance = initialBalance;        // Schleife beginnt bei Index 1, um den ersten Wert zu überspringen
       for (let i = 1; i < arr.length; i++) {
         const num = arr[i];
         const li = document.createElement('li');
@@ -316,6 +315,12 @@
         inp.readOnly = true;
         // Vorzeichen für den Wert hinzufügen (+ oder -)
         inp.value = (num >= 0 ? '+' : '-') + Math.abs(num);
+        
+        // Rote Farbe für negative Werte
+        if (num < 0) {
+          inp.style.color = 'var(--danger)';
+        }
+        
         li.append(inp);
         ul.append(li);
       }
@@ -342,21 +347,32 @@
       inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
       
       const sumLi = document.createElement('li');
-      const sumInp = document.createElement('input');
-      sumInp.type = 'text'; 
+      const sumInp = document.createElement('input');      sumInp.type = 'text'; 
       sumInp.readOnly = true;
       // Vorzeichen für Kontostand hinzufügen
       sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance);
       sumInp.style.background = '#eee';
+      
+      // Rote Farbe für negative Kontostände
+      if (runningBalance < 0) {
+        sumInp.style.color = 'var(--danger)';
+      }
+      
       sumLi.append(sumInp);
       inp.parentNode.after(sumLi);
       
       updateDisplayBalance();
-      addEntry();
-    }    function updateDisplayBalance() {
+      addEntry();    }    function updateDisplayBalance() {
       // Vorzeichen für aktuellen Kontostand immer anzeigen
       const prefix = runningBalance >= 0 ? '+' : '-';
-      document.getElementById('current-balance').textContent = prefix + Math.abs(runningBalance).toFixed(2).replace('.', ',');
+      const currentBalanceEl = document.getElementById('current-balance');
+      
+      // Text mit Vorzeichen setzen
+      currentBalanceEl.textContent = prefix + Math.abs(runningBalance).toFixed(2).replace('.', ',');
+      
+      // Farbe anpassen - rot bei negativen Werten
+      currentBalanceEl.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit';
+      
       updatePayButtonStates();
     }function updateSummary() {
       const salary = baseIncome;
