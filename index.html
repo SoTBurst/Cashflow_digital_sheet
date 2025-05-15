@@ -109,14 +109,17 @@
       display: block;
       margin-bottom: 0.5rem;
       font-size: 0.95rem;
-    }
-
-    .grid3 {
+    }    .grid3 {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
+      grid-auto-flow: dense;
       gap: 0.5rem;
       margin: 0.5rem 0;
       font-size: 0.95rem;
+    }
+    
+    .full-span {
+      grid-column: 2 / span 2;
     }
 
     .grid4 {
@@ -267,13 +270,10 @@
         <label>Bankkredit‑Zahlung:<input id="input-expenses-bank" type="number" readonly></label>
       </section>
       <section>
-        <h2>3) Vermögenswerte</h2>
-        <div class="grid3">
+        <h2>3) Vermögenswerte</h2>        <div class="grid3">
           <div class="label">Edelmetalle etc.:</div><input id="input-asset-metals" type="number" class="full-span">
-          <div class="label">Aktien/Fonds/CDs:</div><input id="input-asset-stocks-qty" type="number"><input
-            id="input-asset-stocks-cost" type="number">
-          <div class="label">Immobilien/Unternehmen:</div><input id="input-asset-property-down" type="number"><input
-            id="input-asset-property-cost" type="number">
+          <div class="label">Aktien/Fonds/CDs:</div><input id="input-asset-stocks-qty" type="number"><input id="input-asset-stocks-cost" type="number">
+          <div class="label">Immobilien/Unternehmen:</div><input id="input-asset-property-down" type="number"><input id="input-asset-property-cost" type="number">
         </div>
       </section>
       <section>
