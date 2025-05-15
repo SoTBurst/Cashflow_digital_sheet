@@ -72,14 +72,17 @@ function setupStocksBuyPopup() {
 
     if (shares > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
       // Subtract amount from account balance
-      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);
-
-      // Add number of shares to stocks
+      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);      // Add number of shares to stocks
       const currentStocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
       const currentStocksCost = parseInt(document.getElementById('input-asset-stocks-cost').value) || 0;
 
       document.getElementById('input-asset-stocks-qty').value = currentStocksQty + shares;
       document.getElementById('input-asset-stocks-cost').value = currentStocksCost + price;
+      
+      // Update the stocks name field if provided
+      if (stockName) {
+        document.getElementById('input-asset-stocks-name').value = stockName;
+      }
 
       // Update account balance display
       addStocksPurchaseToEntries(shares, price, stockName);
@@ -140,8 +143,12 @@ function updateStocksPriceCalculation() {
 
 function showStocksPopup() {
   console.log('Showing stocks popup');
+  // Get current stock name if exists
+  const currentStockName = document.getElementById('input-asset-stocks-qty').value > 0 ? 
+    document.getElementById('input-asset-stocks-name').value : '';
+    
   // Reset and show popup
-  document.getElementById('stocks-name').value = '';
+  document.getElementById('stocks-name').value = currentStockName;
   document.getElementById('stocks-shares').value = '1';
   document.getElementById('stocks-price').value = '';
   document.getElementById('stocks-price').placeholder = 'Preis pro Aktie';
@@ -252,11 +259,14 @@ function setupStocksSellPopup() {
 
       // Calculate the cost of sold shares (proportional to total cost)
       const costPerShare = totalCost / totalShares;
-      const soldSharesCost = costPerShare * sharesToSell;
-
-      // Update stocks
+      const soldSharesCost = costPerShare * sharesToSell;      // Update stocks
       document.getElementById('input-asset-stocks-qty').value = totalShares - sharesToSell;
       document.getElementById('input-asset-stocks-cost').value = Math.round(totalCost - soldSharesCost);
+      
+      // If selling all shares, clear the name field
+      if (totalShares - sharesToSell <= 0) {
+        document.getElementById('input-asset-stocks-name').value = '';
+      }
 
       // Update account balance display
       addStocksSaleToEntries(sharesToSell, price, stockName);
@@ -319,9 +329,10 @@ function updateStocksSellPriceCalculation() {
 function showStocksSellPopup() {
   console.log('Showing stocks sell popup');
   const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+  const currentStockName = document.getElementById('input-asset-stocks-name').value || '';
 
   // Reset and show popup
-  document.getElementById('stocks-sell-name').value = '';
+  document.getElementById('stocks-sell-name').value = currentStockName;
   document.getElementById('stocks-sell-shares').value = '1';
   document.getElementById('stocks-sell-price').value = '';
   document.getElementById('stocks-sell-price').placeholder = 'Preis pro Aktie';
