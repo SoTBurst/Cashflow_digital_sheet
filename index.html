@@ -91,11 +91,24 @@
       grid-template-columns: 2fr 1fr;
       gap: 0.75rem;
       margin: 0.75rem 0;
-    }
-
-    .liability-control {
+    }    .liability-control {
       display: flex;
       gap: 0.5rem;
+    }
+    
+    .bank-loan-control {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .bank-controls {
+      display: flex;
+      gap: 0.25rem;
+    }
+    
+    .bank-controls button {
+      padding: 0.5rem;
+      min-width: 60px;
     }
 
     .summary {
@@ -198,6 +211,7 @@
         <label>BAföG Darlehenszahlung:<input id="input-expenses-bafog" type="number" readonly></label>
         <label>Autokredit‑Zahlung:<input id="input-expenses-autoloan" type="number" readonly></label>
         <label>Kreditkarten‑Zahlung:<input id="input-expenses-cc" type="number" readonly></label>
+        <label>Bankkredit‑Zahlung:<input id="input-expenses-bank" type="number" readonly></label>
       </section>
       <section><h2>3) Vermögenswerte</h2>
         <div class="grid3">
@@ -223,11 +237,18 @@
           <div class="liability-control">
             <input id="input-liability-autoloan" type="number" readonly>
             <button id="btn-pay-autoloan">Abzahlen</button>
-          </div>
-          <div class="label">Kreditkartenschulden:</div>
+          </div>          <div class="label">Kreditkartenschulden:</div>
           <div class="liability-control">
             <input id="input-liability-cc" type="number" readonly>
             <button id="btn-pay-cc">Abzahlen</button>
+          </div>
+          <div class="label">Bankkredit:</div>
+          <div class="liability-control bank-loan-control">
+            <input id="input-liability-bank" type="number" readonly>
+            <div class="bank-controls">
+              <button id="btn-pay-bank-1000">-1000</button>
+              <button id="btn-take-bank-1000">+1000</button>
+            </div>
           </div>
         </div>
       </section>
@@ -246,19 +267,19 @@
     </div>
   </div>  <script>
     const profilesData = {
-      "debug-anwalt": { bal: [50000, 100000], inc: 7500, exp: 5100, ob: [[115000,1100],[78000,300],[11000,200],[7000,200]], taxes:3300 },
-      anwalt: { bal: [2000, 2400], inc: 7500, exp: 5100, ob: [[115000,1100],[78000,300],[11000,200],[7000,200]], taxes:3300 },
-      arzt: { bal: [3500, 4900], inc: 13200, exp: 8300, ob: [[202000,1900],[150000,700],[19000,300],[10000,200]], taxes:5700 },
-      hausmeister: { bal: [600, 600], inc: 1600, exp: 1000, ob: [[20000,200],[0,0],[4000,100],[3000,100]], taxes:600 },
-      ingenieur: { bal: [400, 1700], inc: 4900, exp: 3200, ob: [[75000,700],[12000,100],[7000,200],[5000,200]], taxes:2000 },
-      krankenschwester: { bal: [500, 1100], inc: 3100, exp: 2000, ob: [[47000,400],[6000,100],[5000,100],[4000,200]], taxes:1200 },
-      lehrer: { bal: [400, 1200], inc: 3300, exp: 2100, ob: [[50000,500],[12000,100],[5000,100],[4000,200]], taxes:1200 },
-      "lkw-fahrer": { bal: [800, 800], inc: 2500, exp: 1700, ob: [[38000,400],[0,0],[4000,100],[3000,100]], taxes:1100 },
-      manager: { bal: [400, 1600], inc: 4600, exp: 3000, ob: [[75000,700],[12000,100],[6000,100],[4000,200]], taxes:1900 },
-      mechaniker: { bal: [700, 700], inc: 2000, exp: 1300, ob: [[31000,300],[0,0],[3000,100],[3000,100]], taxes:900 },
-      pilot: { bal: [2500, 3500], inc: 9500, exp: 6000, ob: [[90000,1000],[0,0],[15000,300],[22000,700]], taxes:4000 },
-      polizist: { bal: [500, 1100], inc: 3000, exp: 1900, ob: [[46000,400],[0,0],[5000,100],[3000,100]], taxes:300 },
-      sekretaer: { bal: [700, 800], inc: 2500, exp: 1700, ob: [[38000,400],[0,0],[4000,100],[3000,100]], taxes:100 }
+      "debug-anwalt": { bal: [50000, 100000], inc: 7500, exp: 5100, ob: [[115000,1100],[78000,300],[11000,200],[7000,200],[0,0]], taxes:3300 },
+      anwalt: { bal: [2000, 2400], inc: 7500, exp: 5100, ob: [[115000,1100],[78000,300],[11000,200],[7000,200],[0,0]], taxes:3300 },
+      arzt: { bal: [3500, 4900], inc: 13200, exp: 8300, ob: [[202000,1900],[150000,700],[19000,300],[10000,200],[0,0]], taxes:5700 },
+      hausmeister: { bal: [600, 600], inc: 1600, exp: 1000, ob: [[20000,200],[0,0],[4000,100],[3000,100],[0,0]], taxes:600 },
+      ingenieur: { bal: [400, 1700], inc: 4900, exp: 3200, ob: [[75000,700],[12000,100],[7000,200],[5000,200],[0,0]], taxes:2000 },
+      krankenschwester: { bal: [500, 1100], inc: 3100, exp: 2000, ob: [[47000,400],[6000,100],[5000,100],[4000,200],[0,0]], taxes:1200 },
+      lehrer: { bal: [400, 1200], inc: 3300, exp: 2100, ob: [[50000,500],[12000,100],[5000,100],[4000,200],[0,0]], taxes:1200 },
+      "lkw-fahrer": { bal: [800, 800], inc: 2500, exp: 1700, ob: [[38000,400],[0,0],[4000,100],[3000,100],[0,0]], taxes:1100 },
+      manager: { bal: [400, 1600], inc: 4600, exp: 3000, ob: [[75000,700],[12000,100],[6000,100],[4000,200],[0,0]], taxes:1900 },
+      mechaniker: { bal: [700, 700], inc: 2000, exp: 1300, ob: [[31000,300],[0,0],[3000,100],[3000,100],[0,0]], taxes:900 },
+      pilot: { bal: [2500, 3500], inc: 9500, exp: 6000, ob: [[90000,1000],[0,0],[15000,300],[22000,700],[0,0]], taxes:4000 },
+      polizist: { bal: [500, 1100], inc: 3000, exp: 1900, ob: [[46000,400],[0,0],[5000,100],[3000,100],[0,0]], taxes:300 },
+      sekretaer: { bal: [700, 800], inc: 2500, exp: 1700, ob: [[38000,400],[0,0],[4000,100],[3000,100],[0,0]], taxes:100 }
     };
     let balanceArray = [], baseIncome = 0, baseExpenses = 0, obligations = [];
     let initialBalance = 0, runningBalance = 0;
@@ -332,9 +353,7 @@
     }    function updateDisplayBalance() {
       document.getElementById('current-balance').textContent = runningBalance.toFixed(2).replace('.', ',');
       updatePayButtonStates();
-    }
-
-    function updateSummary() {
+    }    function updateSummary() {
       const salary = baseIncome;
       const passive = (+document.getElementById('input-income-interest').value || 0) + (+document.getElementById('input-income-property').value || 0);
       const totalInc = salary + passive;
@@ -343,13 +362,14 @@
         (+document.getElementById('input-expenses-mortgage').value || 0) +
         (+document.getElementById('input-expenses-bafog').value || 0) +
         (+document.getElementById('input-expenses-autoloan').value || 0) +
-        (+document.getElementById('input-expenses-cc').value || 0);
+        (+document.getElementById('input-expenses-cc').value || 0) +
+        (+document.getElementById('input-expenses-bank').value || 0);
       document.getElementById('sum-salary').textContent = salary + ' €';
       document.getElementById('sum-passive').textContent = passive + ' €';
       document.getElementById('sum-total-income').textContent = totalInc + ' €';
       document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
       document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
-    }    function setupPayButtons() {
+    }function setupPayButtons() {
       ['mortgage','bafog','autoloan','cc'].forEach(type => {
         const btn = document.getElementById(`btn-pay-${type}`);
         btn.addEventListener('click', () => {
@@ -367,8 +387,7 @@
         });
       });
     }
-    
-    function updatePayButtonStates() {
+      function updatePayButtonStates() {
       ['mortgage','bafog','autoloan','cc'].forEach(type => {
         const btn = document.getElementById(`btn-pay-${type}`);
         const liInput = document.getElementById(`input-liability-${type}`);
@@ -386,6 +405,20 @@
           btn.title = 'Verbindlichkeit vollständig abzahlen';
         }
       });
+      
+      // Bankkredit-Knopf zum Abbezahlen
+      const btnPayBank = document.getElementById('btn-pay-bank-1000');
+      const bankInput = document.getElementById('input-liability-bank');
+      const bankAmount = parseFloat(bankInput.value) || 0;
+      
+      btnPayBank.disabled = bankAmount < 1000 || runningBalance < 1000;
+      if (btnPayBank.disabled) {
+        btnPayBank.classList.add('btn-disabled');
+        btnPayBank.title = bankAmount < 1000 ? 'Kredit zu niedrig für Teilzahlung' : 'Nicht genügend Guthaben';
+      } else {
+        btnPayBank.classList.remove('btn-disabled');
+        btnPayBank.title = '1000 € vom Bankkredit abzahlen';
+      }
     }function loadData(profile) {
       const data = profilesData[profile] || profilesData['anwalt'];
       balanceArray = data.bal;
@@ -401,26 +434,79 @@
       document.getElementById('input-expenses-autoloan').value = obligations[2][1];
       document.getElementById('input-expenses-cc').value = obligations[3][1];
       
+      // Bankkredit-Zinszahlung (10% der Schulden)
+      const bankLoanAmount = obligations[4][0];
+      const bankLoanPayment = Math.round(bankLoanAmount * 0.1);
+      document.getElementById('input-expenses-bank').value = bankLoanPayment;
+      
       // Verbindlichkeiten ausfüllen (erster Wert aus jedem ob-Tupel)
       document.getElementById('input-liability-mortgage').value = obligations[0][0];
       document.getElementById('input-liability-bafog').value = obligations[1][0];
       document.getElementById('input-liability-autoloan').value = obligations[2][0];
       document.getElementById('input-liability-cc').value = obligations[3][0];
-        document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
+      document.getElementById('input-liability-bank').value = bankLoanAmount;
+      
+      document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
       ['input-income-interest','input-income-property'].forEach(id =>
         document.getElementById(id).addEventListener('input', updateSummary)
       );
       updateSummary();
       renderBaseEntries();
       updatePayButtonStates();
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
+    }    document.addEventListener('DOMContentLoaded', () => {
       sel.addEventListener('change', () => loadData(sel.value));
       loadData(sel.value);
       addEntry();
       setupPayButtons();
+      setupBankLoanButtons();
     });
+    
+    function setupBankLoanButtons() {
+      // Knopf zum Abbezahlen von 1000 Euro
+      document.getElementById('btn-pay-bank-1000').addEventListener('click', () => {
+        const loanInput = document.getElementById('input-liability-bank');
+        const loanAmount = parseFloat(loanInput.value) || 0;
+        
+        if (loanAmount >= 1000 && runningBalance >= 1000) {
+          // Kredit um 1000 reduzieren
+          const newLoanAmount = loanAmount - 1000;
+          loanInput.value = newLoanAmount;
+          
+          // Kontostand anpassen
+          runningBalance -= 1000;
+          
+          // Zinszahlung anpassen (10% des neuen Betrags)
+          const newPayment = Math.round(newLoanAmount * 0.1);
+          document.getElementById('input-expenses-bank').value = newPayment;
+          
+          // Oberfläche aktualisieren
+          updateDisplayBalance();
+          updateSummary();
+          updatePayButtonStates();
+        }
+      });
+      
+      // Knopf zum Aufnehmen von 1000 Euro
+      document.getElementById('btn-take-bank-1000').addEventListener('click', () => {
+        const loanInput = document.getElementById('input-liability-bank');
+        const loanAmount = parseFloat(loanInput.value) || 0;
+        
+        // Kredit um 1000 erhöhen
+        const newLoanAmount = loanAmount + 1000;
+        loanInput.value = newLoanAmount;
+        
+        // Kontostand anpassen
+        runningBalance += 1000;
+        
+        // Zinszahlung anpassen (10% des neuen Betrags)
+        const newPayment = Math.round(newLoanAmount * 0.1);
+        document.getElementById('input-expenses-bank').value = newPayment;
+        
+        // Oberfläche aktualisieren
+        updateDisplayBalance();
+        updateSummary();
+      });
+    }
   </script>
 </body>
 </html>
