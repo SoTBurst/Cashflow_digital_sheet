@@ -93,6 +93,11 @@
       margin: 0.75rem 0;
     }
 
+    .liability-control {
+      display: flex;
+      gap: 0.5rem;
+    }
+
     .summary {
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: #ffffff;
@@ -162,7 +167,7 @@
       </section>
       <section><h2>2) Ausgaben</h2>
         <label>Steuern:<input id="input-expenses-taxes" type="number" readonly></label>
-        <label>Eigenheim‑Hypothek / Miete:<input id="input-expenses-mortgage" type="number"></label>
+        <label>Eigenheim‑Hypothek:<input id="input-expenses-mortgage" type="number"></label>
         <label>BAföG Darlehenszahlung:<input id="input-expenses-bafog" type="number"></label>
         <label>Autokredit‑Zahlung:<input id="input-expenses-autoloan" type="number"></label>
         <label>Kreditkarten‑Zahlung:<input id="input-expenses-cc" type="number"></label>
@@ -177,10 +182,26 @@
       </section>
       <section><h2>4) Verbindlichkeiten</h2>
         <div class="grid4">
-          <div class="label">Eigenheim‑Hypothek:</div><input id="input-liability-mortgage" type="number" class="full-span">
-          <div class="label">BAföG Darlehen:</div><input id="input-liability-bafog" type="number" class="full-span">
-          <div class="label">Autokredit:</div><input id="input-liability-autoloan" type="number" class="full-span">
-          <div class="label">Kreditkartenschulden:</div><input id="input-liability-cc" type="number" class="full-span">
+          <div class="label">Eigenheim‑Hypothek:</div>
+          <div class="liability-control">
+            <input id="input-liability-mortgage" type="number" readonly>
+            <button id="btn-pay-mortgage">Abzahlen</button>
+          </div>
+          <div class="label">BAföG Darlehen:</div>
+          <div class="liability-control">
+            <input id="input-liability-bafog" type="number" readonly>
+            <button id="btn-pay-bafog">Abzahlen</button>
+          </div>
+          <div class="label">Autokredit:</div>
+          <div class="liability-control">
+            <input id="input-liability-autoloan" type="number" readonly>
+            <button id="btn-pay-autoloan">Abzahlen</button>
+          </div>
+          <div class="label">Kreditkartenschulden:</div>
+          <div class="liability-control">
+            <input id="input-liability-cc" type="number" readonly>
+            <button id="btn-pay-cc">Abzahlen</button>
+          </div>
         </div>
       </section>
     </div>
@@ -291,12 +312,38 @@
       const salary = baseIncome;
       const passive = (+document.getElementById('input-income-interest').value || 0) + (+document.getElementById('input-income-property').value || 0);
       const totalInc = salary + passive;
-      const totalExp = baseExpenses;
-      document.getElementById('sum-salary').textContent = salary + ' €';
-      document.getElementById('sum-passive').textContent = passive + ' €';
-      document.getElementById('sum-total-income').textContent = totalInc + ' €';
-      document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
-      document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
+      const totalExp =
+        (+document.getElementById('input-expenses-taxes').value || 0) +
+        (+document.getElementById('input-expenses-mortgage').value || 0) +
+        (+document.getElementById('input-expenses-bafog').value || 0) +
+        (+document.getElementById('input-expenses-autoloan').value || 0) +
+        (+document.getElementById('input-expenses-cc').value || 0);
+      document.getElementById('sum-salary').textContent = salary + ' €';
+      document.getElementById('sum-passive').textContent = passive + ' €';
+      document.getElementById('sum-total-income').textContent = totalInc + ' €';
+      document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
+      document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
+    }
+
+    function setupPayButtons() {
+      ['mortgage','bafog','autoloan','cc'].forEach(type => {
+        const btn = document.getElementById(`btn-pay-${type}`);
+        btn.addEventListener('click', () => {
+          const liInput = document.getElementById(`input-liability-${type}`);
+          const expInput = document.getElementById(`input-expenses-${type}`);
+          const amount = parseFloat(liInput.value) || 0;
+          if (runningBalance >= amount && amount > 0) {
+            runningBalance -= amount;
+            liInput.value = 0;
+            expInput.value = 0;
+            btn.disabled = true;
+            updateDisplayBalance();
+            updateSummary();
+          } else {
+            alert('Nicht genügend Guthaben zum Abzahlen!');
+          }
+        });
+      });
     }
 
     function loadData(profile) {
@@ -325,7 +372,9 @@
       sel.addEventListener('change', () => loadData(sel.value));
       loadData(sel.value);
       addEntry();
+      setupPayButtons();
     });
   </script>
 </body>
 </html>
+``` 
