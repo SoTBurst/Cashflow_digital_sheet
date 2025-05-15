@@ -306,15 +306,16 @@
       // Erstes Element (der alte Kontostand) überspringen, und den letzten Wert als initialBalance verwenden
       initialBalance = arr.length > 1 ? arr[arr.length - 1] : 0;
       runningBalance = initialBalance;
-      
-      // Schleife beginnt bei Index 1, um den ersten Wert zu überspringen
+        // Schleife beginnt bei Index 1, um den ersten Wert zu überspringen
       for (let i = 1; i < arr.length; i++) {
         const num = arr[i];
         const li = document.createElement('li');
         const inp = document.createElement('input');
-        inp.type = 'number';
-        inp.readOnly = false;
-        inp.value = num;
+        // Input als Text statt als Zahl anzeigen, um das Vorzeichen hinzuzufügen
+        inp.type = 'text';
+        inp.readOnly = true;
+        // Vorzeichen für den Wert hinzufügen (+ oder -)
+        inp.value = (num >= 0 ? '+' : '-') + Math.abs(num);
         li.append(inp);
         ul.append(li);
       }
