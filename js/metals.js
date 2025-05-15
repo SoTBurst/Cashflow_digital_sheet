@@ -1,15 +1,19 @@
 // Export updateSellButtonStates to make it available globally
 window.updateSellButtonStates = updateSellButtonStates;
+window.setupBuyButtons = setupBuyButtons;
+window.setupSellButtons = setupSellButtons;
 
 // Metals functionality - buying and selling
 
 function setupBuyButtons() {
+  console.log('Setting up buy buttons');
   // Edelmetalle Kauf-Button
   document.getElementById('btn-buy-metals').addEventListener('click', () => {
     showMetalsPopup();
   });
   // Aktien Kauf-Button
   document.getElementById('btn-buy-stocks').addEventListener('click', () => {
+    console.log('Stock buy button clicked');
     if (typeof window.showStocksPopup === 'function') {
       window.showStocksPopup();
     } else {
