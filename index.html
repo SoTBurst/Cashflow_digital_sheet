@@ -103,36 +103,46 @@
 
     section+section {
       margin-top: 1rem;
-    }
-
-    label {
+    }    label {
       display: block;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
       font-size: 0.95rem;
-    }    .grid3 {
+    }
+    
+    .label {
+      white-space: nowrap;
+      padding-right: 0.2rem;
+    }.grid3 {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-columns: auto 1fr 1fr;
       grid-auto-flow: dense;
-      gap: 0.5rem;
+      gap: 0.2rem;
+      column-gap: 0.5rem;
       margin: 0.5rem 0;
       font-size: 0.95rem;
+      align-items: center;
     }
     
     .full-span {
       grid-column: 2 / span 2;
-    }
-
-    .grid4 {
+    }    .grid4 {
       display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 0.5rem;
+      grid-template-columns: auto 1fr;
+      gap: 0.2rem;
+      column-gap: 0.5rem;
       margin: 0.5rem 0;
       font-size: 0.95rem;
-    }
-
-    .liability-control {
+      align-items: center;
+    }    .liability-control {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.3rem;
+      align-items: center;
+    }
+      .asset-control {
+      display: flex;
+      gap: 0.3rem;
+      align-items: center;
+      grid-column: 2 / span 2;
     }
 
     .bank-loan-control {
@@ -268,12 +278,26 @@
         <label>Autokredit‑Zahlung:<input id="input-expenses-autoloan" type="number" readonly></label>
         <label>Kreditkarten‑Zahlung:<input id="input-expenses-cc" type="number" readonly></label>
         <label>Bankkredit‑Zahlung:<input id="input-expenses-bank" type="number" readonly></label>
-      </section>
-      <section>
-        <h2>3) Vermögenswerte</h2>        <div class="grid3">
-          <div class="label">Edelmetalle etc.:</div><input id="input-asset-metals" type="number" class="full-span">
-          <div class="label">Aktien/Fonds/CDs:</div><input id="input-asset-stocks-qty" type="number"><input id="input-asset-stocks-cost" type="number">
-          <div class="label">Immobilien/Unternehmen:</div><input id="input-asset-property-down" type="number"><input id="input-asset-property-cost" type="number">
+      </section>      <section>
+        <h2>3) Vermögenswerte</h2>
+        <div class="grid3">
+          <div class="label">Edelmetalle etc.:</div>
+          <div class="asset-control">
+            <input id="input-asset-metals" type="number" readonly class="full-span">
+            <button id="btn-buy-metals">Kaufen</button>
+          </div>
+          <div class="label">Aktien/Fonds/CDs:</div>
+          <div class="asset-control">
+            <input id="input-asset-stocks-qty" type="number" readonly>
+            <input id="input-asset-stocks-cost" type="number" readonly>
+            <button id="btn-buy-stocks">Kaufen</button>
+          </div>
+          <div class="label">Immobilien/Unternehmen:</div>
+          <div class="asset-control">
+            <input id="input-asset-property-down" type="number" readonly>
+            <input id="input-asset-property-cost" type="number" readonly>
+            <button id="btn-buy-property">Kaufen</button>
+          </div>
         </div>
       </section>
       <section>
@@ -615,7 +639,21 @@
       // addEntry() wird nicht mehr hier aufgerufen, da es bereits in renderBaseEntries() aufgerufen wird
       setupPayButtons();
       setupBankLoanButtons();
-    }); function setupBankLoanButtons() {
+      setupBuyButtons();
+    });
+    
+    function setupBuyButtons() {
+      // Buy buttons event listeners (currently do nothing)
+      document.getElementById('btn-buy-metals').addEventListener('click', () => {
+        // Functionality to be implemented
+      });
+      document.getElementById('btn-buy-stocks').addEventListener('click', () => {
+        // Functionality to be implemented
+      });
+      document.getElementById('btn-buy-property').addEventListener('click', () => {
+        // Functionality to be implemented
+      });
+    }function setupBankLoanButtons() {
       // Tracking-Variable für die aktuelle Sequenz von Bankkrediten
       let currentBankEntryAmount = 0;
       let currentBankEntryElement = null;
