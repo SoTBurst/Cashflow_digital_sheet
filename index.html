@@ -318,10 +318,9 @@
         
         <label>Preis:</label>
         <input id="metals-price" type="number" min="0" value="0">
-        
-        <div id="metals-total-container" style="display: none">
+          <div id="metals-total-container" style="display: none">
           <label>Gesamtpreis:</label>
-          <span id="metals-total-price">0</span> €
+          <span id="metals-total-price">0 €</span>
         </div>
       </div>
       
@@ -816,12 +815,11 @@
       if (buyTypeSelect.value === 'total') {
         // Gesamtpreis ausgewählt
         priceInput.placeholder = 'Gesamtpreis';
-        totalContainer.style.display = 'none';
-      } else {
+        totalContainer.style.display = 'none';      } else {
         // Preis pro Münze ausgewählt
         priceInput.placeholder = 'Preis pro Münze';
         totalContainer.style.display = 'contents';
-        totalPrice.textContent = (inputPrice * coins).toFixed(2);
+        totalPrice.textContent = (inputPrice * coins).toFixed(2) + " €";
       }
     }
     
