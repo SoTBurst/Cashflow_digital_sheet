@@ -1,15 +1,54 @@
-// Stocks functionality - buying and selling
+// Updated stocks functionality - buying and selling
 
-function setupStocksPopups() {
-  // Setup for the stocks buy popup
-  setupStocksBuyPopup();
+// Global variables for easy debugging
+let stocksBuyBtn, stocksSellBtn;
+
+// Initialize functionality when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('stocks-fixed.js: DOM ready, initializing stocks functionality');
   
-  // Setup for the stocks sell popup
+  // Get button references
+  stocksBuyBtn = document.getElementById('btn-buy-stocks');
+  stocksSellBtn = document.getElementById('btn-sell-stocks');
+  
+  if (stocksBuyBtn) {
+    console.log('Found stocks buy button, attaching event listener');
+    stocksBuyBtn.addEventListener('click', function() {
+      console.log('Stocks buy button clicked');
+      showStocksPopup();
+    });
+  } else {
+    console.error('Could not find stocks buy button!');
+  }
+  
+  if (stocksSellBtn) {
+    console.log('Found stocks sell button, attaching event listener');
+    stocksSellBtn.addEventListener('click', function() {
+      console.log('Stocks sell button clicked');
+      const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+      if (stocksQty > 0) {
+        showStocksSellPopup();
+      } else {
+        alert('Sie haben keine Aktien zum Verkaufen.');
+      }
+    });
+  } else {
+    console.error('Could not find stocks sell button!');
+  }
+  
+  // Setup popups
+  setupStocksBuyPopup();
   setupStocksSellPopup();
-}
+});
 
 function setupStocksBuyPopup() {
+  console.log('Setting up stocks buy popup');
   const popup = document.getElementById('stocks-popup');
+  if (!popup) {
+    console.error('Could not find stocks popup!');
+    return;
+  }
+  
   const buyTypeSelect = document.getElementById('stocks-buy-type');
   const sharesInput = document.getElementById('stocks-shares');
   const priceInput = document.getElementById('stocks-price');
@@ -24,8 +63,10 @@ function setupStocksBuyPopup() {
   // Input changes
   sharesInput.addEventListener('input', updateStocksPriceCalculation);
   priceInput.addEventListener('input', updateStocksPriceCalculation);
-    // Buttons
-  confirmBtn.addEventListener('click', () => {
+  
+  // Confirm button
+  confirmBtn.addEventListener('click', function() {
+    console.log('Stock buy confirm clicked');
     const shares = parseInt(sharesInput.value) || 0;
     let price;
     
@@ -35,9 +76,12 @@ function setupStocksBuyPopup() {
       price = (parseFloat(priceInput.value) || 0) * shares;
     }
     
+    console.log(`Buying ${shares} shares for ${price}`);
+    
     if (shares > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
       // Subtract amount from account balance
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);
+      
       // Add number of shares to stocks
       const currentStocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
       const currentStocksCost = parseInt(document.getElementById('input-asset-stocks-cost').value) || 0;
@@ -48,7 +92,19 @@ function setupStocksBuyPopup() {
       // Update account balance display
       addStocksPurchaseToEntries(shares, price);
       window.CashflowCore.updateDisplayBalance();
-      window.updateSellButtonStates();
+      
+      // Update sell button state
+      if (typeof window.updateSellButtonStates === 'function') {
+        window.updateSellButtonStates();
+      } else {
+        console.error('updateSellButtonStates function not found!');
+        // Enable sell button directly
+        const sellBtn = document.getElementById('btn-sell-stocks');
+        if (sellBtn) {
+          sellBtn.disabled = false;
+          sellBtn.classList.remove('btn-disabled');
+        }
+      }
       
       // Close popup
       hideStocksPopup();
@@ -62,10 +118,14 @@ function setupStocksBuyPopup() {
     }
   });
   
-  cancelBtn.addEventListener('click', hideStocksPopup);
+  // Cancel button
+  cancelBtn.addEventListener('click', function() {
+    console.log('Stock buy cancel clicked');
+    hideStocksPopup();
+  });
   
   // Click outside popup closes it
-  popup.addEventListener('click', (e) => {
+  popup.addEventListener('click', function(e) {
     if (e.target === popup) {
       hideStocksPopup();
     }
@@ -95,6 +155,7 @@ function updateStocksPriceCalculation() {
 }
 
 function showStocksPopup() {
+  console.log('Showing stocks popup');
   // Reset and show popup
   document.getElementById('stocks-buy-type').value = 'total';
   document.getElementById('stocks-shares').value = '1';
@@ -107,6 +168,7 @@ function showStocksPopup() {
 }
 
 function hideStocksPopup() {
+  console.log('Hiding stocks popup');
   document.getElementById('stocks-popup').style.display = 'none';
 }
 
@@ -163,7 +225,13 @@ function addStocksPurchaseToEntries(shares, price) {
 }
 
 function setupStocksSellPopup() {
+  console.log('Setting up stocks sell popup');
   const popup = document.getElementById('stocks-sell-popup');
+  if (!popup) {
+    console.error('Could not find stocks sell popup!');
+    return;
+  }
+  
   const sellTypeSelect = document.getElementById('stocks-sell-type');
   const sharesInput = document.getElementById('stocks-sell-shares');
   const priceInput = document.getElementById('stocks-sell-price');
@@ -178,8 +246,10 @@ function setupStocksSellPopup() {
   // Input changes
   sharesInput.addEventListener('input', updateStocksSellPriceCalculation);
   priceInput.addEventListener('input', updateStocksSellPriceCalculation);
-    // Buttons
-  confirmBtn.addEventListener('click', () => {
+  
+  // Confirm button
+  confirmBtn.addEventListener('click', function() {
+    console.log('Stock sell confirm clicked');
     const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
     const totalCost = parseInt(document.getElementById('input-asset-stocks-cost').value) || 0;
     const sharesToSell = parseInt(sharesInput.value) || 0;
@@ -190,6 +260,8 @@ function setupStocksSellPopup() {
     } else if (sellTypeSelect.value === 'per-share') {
       price = (parseFloat(priceInput.value) || 0) * sharesToSell;
     }
+    
+    console.log(`Selling ${sharesToSell} of ${totalShares} shares for ${price}`);
     
     // Check if enough shares are available and the price is valid
     if (sharesToSell > 0 && price > 0 && sharesToSell <= totalShares) {
@@ -207,7 +279,19 @@ function setupStocksSellPopup() {
       // Update account balance display
       addStocksSaleToEntries(sharesToSell, price);
       window.CashflowCore.updateDisplayBalance();
-      window.updateSellButtonStates();
+      
+      // Update sell button state
+      if (typeof window.updateSellButtonStates === 'function') {
+        window.updateSellButtonStates();
+      } else {
+        console.error('updateSellButtonStates function not found!');
+        // Update sell button directly
+        const sellBtn = document.getElementById('btn-sell-stocks');
+        if (sellBtn && (totalShares - sharesToSell) <= 0) {
+          sellBtn.disabled = true;
+          sellBtn.classList.add('btn-disabled');
+        }
+      }
       
       // Close popup
       hideStocksSellPopup();
@@ -221,10 +305,14 @@ function setupStocksSellPopup() {
     }
   });
   
-  cancelBtn.addEventListener('click', hideStocksSellPopup);
+  // Cancel button
+  cancelBtn.addEventListener('click', function() {
+    console.log('Stock sell cancel clicked');
+    hideStocksSellPopup();
+  });
   
   // Click outside popup closes it
-  popup.addEventListener('click', (e) => {
+  popup.addEventListener('click', function(e) {
     if (e.target === popup) {
       hideStocksSellPopup();
     }
@@ -254,6 +342,7 @@ function updateStocksSellPriceCalculation() {
 }
 
 function showStocksSellPopup() {
+  console.log('Showing stocks sell popup');
   const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
   
   // Reset and show popup
@@ -272,6 +361,7 @@ function showStocksSellPopup() {
 }
 
 function hideStocksSellPopup() {
+  console.log('Hiding stocks sell popup');
   document.getElementById('stocks-sell-popup').style.display = 'none';
 }
 
@@ -326,12 +416,6 @@ function addStocksSaleToEntries(shares, price) {
   // Set global flag (for bank logic)
   window.lastActionWasManualEntry = true;
 }
-
-// Initialize functionality when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Stocks.js: DOM ready, setting up popups');
-  setupStocksPopups();
-});
 
 // Make functions available globally
 window.showStocksPopup = showStocksPopup;
