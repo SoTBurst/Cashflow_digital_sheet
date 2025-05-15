@@ -91,12 +91,13 @@
       </div>
     </div>
   </div>
-  
-  <!-- Popup für Aktien Kauf -->
+    <!-- Popup für Aktien Kauf -->
   <div id="stocks-popup" class="popup-overlay">
     <div class="popup-content">
       <h3>Aktien kaufen</h3>
       <div class="popup-grid">
+        <label>Name:</label>
+        <input id="stocks-name" type="text" value="" placeholder="Name der Aktie">
         
         <label>Anzahl Aktien:</label>
         <input id="stocks-shares" type="number" min="1" value="1">
@@ -115,12 +116,13 @@
       </div>
     </div>
   </div>
-  
-  <!-- Popup für Aktien Verkauf -->
+    <!-- Popup für Aktien Verkauf -->
   <div id="stocks-sell-popup" class="popup-overlay">
     <div class="popup-content">
       <h3>Aktien verkaufen</h3>
       <div class="popup-grid">
+        <label>Name:</label>
+        <input id="stocks-sell-name" type="text" value="" placeholder="Name der Aktie">
         
         <label>Anzahl Aktien:</label>
         <input id="stocks-sell-shares" type="number" min="1" value="1">

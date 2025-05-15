@@ -59,16 +59,16 @@ function setupStocksBuyPopup() {
   // Input changes
   sharesInput.addEventListener('input', updateStocksPriceCalculation);
   priceInput.addEventListener('input', updateStocksPriceCalculation);
-
   // Confirm button
   confirmBtn.addEventListener('click', function () {
     console.log('Stock buy confirm clicked');
     const shares = parseInt(sharesInput.value) || 0;
+    const stockName = document.getElementById('stocks-name').value.trim();
     let price;
 
     price = (parseFloat(priceInput.value) || 0) * shares;
 
-    console.log(`Buying ${shares} shares for ${price}`);
+    console.log(`Buying ${shares} shares of ${stockName} for ${price}`);
 
     if (shares > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
       // Subtract amount from account balance
@@ -82,7 +82,7 @@ function setupStocksBuyPopup() {
       document.getElementById('input-asset-stocks-cost').value = currentStocksCost + price;
 
       // Update account balance display
-      addStocksPurchaseToEntries(shares, price);
+      addStocksPurchaseToEntries(shares, price, stockName);
       window.CashflowCore.updateDisplayBalance();
 
       // Update sell button state
@@ -141,6 +141,7 @@ function updateStocksPriceCalculation() {
 function showStocksPopup() {
   console.log('Showing stocks popup');
   // Reset and show popup
+  document.getElementById('stocks-name').value = '';
   document.getElementById('stocks-shares').value = '1';
   document.getElementById('stocks-price').value = '';
   document.getElementById('stocks-price').placeholder = 'Preis pro Aktie';
@@ -155,7 +156,7 @@ function hideStocksPopup() {
   document.getElementById('stocks-popup').style.display = 'none';
 }
 
-function addStocksPurchaseToEntries(shares, price) {
+function addStocksPurchaseToEntries(shares, price, stockName) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
   const lastEntryIndex = entriesChildren.length - 1;
@@ -173,7 +174,10 @@ function addStocksPurchaseToEntries(shares, price) {
   inp.readOnly = true;
   inp.value = '-' + price.toFixed(2);
   inp.style.color = 'var(--danger)';
-  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''} gekauft`;
+  
+  // Include stock name in title if provided
+  const nameInfo = stockName ? ` (${stockName})` : '';
+  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''}${nameInfo} gekauft`;
 
   li.append(inp);
 
@@ -227,19 +231,19 @@ function setupStocksSellPopup() {
   // Input changes
   sharesInput.addEventListener('input', updateStocksSellPriceCalculation);
   priceInput.addEventListener('input', updateStocksSellPriceCalculation);
-
   // Confirm button
   confirmBtn.addEventListener('click', function () {
     console.log('Stock sell confirm clicked');
     const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
     const totalCost = parseInt(document.getElementById('input-asset-stocks-cost').value) || 0;
     const sharesToSell = parseInt(sharesInput.value) || 0;
+    const stockName = document.getElementById('stocks-sell-name').value.trim();
     let price;
 
     price = (parseFloat(priceInput.value) || 0) * sharesToSell;
 
 
-    console.log(`Selling ${sharesToSell} of ${totalShares} shares for ${price}`);
+    console.log(`Selling ${sharesToSell} of ${totalShares} shares of ${stockName} for ${price}`);
 
     // Check if enough shares are available and the price is valid
     if (sharesToSell > 0 && price > 0 && sharesToSell <= totalShares) {
@@ -255,7 +259,7 @@ function setupStocksSellPopup() {
       document.getElementById('input-asset-stocks-cost').value = Math.round(totalCost - soldSharesCost);
 
       // Update account balance display
-      addStocksSaleToEntries(sharesToSell, price);
+      addStocksSaleToEntries(sharesToSell, price, stockName);
       window.CashflowCore.updateDisplayBalance();
 
       // Update sell button state
@@ -317,6 +321,7 @@ function showStocksSellPopup() {
   const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
 
   // Reset and show popup
+  document.getElementById('stocks-sell-name').value = '';
   document.getElementById('stocks-sell-shares').value = '1';
   document.getElementById('stocks-sell-price').value = '';
   document.getElementById('stocks-sell-price').placeholder = 'Preis pro Aktie';
@@ -335,7 +340,7 @@ function hideStocksSellPopup() {
   document.getElementById('stocks-sell-popup').style.display = 'none';
 }
 
-function addStocksSaleToEntries(shares, price) {
+function addStocksSaleToEntries(shares, price, stockName) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
   const lastEntryIndex = entriesChildren.length - 1;
@@ -353,7 +358,10 @@ function addStocksSaleToEntries(shares, price) {
   inp.readOnly = true;
   inp.value = '+' + price.toFixed(2);
   inp.style.color = ''; // Positive amounts in standard color
-  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''} verkauft`;
+  
+  // Include stock name in title if provided
+  const nameInfo = stockName ? ` (${stockName})` : '';
+  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''}${nameInfo} verkauft`;
 
   li.append(inp);
 
