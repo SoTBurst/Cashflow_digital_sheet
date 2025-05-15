@@ -4,8 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>Digitales Cashflow‑Tool</title>
-  <style>
-    :root {
+  <style>    :root {
       --bg: #f5f7fa;
       --surface: #ffffff;
       --primary: #2a9d8f;
@@ -13,6 +12,7 @@
       --accent: #e9c46a;
       --text: #333333;
       --border: #dddddd;
+      --danger: #e76f51;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -125,12 +125,40 @@
       margin-bottom: 0.5rem;
       opacity: 0;
       animation: fadeIn 0.4s ease-out forwards;
-    }
-
-    #entries input {
+    }    #entries input {
       flex: 1;
       padding: 0.5rem;
       border-radius: 4px;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.2s, transform 0.1s;
+    }
+    
+    button:hover:not(:disabled) {
+      background-color: #238a7e;
+      transform: translateY(-2px);
+    }
+    
+    button:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+    
+    button:disabled {
+      background-color: #cccccc;
+      color: #888888;
+      cursor: not-allowed;
+    }
+    
+    button.btn-disabled {
+      opacity: 0.7;
     }
 
     @keyframes fadeIn {
@@ -139,10 +167,10 @@
     }
   </style>
 </head>
-<body>
-  <div class="profile-selection">
+<body>  <div class="profile-selection">
     <label>Profil auswählen:
       <select id="profile-selector">
+        <option value="debug-anwalt">🐞 Debug Anwalt</option>
         <option value="anwalt">⚖️ Anwalt</option>
         <option value="arzt">🩺 Arzt</option>
         <option value="hausmeister">🏠 Hausmeister</option>
@@ -217,9 +245,9 @@
       <div class="balance">Aktueller Kontostand: <span id="current-balance">0,00</span> €</div>
       <ul id="entries"></ul>
     </div>
-  </div>
-  <script>
+  </div>  <script>
     const profilesData = {
+      "debug-anwalt": { bal: [50000, 100000], inc: 7500, exp: 5100, ob: [[115000,1100],[78000,300],[11000,200],[7000,200]], taxes:3300 },
       anwalt: { bal: [2000, 2400], inc: 7500, exp: 5100, ob: [[115000,1100],[78000,300],[11000,200],[7000,200]], taxes:3300 },
       arzt: { bal: [3500, 4900], inc: 13200, exp: 8300, ob: [[202000,1900],[150000,700],[19000,300],[10000,200]], taxes:5700 },
       hausmeister: { bal: [600, 600], inc: 1600, exp: 1000, ob: [[20000,200],[0,0],[4000,100],[3000,100]], taxes:600 },
@@ -302,10 +330,9 @@
       inp.parentNode.after(sumLi);
       updateDisplayBalance();
       addEntry();
-    }
-
-    function updateDisplayBalance() {
+    }    function updateDisplayBalance() {
       document.getElementById('current-balance').textContent = runningBalance.toFixed(2).replace('.', ',');
+      updatePayButtonStates();
     }
 
     function updateSummary() {
@@ -323,9 +350,7 @@
       document.getElementById('sum-total-income').textContent = totalInc + ' €';
       document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
       document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
-    }
-
-    function setupPayButtons() {
+    }    function setupPayButtons() {
       ['mortgage','bafog','autoloan','cc'].forEach(type => {
         const btn = document.getElementById(`btn-pay-${type}`);
         btn.addEventListener('click', () => {
@@ -339,12 +364,30 @@
             btn.disabled = true;
             updateDisplayBalance();
             updateSummary();
-          } else {
-            alert('Nicht genügend Guthaben zum Abzahlen!');
           }
         });
       });
-    }    function loadData(profile) {
+    }
+    
+    function updatePayButtonStates() {
+      ['mortgage','bafog','autoloan','cc'].forEach(type => {
+        const btn = document.getElementById(`btn-pay-${type}`);
+        const liInput = document.getElementById(`input-liability-${type}`);
+        const amount = parseFloat(liInput.value) || 0;
+        
+        // Deaktiviere Knopf wenn Verbindlichkeit 0 ist oder nicht genug Guthaben vorhanden
+        btn.disabled = amount <= 0 || runningBalance < amount;
+        
+        // Visuelles Feedback zum Knopfstatus
+        if (btn.disabled) {
+          btn.classList.add('btn-disabled');
+          btn.title = amount <= 0 ? 'Keine Verbindlichkeit' : 'Nicht genügend Guthaben';
+        } else {
+          btn.classList.remove('btn-disabled');
+          btn.title = 'Verbindlichkeit vollständig abzahlen';
+        }
+      });
+    }function loadData(profile) {
       const data = profilesData[profile] || profilesData['anwalt'];
       balanceArray = data.bal;
       baseIncome = data.inc;
@@ -364,13 +407,13 @@
       document.getElementById('input-liability-bafog').value = obligations[1][0];
       document.getElementById('input-liability-autoloan').value = obligations[2][0];
       document.getElementById('input-liability-cc').value = obligations[3][0];
-      
-      document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
+        document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
       ['input-income-interest','input-income-property'].forEach(id =>
         document.getElementById(id).addEventListener('input', updateSummary)
       );
       updateSummary();
       renderBaseEntries();
+      updatePayButtonStates();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
