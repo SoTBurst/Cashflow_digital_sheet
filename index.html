@@ -221,10 +221,51 @@
       background-color: #cccccc;
       color: #888888;
       cursor: not-allowed;
-    }
-
-    button.btn-disabled {
+    }    button.btn-disabled {
       opacity: 0.7;
+    }
+    
+    /* Popup styles */
+    .popup-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .popup-content {
+      background-color: var(--surface);
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      padding: 1.5rem;
+      width: 90%;
+      max-width: 400px;
+    }
+    
+    .popup-content h3 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .popup-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+    
+    .popup-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.8rem;
     }
 
     @keyframes fadeIn {
@@ -261,7 +302,36 @@
         <option value="sekretaer">🗂️ Sekretär</option>
       </select>
     </div>
+  </div>  <!-- Popup für Edelmetalle Kauf -->
+  <div id="metals-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Edelmetalle kaufen</h3>
+      <div class="popup-grid">
+        <label>Kaufart:</label>
+        <select id="metals-buy-type">
+          <option value="total">Gesamtpreis</option>
+          <option value="per-coin">Preis pro Münze</option>
+        </select>
+        
+        <label>Anzahl Münzen:</label>
+        <input id="metals-coins" type="number" min="1" value="1">
+        
+        <label>Preis:</label>
+        <input id="metals-price" type="number" min="0" value="0">
+        
+        <div id="metals-total-container" style="display: none">
+          <label>Gesamtpreis:</label>
+          <span id="metals-total-price">0</span> €
+        </div>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="metals-buy-confirm">Kaufen</button>
+        <button id="metals-buy-cancel">Abbrechen</button>
+      </div>
+    </div>
   </div>
+
   <div class="container">
     <div class="sheet">      <section>
         <h2>1) Einkommen</h2>
@@ -651,18 +721,176 @@
       setupBankLoanButtons();
       setupBuyButtons();
     });
-    
-    function setupBuyButtons() {
-      // Buy buttons event listeners (currently do nothing)
+      function setupBuyButtons() {
+      // Edelmetalle Kauf-Button
       document.getElementById('btn-buy-metals').addEventListener('click', () => {
-        // Functionality to be implemented
+        showMetalsPopup();
       });
+      
+      // Aktien Kauf-Button (noch ohne Funktion)
       document.getElementById('btn-buy-stocks').addEventListener('click', () => {
         // Functionality to be implemented
       });
+      
+      // Immobilien Kauf-Button (noch ohne Funktion)
       document.getElementById('btn-buy-property').addEventListener('click', () => {
         // Functionality to be implemented
       });
+      
+      // Setup für das Edelmetalle-Popup
+      setupMetalsPopup();
+    }
+    
+    function setupMetalsPopup() {
+      const popup = document.getElementById('metals-popup');
+      const buyTypeSelect = document.getElementById('metals-buy-type');
+      const coinsInput = document.getElementById('metals-coins');
+      const priceInput = document.getElementById('metals-price');
+      const totalContainer = document.getElementById('metals-total-container');
+      const totalPrice = document.getElementById('metals-total-price');
+      const confirmBtn = document.getElementById('metals-buy-confirm');
+      const cancelBtn = document.getElementById('metals-buy-cancel');
+      
+      // Kaufart-Wechsel
+      buyTypeSelect.addEventListener('change', updateMetalsPriceCalculation);
+      
+      // Input-Änderungen
+      coinsInput.addEventListener('input', updateMetalsPriceCalculation);
+      priceInput.addEventListener('input', updateMetalsPriceCalculation);
+      
+      // Buttons
+      confirmBtn.addEventListener('click', () => {
+        const coins = parseInt(coinsInput.value) || 0;
+        let price;
+        
+        if (buyTypeSelect.value === 'total') {
+          price = parseFloat(priceInput.value) || 0;
+        } else {
+          price = (parseFloat(priceInput.value) || 0) * coins;
+        }
+        
+        if (coins > 0 && price > 0 && runningBalance >= price) {
+          // Betrag vom Kontostand abziehen
+          runningBalance -= price;
+          
+          // Anzahl der Münzen zu den Edelmetallen hinzufügen
+          const currentMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
+          document.getElementById('input-asset-metals').value = currentMetals + coins;
+          
+          // Kontostandanzeige aktualisieren
+          addMetalsPurchaseToEntries(coins, price);
+          updateDisplayBalance();
+          
+          // Popup schließen
+          hideMetalsPopup();
+        } else {
+          // Fehlermeldung bei unzureichendem Guthaben oder ungültigen Werten
+          if (runningBalance < price) {
+            alert('Nicht genügend Guthaben für diesen Kauf!');
+          } else {
+            alert('Bitte geben Sie gültige Werte ein!');
+          }
+        }
+      });
+      
+      cancelBtn.addEventListener('click', hideMetalsPopup);
+      
+      // Klick außerhalb des Popups schließt es
+      popup.addEventListener('click', (e) => {
+        if (e.target === popup) {
+          hideMetalsPopup();
+        }
+      });
+    }
+    
+    function updateMetalsPriceCalculation() {
+      const buyTypeSelect = document.getElementById('metals-buy-type');
+      const coinsInput = document.getElementById('metals-coins');
+      const priceInput = document.getElementById('metals-price');
+      const totalContainer = document.getElementById('metals-total-container');
+      const totalPrice = document.getElementById('metals-total-price');
+      
+      const coins = parseInt(coinsInput.value) || 0;
+      const inputPrice = parseFloat(priceInput.value) || 0;
+      
+      if (buyTypeSelect.value === 'total') {
+        // Gesamtpreis ausgewählt
+        priceInput.placeholder = 'Gesamtpreis';
+        totalContainer.style.display = 'none';
+      } else {
+        // Preis pro Münze ausgewählt
+        priceInput.placeholder = 'Preis pro Münze';
+        totalContainer.style.display = 'contents';
+        totalPrice.textContent = (inputPrice * coins).toFixed(2);
+      }
+    }
+    
+    function showMetalsPopup() {
+      // Popup zurücksetzen und anzeigen
+      document.getElementById('metals-buy-type').value = 'total';
+      document.getElementById('metals-coins').value = '1';
+      document.getElementById('metals-price').value = '';
+      document.getElementById('metals-price').placeholder = 'Gesamtpreis';
+      document.getElementById('metals-total-container').style.display = 'none';
+      
+      const popup = document.getElementById('metals-popup');
+      popup.style.display = 'flex';
+    }
+    
+    function hideMetalsPopup() {
+      document.getElementById('metals-popup').style.display = 'none';
+    }
+    
+    function addMetalsPurchaseToEntries(coins, price) {
+      const ul = document.getElementById('entries');
+      const entriesChildren = Array.from(ul.children);
+      const lastEntryIndex = entriesChildren.length - 1;
+      
+      // Prüfen, ob das letzte Element ein leeres Eingabefeld ist
+      const isLastEntryEmpty = lastEntryIndex >= 0 && 
+                             entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+      
+      const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+      
+      // Eintrag für den Edelmetallkauf erstellen
+      const li = document.createElement('li');
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.readOnly = true;
+      inp.value = '-' + price.toFixed(2);
+      inp.style.color = 'var(--danger)';
+      inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} gekauft`;
+      
+      li.append(inp);
+      
+      if (insertBeforeElement) {
+        ul.insertBefore(li, insertBeforeElement);
+      } else {
+        ul.appendChild(li);
+      }
+      
+      // Aktualisierte Kontostandsanzeige
+      const sumLi = document.createElement('li');
+      const sumInp = document.createElement('input');
+      sumInp.type = 'text';
+      sumInp.readOnly = true;
+      sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance).toFixed(2);
+      sumInp.style.background = '#eee';
+      
+      if (runningBalance < 0) {
+        sumInp.style.color = 'var(--danger)';
+      }
+      
+      sumLi.append(sumInp);
+      
+      if (insertBeforeElement) {
+        ul.insertBefore(sumLi, insertBeforeElement);
+      } else {
+        ul.appendChild(sumLi);
+      }
+      
+      // Globale Flag setzen (für die Bank-Logik)
+      window.lastActionWasManualEntry = true;
     }function setupBankLoanButtons() {
       // Tracking-Variable für die aktuelle Sequenz von Bankkrediten
       let currentBankEntryAmount = 0;
