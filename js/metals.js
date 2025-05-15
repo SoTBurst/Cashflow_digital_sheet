@@ -8,10 +8,13 @@ function setupBuyButtons() {
   document.getElementById('btn-buy-metals').addEventListener('click', () => {
     showMetalsPopup();
   });
-  
-  // Aktien Kauf-Button (noch ohne Funktion)
+  // Aktien Kauf-Button
   document.getElementById('btn-buy-stocks').addEventListener('click', () => {
-    // Functionality to be implemented
+    if (typeof window.showStocksPopup === 'function') {
+      window.showStocksPopup();
+    } else {
+      console.error('showStocksPopup function not found');
+    }
   });
   
   // Immobilien Kauf-Button (noch ohne Funktion)
@@ -222,12 +225,14 @@ function setupSellButtons() {
       showMetalsSellPopup();
     }
   });
-  
   document.getElementById('btn-sell-stocks').addEventListener('click', () => {
     const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
     if (stocksQty > 0) {
-      // Funktion für den Verkauf (kann später implementiert werden)
-      alert('Verkauf-Funktion für Aktien wird noch implementiert.');
+      if (typeof window.showStocksSellPopup === 'function') {
+        window.showStocksSellPopup();
+      } else {
+        console.error('showStocksSellPopup function not found');
+      }
     }
   });
   

@@ -60,8 +60,7 @@
     </div>
   </div>
   
-  <!-- Popup für Edelmetalle Verkauf -->
-  <div id="metals-sell-popup" class="popup-overlay">
+  <!-- Popup für Edelmetalle Verkauf -->  <div id="metals-sell-popup" class="popup-overlay">
     <div class="popup-content">
       <h3>Edelmetalle verkaufen</h3>
       <div class="popup-grid">
@@ -89,6 +88,68 @@
       <div class="popup-buttons">
         <button id="metals-sell-confirm">Verkaufen</button>
         <button id="metals-sell-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Popup für Aktien Kauf -->
+  <div id="stocks-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Aktien kaufen</h3>
+      <div class="popup-grid">
+        <label>Kaufart:</label>
+        <select id="stocks-buy-type">
+          <option value="total">Gesamtpreis</option>
+          <option value="per-share">Preis pro Aktie</option>
+        </select>
+        
+        <label>Anzahl Aktien:</label>
+        <input id="stocks-shares" type="number" min="1" value="1">
+        
+        <label>Preis:</label>
+        <input id="stocks-price" type="number" min="0" value="0">
+          <div id="stocks-total-container" style="display: none">
+          <label>Gesamtpreis:</label>
+          <span id="stocks-total-price">0 €</span>
+        </div>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="stocks-buy-confirm">Kaufen</button>
+        <button id="stocks-buy-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Popup für Aktien Verkauf -->
+  <div id="stocks-sell-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Aktien verkaufen</h3>
+      <div class="popup-grid">
+        <label>Verkaufsart:</label>
+        <select id="stocks-sell-type">
+          <option value="total">Gesamtpreis</option>
+          <option value="per-share">Preis pro Aktie</option>
+        </select>
+        
+        <label>Anzahl Aktien:</label>
+        <input id="stocks-sell-shares" type="number" min="1" value="1">
+        
+        <label>Preis:</label>
+        <input id="stocks-sell-price" type="number" min="0" value="0">
+        
+        <div id="stocks-sell-total-container" style="display: none">
+          <label>Gesamterlös:</label>
+          <span id="stocks-sell-total-price">0 €</span>
+        </div>
+        
+        <label>Verfügbare Aktien:</label>
+        <span id="stocks-available">0</span>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="stocks-sell-confirm">Verkaufen</button>
+        <button id="stocks-sell-cancel">Abbrechen</button>
       </div>
     </div>
   </div>
@@ -193,11 +254,11 @@
       <ul id="entries"></ul>
     </div>
   </div>
-
   <!-- Load JavaScript modules -->
   <script src="js/core.js"></script>
   <script src="js/bankloan.js"></script>
   <script src="js/metals.js"></script>
+  <script src="js/stocks.js"></script>
   <script src="js/ui-utils.js"></script>
 </body>
 
