@@ -460,7 +460,7 @@
     }    document.addEventListener('DOMContentLoaded', () => {
       sel.addEventListener('change', () => loadData(sel.value));
       loadData(sel.value);
-      addEntry();
+      // addEntry() wird nicht mehr hier aufgerufen, da es bereits in renderBaseEntries() aufgerufen wird
       setupPayButtons();
       setupBankLoanButtons();
     });
