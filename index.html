@@ -21,9 +21,7 @@
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-    }
-
-    body {
+    }    body {
       background-color: var(--bg);
       color: var(--text);
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -33,7 +31,9 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
-    }    input,
+      position: relative;
+      transition: transform 0.3s ease;
+    }input,
     select {
       font-size: 1rem;
       border: 1px solid var(--border);
@@ -266,9 +266,7 @@
       display: flex;
       justify-content: flex-end;
       gap: 0.8rem;
-    }
-
-    @keyframes fadeIn {
+    }    @keyframes fadeIn {
       from {
         opacity: 0;
         transform: translateY(-3px);
@@ -279,10 +277,39 @@
         transform: translateY(0);
       }
     }
+    
+    /* Mobile optimizations */
+    @media (max-width: 768px) {
+      body.taskbar-hidden {
+        transform: translateY(-70px);
+      }
+      
+      .mobile-handle {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 10px;
+        background-color: var(--primary);
+        opacity: 0.3;
+        z-index: 50;
+        border-radius: 0 0 4px 4px;
+        display: none;
+      }
+      
+      body.taskbar-hidden .mobile-handle {
+        display: block;
+      }
+      
+      .container {
+        padding-bottom: 20px; /* Extra space at bottom on mobile */
+      }
+    }
   </style>
 </head>
 
 <body>
+  <div class="mobile-handle" id="mobile-handle"></div>
   <div class="profile-selector-container">
     <div class="profile-selection">
       <label for="profile-selector">Profil:</label>
@@ -1073,9 +1100,56 @@
         }
 
         // Aktuelle Elemente für spätere Aktualisierungen speichern
-        currentBankEntryElement = inp;
+        currentBankEntryElement = inp;      }
+    }
+    
+    // Mobile scroll functionality for hiding taskbar
+    function setupMobileScroll() {
+      // Only set up on mobile devices
+      if (window.innerWidth > 768) {
+        return;
+      }
+      
+      const body = document.body;
+      let touchStartY = 0;
+      let touchEndY = 0;
+      
+      // Handle for showing taskbar again
+      const mobileHandle = document.getElementById('mobile-handle');
+      mobileHandle.addEventListener('click', () => {
+        body.classList.remove('taskbar-hidden');
+      });
+      
+      // Touch events for the whole page
+      body.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+      }, false);
+      
+      body.addEventListener('touchend', (e) => {
+        touchEndY = e.changedTouches[0].clientY;
+        handleSwipe();
+      }, false);
+      
+      function handleSwipe() {
+        // Detect direction
+        const swipeDistance = touchEndY - touchStartY;
+        
+        // Upward swipe (hide taskbar)
+        if (swipeDistance < -50 && !body.classList.contains('taskbar-hidden')) {
+          body.classList.add('taskbar-hidden');
+        }
+        
+        // Downward swipe (show taskbar)
+        if (swipeDistance > 50 && body.classList.contains('taskbar-hidden')) {
+          body.classList.remove('taskbar-hidden');
+        }
       }
     }
+    
+    // Initialize mobile scroll when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      setupMobileScroll();
+    });
   </script>
 </body>
 
