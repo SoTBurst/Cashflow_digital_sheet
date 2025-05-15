@@ -427,11 +427,87 @@
             liInput.value = 0;
             expInput.value = 0;
             btn.disabled = true;
+            
+            // Eintrag für die Rückzahlung der Verbindlichkeit im Bargeldkonto hinzufügen
+            addLiabilityPaymentToEntries(type, amount);
+            
             updateDisplayBalance();
             updateSummary();
           }
         });
       });
+    }
+    
+    // Funktion zum Hinzufügen eines Eintrags für die Rückzahlung einer Verbindlichkeit zum Bargeldkonto
+    function addLiabilityPaymentToEntries(type, amount) {
+      const ul = document.getElementById('entries');
+      const entriesChildren = Array.from(ul.children);
+      const lastEntryIndex = entriesChildren.length - 1;
+      
+      // Finden des letzten leeren Eingabefelds (für neue Einträge)
+      const isLastEntryEmpty = lastEntryIndex >= 0 && 
+                             entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+      
+      const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+      
+      // Erstellen eines Eintrags für die Verbindlichkeitsrückzahlung
+      const li = document.createElement('li');
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.readOnly = true;
+      
+      // Negativer Betrag (Geld wird ausgegeben)
+      inp.value = '-' + Math.abs(amount);
+      inp.style.color = 'var(--danger)';
+      
+      // Typ der Verbindlichkeit als Beschreibung im Datensatz speichern
+      inp.dataset.liabilityType = type;
+      
+      // Je nach Verbindlichkeitstyp einen benutzerfreundlichen Text hinzufügen
+      const liabilityNames = {
+        'mortgage': 'Hypothek',
+        'bafog': 'BAföG Darlehen',
+        'autoloan': 'Autokredit',
+        'cc': 'Kreditkarte'
+      };
+      
+      inp.title = liabilityNames[type] + ' vollständig abgezahlt';
+      
+      li.append(inp);
+      
+      if (insertBeforeElement) {
+        // Einfügen vor dem leeren Eingabefeld
+        ul.insertBefore(li, insertBeforeElement);
+      } else {
+        // Anfügen am Ende, wenn kein leeres Eingabefeld vorhanden ist
+        ul.appendChild(li);
+      }
+      
+      // Aktualisiere den Kontostand-Eintrag
+      const sumLi = document.createElement('li');
+      const sumInp = document.createElement('input');
+      sumInp.type = 'text';
+      sumInp.readOnly = true;
+      sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance);
+      sumInp.style.background = '#eee';
+      
+      if (runningBalance < 0) {
+        sumInp.style.color = 'var(--danger)';
+      }
+      
+      sumLi.append(sumInp);
+      
+      if (insertBeforeElement) {
+        // Einfügen nach dem Verbindlichkeits-Eintrag und vor dem leeren Eingabefeld
+        ul.insertBefore(sumLi, insertBeforeElement);
+      } else {
+        // Anfügen am Ende
+        ul.appendChild(sumLi);
+      }
+      
+      // Nach Bezahlung einer Verbindlichkeit Flag setzen, damit updateBankEntryInList weiß,
+      // dass es einen neuen Eintrag erstellen soll für den nächsten Bankkredit
+      window.lastActionWasManualEntry = true;
     }
       function updatePayButtonStates() {
       ['mortgage','bafog','autoloan','cc'].forEach(type => {
