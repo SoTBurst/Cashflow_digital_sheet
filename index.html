@@ -299,31 +299,29 @@
         }
       }
       return arr;
-    }
-
-    function renderBaseEntries() {
+    }    function renderBaseEntries() {
       const ul = document.getElementById('entries');
       ul.innerHTML = '';
       const arr = generateArray();
-      initialBalance = arr[arr.length - 1] || 0;
+      // Erstes Element (der alte Kontostand) überspringen, und den letzten Wert als initialBalance verwenden
+      initialBalance = arr.length > 1 ? arr[arr.length - 1] : 0;
       runningBalance = initialBalance;
-      arr.forEach((num, i) => {
+      
+      // Schleife beginnt bei Index 1, um den ersten Wert zu überspringen
+      for (let i = 1; i < arr.length; i++) {
+        const num = arr[i];
         const li = document.createElement('li');
         const inp = document.createElement('input');
-        if (i === 0) {
-          inp.type = 'text';
-          inp.readOnly = true;
-          inp.value = Math.abs(num);
-          inp.style.background = '#eee';
-        } else {
-          inp.type = 'number';
-          inp.readOnly = false;
-          inp.value = num;
-        }
+        inp.type = 'number';
+        inp.readOnly = false;
+        inp.value = num;
         li.append(inp);
         ul.append(li);
-      });
+      }
+      
+      // Display-Aktualisierung und ein neues leeres Eingabefeld für weitere Einträge
       updateDisplayBalance();
+      addEntry();
     }
 
     function addEntry() {
@@ -335,25 +333,31 @@
         if (e.key === 'Enter') { e.preventDefault(); finalizeEntry(inp); }
       });
       li.append(inp); ul.append(li); inp.focus();
-    }
-
-    function finalizeEntry(inp) {
+    }    function finalizeEntry(inp) {
       const val = parseFloat(inp.value) || 0;
       runningBalance += val;
-      inp.readOnly = true; inp.type = 'text'; inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
+      inp.readOnly = true; 
+      inp.type = 'text'; 
+      inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
+      
       const sumLi = document.createElement('li');
       const sumInp = document.createElement('input');
-      sumInp.type = 'text'; sumInp.readOnly = true;
-      sumInp.value = runningBalance;
+      sumInp.type = 'text'; 
+      sumInp.readOnly = true;
+      // Vorzeichen für Kontostand hinzufügen
+      sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance);
       sumInp.style.background = '#eee';
       sumLi.append(sumInp);
       inp.parentNode.after(sumLi);
+      
       updateDisplayBalance();
       addEntry();
     }    function updateDisplayBalance() {
-      document.getElementById('current-balance').textContent = runningBalance.toFixed(2).replace('.', ',');
+      // Vorzeichen für aktuellen Kontostand immer anzeigen
+      const prefix = runningBalance >= 0 ? '+' : '-';
+      document.getElementById('current-balance').textContent = prefix + Math.abs(runningBalance).toFixed(2).replace('.', ',');
       updatePayButtonStates();
-    }    function updateSummary() {
+    }function updateSummary() {
       const salary = baseIncome;
       const passive = (+document.getElementById('input-income-interest').value || 0) + (+document.getElementById('input-income-property').value || 0);
       const totalInc = salary + passive;
