@@ -386,23 +386,25 @@
         </div>
       </section><section>
         <h2>3) Vermögenswerte</h2>
-        <div class="grid3">
-          <div class="label">Edelmetalle etc.:</div>
+        <div class="grid3">          <div class="label">Edelmetalle etc.:</div>
           <div class="asset-control">
             <input id="input-asset-metals" type="number" readonly class="full-span">
             <button id="btn-buy-metals">Kaufen</button>
+            <button id="btn-sell-metals" disabled>Verkaufen</button>
           </div>
           <div class="label">Aktien/Fonds/CDs:</div>
           <div class="asset-control">
             <input id="input-asset-stocks-qty" type="number" readonly>
             <input id="input-asset-stocks-cost" type="number" readonly>
             <button id="btn-buy-stocks">Kaufen</button>
+            <button id="btn-sell-stocks" disabled>Verkaufen</button>
           </div>
           <div class="label">Immobilien/Unternehmen:</div>
           <div class="asset-control">
             <input id="input-asset-property-down" type="number" readonly>
             <input id="input-asset-property-cost" type="number" readonly>
             <button id="btn-buy-property">Kaufen</button>
+            <button id="btn-sell-property" disabled>Verkaufen</button>
           </div>
         </div>
       </section>
@@ -562,12 +564,11 @@
       const currentBalanceEl = document.getElementById('current-balance');
 
       // Text mit Vorzeichen setzen
-      currentBalanceEl.textContent = prefix + Math.abs(runningBalance).toFixed(2).replace('.', ',');
-
-      // Farbe anpassen - rot bei negativen Werten
+      currentBalanceEl.textContent = prefix + Math.abs(runningBalance).toFixed(2).replace('.', ',');      // Farbe anpassen - rot bei negativen Werten
       currentBalanceEl.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit';
 
       updatePayButtonStates();
+      updateSellButtonStates();
     } function updateSummary() {
       const salary = baseIncome;
       const passive = (+document.getElementById('input-income-property').value || 0);
@@ -735,10 +736,10 @@
       document.getElementById('input-liability-cc').value = obligations[3][0]; document.getElementById('input-liability-bank').value = bankLoanAmount;
 
       document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
-      document.getElementById('input-income-property').addEventListener('input', updateSummary);
-      updateSummary();
+      document.getElementById('input-income-property').addEventListener('input', updateSummary);      updateSummary();
       renderBaseEntries();
       updatePayButtonStates();
+      updateSellButtonStates();
     } document.addEventListener('DOMContentLoaded', () => {
       sel.addEventListener('change', () => loadData(sel.value));
       loadData(sel.value);
@@ -746,6 +747,7 @@
       setupPayButtons();
       setupBankLoanButtons();
       setupBuyButtons();
+      setupSellButtons();
     });
       function setupBuyButtons() {
       // Edelmetalle Kauf-Button
@@ -798,14 +800,14 @@
         if (coins > 0 && price > 0 && runningBalance >= price) {
           // Betrag vom Kontostand abziehen
           runningBalance -= price;
-          
-          // Anzahl der Münzen zu den Edelmetallen hinzufügen
+            // Anzahl der Münzen zu den Edelmetallen hinzufügen
           const currentMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
           document.getElementById('input-asset-metals').value = currentMetals + coins;
           
           // Kontostandanzeige aktualisieren
           addMetalsPurchaseToEntries(coins, price);
           updateDisplayBalance();
+          updateSellButtonStates();
           
           // Popup schließen
           hideMetalsPopup();
@@ -913,10 +915,77 @@
       } else {
         ul.appendChild(sumLi);
       }
-      
-      // Globale Flag setzen (für die Bank-Logik)
+        // Globale Flag setzen (für die Bank-Logik)
       window.lastActionWasManualEntry = true;
-    }function setupBankLoanButtons() {
+    }
+    
+    // Funktion zum Aktualisieren der "Verkaufen"-Buttons
+    function updateSellButtonStates() {
+      // Edelmetalle
+      const metalsAmount = parseInt(document.getElementById('input-asset-metals').value) || 0;
+      const btnSellMetals = document.getElementById('btn-sell-metals');
+      btnSellMetals.disabled = metalsAmount <= 0;
+      if (btnSellMetals.disabled) {
+        btnSellMetals.classList.add('btn-disabled');
+        btnSellMetals.title = 'Keine Edelmetalle zum Verkaufen vorhanden';
+      } else {
+        btnSellMetals.classList.remove('btn-disabled');
+        btnSellMetals.title = 'Edelmetalle verkaufen';
+      }
+      
+      // Aktien
+      const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+      const btnSellStocks = document.getElementById('btn-sell-stocks');
+      btnSellStocks.disabled = stocksQty <= 0;
+      if (btnSellStocks.disabled) {
+        btnSellStocks.classList.add('btn-disabled');
+        btnSellStocks.title = 'Keine Aktien zum Verkaufen vorhanden';
+      } else {
+        btnSellStocks.classList.remove('btn-disabled');
+        btnSellStocks.title = 'Aktien verkaufen';
+      }
+      
+      // Immobilien
+      const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
+      const btnSellProperty = document.getElementById('btn-sell-property');
+      btnSellProperty.disabled = propertyDown <= 0;
+      if (btnSellProperty.disabled) {
+        btnSellProperty.classList.add('btn-disabled');
+        btnSellProperty.title = 'Keine Immobilien zum Verkaufen vorhanden';
+      } else {
+        btnSellProperty.classList.remove('btn-disabled');
+        btnSellProperty.title = 'Immobilien verkaufen';
+      }
+    }
+    
+    function setupSellButtons() {
+      // Verkauf-Buttons zunächst mit Platzhalter-Funktionen
+      document.getElementById('btn-sell-metals').addEventListener('click', () => {
+        const metalsAmount = parseInt(document.getElementById('input-asset-metals').value) || 0;
+        if (metalsAmount > 0) {
+          // Funktion für den Verkauf (kann später implementiert werden)
+          alert('Verkauf-Funktion für Edelmetalle wird noch implementiert.');
+        }
+      });
+      
+      document.getElementById('btn-sell-stocks').addEventListener('click', () => {
+        const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+        if (stocksQty > 0) {
+          // Funktion für den Verkauf (kann später implementiert werden)
+          alert('Verkauf-Funktion für Aktien wird noch implementiert.');
+        }
+      });
+      
+      document.getElementById('btn-sell-property').addEventListener('click', () => {
+        const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
+        if (propertyDown > 0) {
+          // Funktion für den Verkauf (kann später implementiert werden)
+          alert('Verkauf-Funktion für Immobilien wird noch implementiert.');
+        }
+      });
+    }
+
+function setupBankLoanButtons() {
       // Tracking-Variable für die aktuelle Sequenz von Bankkrediten
       let currentBankEntryAmount = 0;
       let currentBankEntryElement = null;
