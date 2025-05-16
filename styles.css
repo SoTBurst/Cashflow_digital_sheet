@@ -1,0 +1,325 @@
+/* Main Styles for Cashflow AI Tool */
+
+:root {
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --primary: #2a9d8f;
+  --secondary: #264653;
+  --accent: #e9c46a;
+  --text: #333333;
+  --border: #dddddd;
+  --danger: #e76f51;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  padding: 0.5rem;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+input, select {
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  width: 100%;
+}
+
+input:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 5px rgba(42, 157, 143, 0.5);
+  outline: none;
+}
+
+.profile-selector-container {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 10;
+}
+
+.profile-selection {
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.profile-selection select {
+  margin-left: 0.5rem;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  flex: 1;
+  overflow: auto;
+  padding-top: 2.5rem;
+}
+
+.sheet {
+  flex: 1 1 320px;
+  background: var(--surface);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  height: 100%;
+  overflow-y: auto;
+  max-height: calc(100vh - 3.5rem);
+}
+
+.sheet:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+h2 {
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+  font-size: 1.2rem;
+}
+
+section+section {
+  margin-top: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+}
+
+.label {
+  white-space: nowrap;
+  padding-right: 0.2rem;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: auto 1fr 1fr;
+  grid-auto-flow: dense;
+  gap: 0.2rem;
+  column-gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  align-items: center;
+}
+
+.full-span {
+  grid-column: 2 / span 2;
+}
+
+.grid4 {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem;
+  column-gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  align-items: center;
+}
+
+.liability-control {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+}
+
+.asset-control {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  grid-column: 2 / span 2;
+}
+
+/* Styling for stocks name field */
+#input-asset-stocks-name {
+  min-width: 100px;
+  flex: 0.8;
+}
+
+.bank-loan-control {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.bank-controls {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.bank-controls button {
+  padding: 0.4rem;
+  min-width: 50px;
+  font-size: 0.8rem;
+}
+
+.summary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #ffffff;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.summary label {
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.balance {
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+#entries li {
+  display: flex;
+  margin-bottom: 0.4rem;
+  opacity: 0;
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+#entries input {
+  flex: 1;
+  padding: 0.4rem;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+button {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s;
+  font-size: 0.9rem;
+}
+
+button:hover:not(:disabled) {
+  background-color: #238a7e;
+}
+
+button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  background-color: #cccccc;
+  color: #888888;
+  cursor: not-allowed;
+}
+
+button.btn-disabled {
+  opacity: 0.7;
+}
+
+.popup-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.popup-content h3 {
+  margin-top: 0;
+  color: var(--primary);
+}
+
+.popup-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* Styling for stock name select in sell popup */
+#stocks-sell-name {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.popup-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .popup-content {
+    width: 95%;
+    padding: 15px;
+  }
+  
+  .popup-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  body.taskbar-hidden .container {
+    margin-bottom: 0;
+  }
+  
+  .mobile-handle {
+    display: block;
+    height: 5px;
+    width: 50px;
+    background-color: var(--secondary);
+    border-radius: 10px;
+    margin: 10px auto;
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+  
+  body.taskbar-hidden .mobile-handle {
+    opacity: 1;
+  }
+}
