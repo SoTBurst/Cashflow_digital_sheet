@@ -96,6 +96,7 @@ function setupStocksBuyPopup() {
       if (typeof window.updateSellButtonStates === 'function'){
         window.updateSellButtonStates();
       }
+      // Ensure popup closes after purchase
       hideStocksPopup();
     } else {
       if (window.CashflowCore.runningBalance() < price) alert('Nicht genügend Guthaben für diesen Kauf!');
