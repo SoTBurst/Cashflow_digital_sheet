@@ -9,12 +9,29 @@ let stocksAssets = {};
 
 // Funktion zur Aktualisierung der Asset-Liste im Frontend
 function updateStocksAssetsList() {
-  const ul = document.getElementById('stocks-assets-list');
-  ul.innerHTML = '';
+  const container = document.getElementById('stocks-assets-list');
+  container.innerHTML = '';
   Object.entries(stocksAssets).forEach(([name, asset]) => {
-    const li = document.createElement('li');
-    li.textContent = `${asset.qty}x ${name}`;
-    ul.appendChild(li);
+    const row = document.createElement('div');
+    row.classList.add('asset-item');
+    // Name
+    const nameInput = document.createElement('input');
+    nameInput.type = 'text';
+    nameInput.readOnly = true;
+    nameInput.value = name;
+    // Anzahl
+    const qtyInput = document.createElement('input');
+    qtyInput.type = 'number';
+    qtyInput.readOnly = true;
+    qtyInput.value = asset.qty;
+    // Kosten
+    const costInput = document.createElement('input');
+    costInput.type = 'number';
+    costInput.readOnly = true;
+    costInput.value = asset.cost.toFixed(2);
+    // Zeile zusammenbauen
+    row.append(nameInput, qtyInput, costInput);
+    container.appendChild(row);
   });
 }
 
