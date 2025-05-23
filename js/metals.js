@@ -25,9 +25,6 @@ function setupBuyButtons() {
   document.getElementById('btn-buy-property').addEventListener('click', () => {
     // Functionality to be implemented
   });
-  
-  // Setup für das Edelmetalle-Popup
-  setupMetalsPopup();
 }
 
 function setupMetalsPopup() {
@@ -40,15 +37,24 @@ function setupMetalsPopup() {
   const confirmBtn = document.getElementById('metals-buy-confirm');
   const cancelBtn = document.getElementById('metals-buy-cancel');
   
+  // Entferne bestehende Event-Listener um Duplikate zu vermeiden
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  
   // Kaufart-Wechsel
+  buyTypeSelect.removeEventListener('change', updateMetalsPriceCalculation);
   buyTypeSelect.addEventListener('change', updateMetalsPriceCalculation);
   
   // Input-Änderungen
+  coinsInput.removeEventListener('input', updateMetalsPriceCalculation);
   coinsInput.addEventListener('input', updateMetalsPriceCalculation);
+  priceInput.removeEventListener('input', updateMetalsPriceCalculation);
   priceInput.addEventListener('input', updateMetalsPriceCalculation);
   
   // Buttons
-  confirmBtn.addEventListener('click', () => {
+  newConfirmBtn.addEventListener('click', () => {
     const coins = parseInt(coinsInput.value) || 0;
     let price;
     
@@ -82,7 +88,7 @@ function setupMetalsPopup() {
     }
   });
   
-  cancelBtn.addEventListener('click', hideMetalsPopup);
+  newCancelBtn.addEventListener('click', hideMetalsPopup);
   
   // Klick außerhalb des Popups schließt es
   popup.addEventListener('click', (e) => {
@@ -247,9 +253,6 @@ function setupSellButtons() {
       alert('Verkauf-Funktion für Immobilien wird noch implementiert.');
     }
   });
-  
-  // Setup für das Edelmetalle-Verkauf-Popup
-  setupMetalsSellPopup();
 }
 
 function setupMetalsSellPopup() {
@@ -262,15 +265,24 @@ function setupMetalsSellPopup() {
   const confirmBtn = document.getElementById('metals-sell-confirm');
   const cancelBtn = document.getElementById('metals-sell-cancel');
   
+  // Entferne bestehende Event-Listener um Duplikate zu vermeiden
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  
   // Verkaufsart-Wechsel
+  sellTypeSelect.removeEventListener('change', updateMetalsSellPriceCalculation);
   sellTypeSelect.addEventListener('change', updateMetalsSellPriceCalculation);
   
   // Input-Änderungen
+  coinsInput.removeEventListener('input', updateMetalsSellPriceCalculation);
   coinsInput.addEventListener('input', updateMetalsSellPriceCalculation);
+  priceInput.removeEventListener('input', updateMetalsSellPriceCalculation);
   priceInput.addEventListener('input', updateMetalsSellPriceCalculation);
   
   // Buttons
-  confirmBtn.addEventListener('click', () => {
+  newConfirmBtn.addEventListener('click', () => {
     const totalMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
     const coinsToSell = parseInt(coinsInput.value) || 0;
     let price;
@@ -292,6 +304,7 @@ function setupMetalsSellPopup() {
       // Kontostandanzeige aktualisieren
       addMetalsSaleToEntries(coinsToSell, price);
       window.CashflowCore.updateDisplayBalance();
+      window.updateSellButtonStates();
       
       // Popup schließen
       hideMetalsSellPopup();
@@ -305,7 +318,7 @@ function setupMetalsSellPopup() {
     }
   });
   
-  cancelBtn.addEventListener('click', hideMetalsSellPopup);
+  newCancelBtn.addEventListener('click', hideMetalsSellPopup);
   
   // Klick außerhalb des Popups schließt es
   popup.addEventListener('click', (e) => {
