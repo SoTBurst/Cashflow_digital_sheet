@@ -183,13 +183,12 @@
             <input id="input-asset-metals" type="number" readonly class="full-span">
             <button id="btn-buy-metals">Kaufen</button>
             <button id="btn-sell-metals" disabled>Verkaufen</button>
-          </div>          <div class="label">Aktien/Fonds/CDs:</div>          <div class="asset-control">
-            <input id="input-asset-stocks-name" type="text" readonly placeholder="Name">
-            <input id="input-asset-stocks-qty" type="number" readonly placeholder="Anzahl">
-            <input id="input-asset-stocks-cost" type="number" readonly placeholder="Kosten">
+          </div>          <div class="label">Aktien/Fonds/CDs:</div>
+          <div class="asset-control">
+            <!-- Asset-Liste wird hier dynamisch eingefügt -->
+            <div id="stocks-assets-list" class="asset-list"></div>
             <button id="btn-buy-stocks">Kaufen</button>
             <button id="btn-sell-stocks" disabled>Verkaufen</button>
-            <ul id="stocks-assets-list" class="asset-list"></ul>
           </div>
           <div class="label">Immobilien/Unternehmen:</div>
           <div class="asset-control">

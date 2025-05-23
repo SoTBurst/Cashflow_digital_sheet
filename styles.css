@@ -337,3 +337,13 @@ button.btn-disabled {
   border-radius: 4px;
   background: #f9f9f9;
 }
+
+/* Stocks asset list spans full grid row */
+.asset-control .asset-list {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
