@@ -4,6 +4,19 @@
 let stocksBuyBtn, stocksSellBtn;
 // Array to store stock names
 let stockNames = [];
+// Objekt zum Speichern der unterschiedlichen Aktien und ihrer Daten
+let stocksAssets = {};
+
+// Funktion zur Aktualisierung der Asset-Liste im Frontend
+function updateStocksAssetsList() {
+  const ul = document.getElementById('stocks-assets-list');
+  ul.innerHTML = '';
+  Object.entries(stocksAssets).forEach(([name, asset]) => {
+    const li = document.createElement('li');
+    li.textContent = `${asset.qty}x ${name}`;
+    ul.appendChild(li);
+  });
+}
 
 // Initialize functionality when DOM is ready
 document.addEventListener('DOMContentLoaded', function () {
@@ -74,21 +87,15 @@ function setupStocksBuyPopup() {
 
     if (shares > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
       // Subtract amount from account balance
-      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);      // Add number of shares to stocks
-      const currentStocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
-      const currentStocksCost = parseInt(document.getElementById('input-asset-stocks-cost').value) || 0;
-
-      document.getElementById('input-asset-stocks-qty').value = currentStocksQty + shares;
-      document.getElementById('input-asset-stocks-cost').value = currentStocksCost + price;
-        // Update the stocks name field if provided
+      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);
+      // Add/update stock asset
       if (stockName) {
-        document.getElementById('input-asset-stocks-name').value = stockName;
-        
-        // Add stock name to the array if it doesn't exist already
-        if (stockName && !stockNames.includes(stockName)) {
-          stockNames.push(stockName);
-        }
+        const asset = stocksAssets[stockName] || { qty: 0, cost: 0 };
+        asset.qty += shares;
+        asset.cost += price;
+        stocksAssets[stockName] = asset;
       }
+      updateStocksAssetsList();
 
       // Update account balance display
       addStocksPurchaseToEntries(shares, price, stockName);
@@ -149,7 +156,7 @@ function updateStocksPriceCalculation() {
 
 function showStocksPopup() {
   console.log('Showing stocks popup');
-  // Get current stock name if exists
+  // Reset and show popup
   const currentStockName = document.getElementById('input-asset-stocks-qty').value > 0 ? 
     document.getElementById('input-asset-stocks-name').value : '';
     
@@ -239,76 +246,70 @@ function setupStocksSellPopup() {
   const confirmBtn = document.getElementById('stocks-sell-confirm');
   const cancelBtn = document.getElementById('stocks-sell-cancel');
 
-
+  // Select mit verfügbaren Aktien füllen
+  const stockNameSelect = document.getElementById('stocks-sell-name');
+  stockNameSelect.innerHTML = '';
+  const names = Object.keys(stocksAssets).filter(name => stocksAssets[name].qty > 0);
+  if (names.length === 0) {
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = 'Keine Aktien';
+    stockNameSelect.appendChild(emptyOption);
+  } else {
+    names.forEach(name => {
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = `${name} (${stocksAssets[name].qty})`;
+      stockNameSelect.appendChild(option);
+    });
+  }
 
   // Input changes
   sharesInput.addEventListener('input', updateStocksSellPriceCalculation);
   priceInput.addEventListener('input', updateStocksSellPriceCalculation);
   // Confirm button
   confirmBtn.addEventListener('click', function () {
-    console.log('Stock sell confirm clicked');    const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
-    const totalCost = parseInt(document.getElementById('input-asset-stocks-cost').value) || 0;
-    const sharesToSell = parseInt(sharesInput.value) || 0;
-    const stockNameSelect = document.getElementById('stocks-sell-name');
+    console.log('Stock sell confirm clicked');
     const stockName = stockNameSelect.value;
-    let price;
+    const asset = stocksAssets[stockName] || { qty: 0, cost: 0 };
+    const totalShares = asset.qty;
+    const sharesToSell = parseInt(sharesInput.value) || 0;
+    let price = (parseFloat(priceInput.value) || 0) * sharesToSell;
 
-    price = (parseFloat(priceInput.value) || 0) * sharesToSell;
-
-
-    console.log(`Selling ${sharesToSell} of ${totalShares} shares of ${stockName} for ${price}`);
-
-    // Check if enough shares are available and the price is valid
     if (sharesToSell > 0 && price > 0 && sharesToSell <= totalShares) {
-      // Add proceeds to account balance
-      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + price);
-
-      // Calculate the cost of sold shares (proportional to total cost)
-      const costPerShare = totalCost / totalShares;
-      const soldSharesCost = costPerShare * sharesToSell;      // Update stocks
-      document.getElementById('input-asset-stocks-qty').value = totalShares - sharesToSell;
-      document.getElementById('input-asset-stocks-cost').value = Math.round(totalCost - soldSharesCost);
-      
-      // If selling all shares, clear the name field
-      if (totalShares - sharesToSell <= 0) {
-        document.getElementById('input-asset-stocks-name').value = '';
+      // Update asset
+      const costPerShare = asset.cost / totalShares;
+      asset.qty -= sharesToSell;
+      asset.cost -= costPerShare * sharesToSell;
+      if (asset.qty <= 0) {
+        delete stocksAssets[stockName];
+      } else {
+        stocksAssets[stockName] = asset;
       }
+      updateStocksAssetsList();
 
-      // Update account balance display
+      // Aktualisiere Gesamt-Anzahl und Kosten
+      const totalQty = Object.values(stocksAssets).reduce((sum, a) => sum + a.qty, 0);
+      const totalCost = Object.values(stocksAssets).reduce((sum, a) => sum + a.cost, 0);
+      document.getElementById('input-asset-stocks-qty').value = totalQty;
+      document.getElementById('input-asset-stocks-cost').value = totalCost;
+      document.getElementById('input-asset-stocks-name').value = '';
+
+      // Kontostand updaten
+      window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + price);
       addStocksSaleToEntries(sharesToSell, price, stockName);
       window.CashflowCore.updateDisplayBalance();
-
-      // Update sell button state
-      if (typeof window.updateSellButtonStates === 'function') {
-        window.updateSellButtonStates();
-      } else {
-        console.error('updateSellButtonStates function not found!');
-        // Update sell button directly
-        const sellBtn = document.getElementById('btn-sell-stocks');
-        if (sellBtn && (totalShares - sharesToSell) <= 0) {
-          sellBtn.disabled = true;
-          sellBtn.classList.add('btn-disabled');
-        }
-      }
-
-      // Close popup
+      if (typeof window.updateSellButtonStates === 'function') window.updateSellButtonStates();
       hideStocksSellPopup();
     } else {
-      // Error message for insufficient shares or invalid values
-      if (sharesToSell > totalShares) {
-        alert('Sie besitzen nicht genügend Aktien für diesen Verkauf!');
-      } else {
-        alert('Bitte geben Sie gültige Werte ein!');
-      }
+      alert('Ungültige Verkaufsangabe');
     }
   });
-
-  // Cancel button
+  
   cancelBtn.addEventListener('click', function () {
-    console.log('Stock sell cancel clicked');
     hideStocksSellPopup();
   });
-
+  
   // Click outside popup closes it
   popup.addEventListener('click', function (e) {
     if (e.target === popup) {
