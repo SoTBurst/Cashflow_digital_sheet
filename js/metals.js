@@ -2,6 +2,7 @@
 window.updateSellButtonStates = updateSellButtonStates;
 window.setupBuyButtons = setupBuyButtons;
 window.setupSellButtons = setupSellButtons;
+window.updateMetalsFieldStyling = updateMetalsFieldStyling;
 
 // Metals functionality - buying and selling
 
@@ -78,11 +79,11 @@ function setupMetalsPopup() {
       
       // Anzahl der Münzen zu den Edelmetallen hinzufügen
       const currentMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
-      document.getElementById('input-asset-metals').value = currentMetals + coins;
-        // Kontostandanzeige aktualisieren
+      document.getElementById('input-asset-metals').value = currentMetals + coins;      // Kontostandanzeige aktualisieren
       addMetalsPurchaseToEntries(coins, price);
       window.CashflowCore.updateDisplayBalance();
       window.updateSellButtonStates();
+      updateMetalsFieldStyling();
       
       // Popup schließen
       hideMetalsPopup();
@@ -330,11 +331,11 @@ function setupMetalsSellPopup() {
       
       // Anzahl der Münzen von den Edelmetallen abziehen
       document.getElementById('input-asset-metals').value = totalMetals - coinsToSell;
-      
-      // Kontostandanzeige aktualisieren
+        // Kontostandanzeige aktualisieren
       addMetalsSaleToEntries(coinsToSell, price);
       window.CashflowCore.updateDisplayBalance();
       window.updateSellButtonStates();
+      updateMetalsFieldStyling();
       
       // Popup schließen
       hideMetalsSellPopup();
@@ -442,10 +443,24 @@ function addMetalsSaleToEntries(coins, price) {
   }
   
   sumLi.append(sumInp);
-  
-  // Kontostand-Eintrag nach dem Verkauf-Eintrag einfügen
+    // Kontostand-Eintrag nach dem Verkauf-Eintrag einfügen
   li.after(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;
+}
+
+// Funktion zur Aktualisierung des Edelmetalle-Feld-Stylings
+function updateMetalsFieldStyling() {
+  const metalsInput = document.getElementById('input-asset-metals');
+  const metalsAmount = parseInt(metalsInput.value) || 0;
+  
+  if (metalsAmount <= 0) {
+    // Leeres Feld - Dummy-Styling anwenden
+    metalsInput.classList.add('empty-metals');
+    metalsInput.value = '';
+  } else {
+    // Feld hat Wert - normales Styling
+    metalsInput.classList.remove('empty-metals');
+  }
 }

@@ -384,6 +384,22 @@ button.btn-disabled {
   font-style: italic;
 }
 
+/* Styling für Dummy-Immobilienzeilen */
+.dummy-property-row input {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  color: #999;
+  font-style: italic;
+}
+
+/* Styling für leeres Edelmetalle-Feld */
+#input-asset-metals.empty-metals {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  color: #999;
+  font-style: italic;
+}
+
 /* Stocks asset list spans full grid row */
 .asset-control .asset-list {
   grid-column: 1 / -1;
