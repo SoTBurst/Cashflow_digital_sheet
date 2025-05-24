@@ -202,8 +202,8 @@ function updateSellButtonStates() {
     btnSellMetals.title = 'Edelmetalle verkaufen';
   }
   
-  // Aktien
-  const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+  // Aktien - use the actual stocksAssets object instead of non-existent input field
+  const stocksQty = window.stocksAssets ? Object.values(window.stocksAssets).reduce((sum, asset) => sum + asset.qty, 0) : 0;
   const btnSellStocks = document.getElementById('btn-sell-stocks');
   btnSellStocks.disabled = stocksQty <= 0;
   if (btnSellStocks.disabled) {
