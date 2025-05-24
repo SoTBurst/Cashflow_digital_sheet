@@ -124,7 +124,7 @@ function updateMetalsPriceCalculation() {
     // Preis pro Münze ausgewählt
     priceInput.placeholder = 'Preis pro Münze';
     totalContainer.style.display = 'contents';
-    totalPrice.textContent = Math.round(inputPrice * coins) + " €";
+    totalPrice.textContent = window.formatCurrency(inputPrice * coins);
   }
 }
 
@@ -159,7 +159,7 @@ function addMetalsPurchaseToEntries(coins, price) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '-' + Math.round(price);
+  inp.value = '-' + window.formatNumber(Math.round(price));
   inp.style.color = 'var(--danger)';
   inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} gekauft`;
   
@@ -169,13 +169,12 @@ function addMetalsPurchaseToEntries(coins, price) {
     insertAfterElement.after(li);
   } else {
     ul.prepend(li);
-  }
-    // Aktualisierte Kontostandsanzeige
+  }    // Aktualisierte Kontostandsanzeige
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {
@@ -374,7 +373,7 @@ function updateMetalsSellPriceCalculation() {
     // Preis pro Münze ausgewählt
     priceInput.placeholder = 'Preis pro Münze';
     totalContainer.style.display = 'contents';
-    totalPrice.textContent = Math.round(inputPrice * coins) + " €";
+    totalPrice.textContent = window.formatCurrency(inputPrice * coins);
   }
 }
 

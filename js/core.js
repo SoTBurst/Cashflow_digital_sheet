@@ -53,9 +53,8 @@ function renderBaseEntries() {
     const inp = document.createElement('input');
     // Input als Text statt als Zahl anzeigen, um das Vorzeichen hinzuzufügen
     inp.type = 'text';
-    inp.readOnly = true;
-    // Vorzeichen für den Wert hinzufügen (+ oder -)
-    inp.value = (num >= 0 ? '+' : '-') + Math.abs(num);
+    inp.readOnly = true;    // Vorzeichen für den Wert hinzufügen (+ oder -) mit Tausendertrennzeichen
+    inp.value = window.formatNumberWithSign(num);
 
     // Rote Farbe für negative Werte
     if (num < 0) {
@@ -92,7 +91,7 @@ function finalizeEntry(inp) {
   runningBalance += val;
   inp.readOnly = true;
   inp.type = 'text';
-  inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
+  inp.value = window.formatNumberWithSign(val);
 
   // Nach manueller Eingabe setzen wir eine globale Flag, damit updateBankEntryInList weiß,
   // dass es einen neuen Eintrag erstellen soll
@@ -101,9 +100,8 @@ function finalizeEntry(inp) {
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;
-  // Vorzeichen für Kontostand hinzufügen
-  sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance);
+  sumInp.readOnly = true;  // Vorzeichen für Kontostand hinzufügen mit Tausendertrennzeichen
+  sumInp.value = window.formatNumberWithSign(runningBalance);
   sumInp.style.background = '#eee';
 
   // Rote Farbe für negative Kontostände
@@ -120,10 +118,9 @@ function finalizeEntry(inp) {
 
 function updateDisplayBalance() {
   // Vorzeichen für aktuellen Kontostand immer anzeigen
-  const prefix = runningBalance >= 0 ? '+' : '-';
   const currentBalanceEl = document.getElementById('current-balance');
-  // Text mit Vorzeichen setzen
-  currentBalanceEl.textContent = prefix + Math.abs(Math.round(runningBalance)).toString().replace('.', ',');
+  // Text mit Vorzeichen und Tausendertrennzeichen setzen
+  currentBalanceEl.textContent = window.formatNumberWithSign(runningBalance);
   
   // Farbe anpassen - rot bei negativen Werten
   currentBalanceEl.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit';
@@ -149,12 +146,11 @@ function updateSummary() {
     (parseFloat(document.getElementById('input-expenses-bafog').value) || 0) +
     (parseFloat(document.getElementById('input-expenses-autoloan').value) || 0) +
     (parseFloat(document.getElementById('input-expenses-cc').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-bank').value) || 0);
-  document.getElementById('sum-salary').textContent = salary + ' €';
-  document.getElementById('sum-passive').textContent = passive + ' €';
-  document.getElementById('sum-total-income').textContent = totalInc + ' €';
-  document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
-  document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
+    (parseFloat(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
+  document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
+  document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
+  document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
+  document.getElementById('sum-cashflow').textContent = window.formatCurrency(totalInc - totalExp);
 }
 
 function setupPayButtons() {
@@ -166,9 +162,8 @@ function setupPayButtons() {
       const amount = parseFloat(liInput.value) || 0;
       if (runningBalance >= amount && amount > 0) {
         // Aktion bei ausreichendem Guthaben ausführen
-        runningBalance -= amount;
-        liInput.value = '0 €';
-        expInput.value = '0 €';
+        runningBalance -= amount;        liInput.value = window.formatCurrency(0);
+        expInput.value = window.formatCurrency(0);
         addLiabilityPaymentToEntries(type, amount);
         updateDisplayBalance();
         updateSummary();
@@ -193,9 +188,8 @@ function addLiabilityPaymentToEntries(type, amount) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-
-  // Negativer Betrag (Geld wird ausgegeben)
-  inp.value = '-' + Math.abs(amount);
+  // Negativer Betrag (Geld wird ausgegeben) mit Tausendertrennzeichen
+  inp.value = '-' + window.formatNumber(Math.abs(amount));
   inp.style.color = 'var(--danger)';
 
   // Typ der Verbindlichkeit als Beschreibung im Datensatz speichern
@@ -226,7 +220,7 @@ function addLiabilityPaymentToEntries(type, amount) {
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance);
+  sumInp.value = window.formatNumberWithSign(runningBalance);
   sumInp.style.background = '#eee';
 
   if (runningBalance < 0) {
@@ -282,25 +276,25 @@ function loadData(profile) {
   balanceArray = data.bal;
   baseIncome = data.inc; 
   baseExpenses = data.exp;
-  obligations = data.ob;  document.getElementById('input-income-salary').value = baseIncome + ' €';
-  document.getElementById('input-income-property').value = '0 €';
-  document.getElementById('input-income-business').value = '0 €';
-  document.getElementById('input-expenses-taxes').value = data.taxes + ' €';
-  document.getElementById('input-expenses-mortgage').value = obligations[0][1] + ' €';
-  document.getElementById('input-expenses-bafog').value = obligations[1][1] + ' €';
-  document.getElementById('input-expenses-autoloan').value = obligations[2][1] + ' €';
-  document.getElementById('input-expenses-cc').value = obligations[3][1] + ' €';
+  obligations = data.ob;  document.getElementById('input-income-salary').value = window.formatCurrency(baseIncome);
+  document.getElementById('input-income-property').value = window.formatCurrency(0);
+  document.getElementById('input-income-business').value = window.formatCurrency(0);
+  document.getElementById('input-expenses-taxes').value = window.formatCurrency(data.taxes);
+  document.getElementById('input-expenses-mortgage').value = window.formatCurrency(obligations[0][1]);
+  document.getElementById('input-expenses-bafog').value = window.formatCurrency(obligations[1][1]);
+  document.getElementById('input-expenses-autoloan').value = window.formatCurrency(obligations[2][1]);
+  document.getElementById('input-expenses-cc').value = window.formatCurrency(obligations[3][1]);
 
   // Bankkredit-Zinszahlung (10% der Schulden)
   const bankLoanAmount = obligations[4][0];
-  const bankLoanPayment = Math.round(bankLoanAmount * 0.1);  document.getElementById('input-expenses-bank').value = bankLoanPayment + ' €';
+  const bankLoanPayment = Math.round(bankLoanAmount * 0.1);  document.getElementById('input-expenses-bank').value = window.formatCurrency(bankLoanPayment);
 
   // Verbindlichkeiten ausfüllen (erster Wert aus jedem ob-Tupel)
-  document.getElementById('input-liability-mortgage').value = obligations[0][0] + ' €';
-  document.getElementById('input-liability-bafog').value = obligations[1][0] + ' €';
-  document.getElementById('input-liability-autoloan').value = obligations[2][0] + ' €';
-  document.getElementById('input-liability-cc').value = obligations[3][0] + ' €'; 
-  document.getElementById('input-liability-bank').value = bankLoanAmount + ' €';
+  document.getElementById('input-liability-mortgage').value = window.formatCurrency(obligations[0][0]);
+  document.getElementById('input-liability-bafog').value = window.formatCurrency(obligations[1][0]);
+  document.getElementById('input-liability-autoloan').value = window.formatCurrency(obligations[2][0]);
+  document.getElementById('input-liability-cc').value = window.formatCurrency(obligations[3][0]); 
+  document.getElementById('input-liability-bank').value = window.formatCurrency(bankLoanAmount);
   const sel = document.getElementById('profile-selector');
   document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
   document.getElementById('input-income-property').addEventListener('input', updateSummary);

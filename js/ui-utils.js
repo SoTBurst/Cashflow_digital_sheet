@@ -1,5 +1,51 @@
 // Mobile UI utilities
 
+// Zahlenformatierung mit Tausendertrennzeichen (Punkte)
+function formatNumber(num) {
+  if (num === null || num === undefined || isNaN(num)) {
+    return '0';
+  }
+  
+  const rounded = Math.round(num);
+  return Math.abs(rounded).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+function formatCurrency(num) {
+  return formatNumber(num) + ' €';
+}
+
+function formatNumberWithSign(num) {
+  if (num === null || num === undefined || isNaN(num)) {
+    return '+0';
+  }
+  
+  const rounded = Math.round(num);
+  const sign = rounded >= 0 ? '+' : '-';
+  return sign + formatNumber(Math.abs(rounded));
+}
+
+function formatCurrencyWithSign(num) {
+  return formatNumberWithSign(num) + ' €';
+}
+
+// Parsing-Funktion für formatierte Zahlen
+function parseFormattedNumber(str) {
+  if (typeof str !== 'string') {
+    return parseFloat(str) || 0;
+  }
+  
+  // Entferne alle Formatierungszeichen außer Komma und Minus
+  const cleaned = str.replace(/[+€\s\.]/g, '').replace(',', '.');
+  return parseFloat(cleaned) || 0;
+}
+
+// Export functions to window for global access
+window.formatNumber = formatNumber;
+window.formatCurrency = formatCurrency;
+window.formatNumberWithSign = formatNumberWithSign;
+window.formatCurrencyWithSign = formatCurrencyWithSign;
+window.parseFormattedNumber = parseFormattedNumber;
+
 // Mobile scroll functionality for hiding taskbar
 function setupMobileScroll() {
   // Only set up on mobile devices

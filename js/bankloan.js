@@ -11,15 +11,14 @@ function setupBankLoanButtons() {
 
     if (loanAmount >= 1000 && window.CashflowCore.runningBalance() >= 1000) {
       // Kredit um 1000 reduzieren
-      const newLoanAmount = loanAmount - 1000;
-      loanInput.value = newLoanAmount + ' €';
+      const newLoanAmount = loanAmount - 1000;      loanInput.value = window.formatCurrency(newLoanAmount);
 
       // Kontostand anpassen
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - 1000);
 
       // Zinszahlung anpassen (10% des neuen Betrags)
       const newPayment = Math.round(newLoanAmount * 0.1);
-      document.getElementById('input-expenses-bank').value = newPayment + ' €';
+      document.getElementById('input-expenses-bank').value = window.formatCurrency(newPayment);
 
       // Kontostandanzeige im Bargeldkonto aktualisieren
       updateBankEntryInList(-1000);
@@ -36,15 +35,14 @@ function setupBankLoanButtons() {
   document.getElementById('btn-take-bank-1000').addEventListener('click', () => {
     const loanInput = document.getElementById('input-liability-bank');
     const loanAmount = parseFloat(loanInput.value) || 0;    // Kredit um 1000 erhöhen
-    const newLoanAmount = loanAmount + 1000;
-    loanInput.value = newLoanAmount + ' €';
+    const newLoanAmount = loanAmount + 1000;    loanInput.value = window.formatCurrency(newLoanAmount);
 
     // Kontostand anpassen
     window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + 1000);
 
     // Zinszahlung anpassen (10% des neuen Betrags)
     const newPayment = Math.round(newLoanAmount * 0.1);
-    document.getElementById('input-expenses-bank').value = newPayment + ' €';
+    document.getElementById('input-expenses-bank').value = window.formatCurrency(newPayment);
 
     // Kontostandanzeige im Bargeldkonto aktualisieren
     updateBankEntryInList(1000);
@@ -91,13 +89,11 @@ function setupBankLoanButtons() {
 
     // Fall 1: Es gibt einen existierenden Bankkredit-Eintrag
     if (bankCreditEntryIndex >= 0) {
-      const bankCreditEntry = entriesChildren[bankCreditEntryIndex].querySelector('input');
-
-      // Aktualisiere den Wert des bestehenden Eintrags
-      currentBankEntryAmount = parseInt(bankCreditEntry.value.replace(/[+\-]/g, '')) * (bankCreditEntry.value.startsWith('-') ? -1 : 1);
+      const bankCreditEntry = entriesChildren[bankCreditEntryIndex].querySelector('input');      // Aktualisiere den Wert des bestehenden Eintrags
+      currentBankEntryAmount = window.parseFormattedNumber(bankCreditEntry.value);
       currentBankEntryAmount += amount;
 
-      bankCreditEntry.value = (currentBankEntryAmount >= 0 ? '+' : '-') + Math.abs(currentBankEntryAmount);
+      bankCreditEntry.value = window.formatNumberWithSign(currentBankEntryAmount);
 
       if (currentBankEntryAmount < 0) {
         bankCreditEntry.style.color = 'var(--danger)';
@@ -109,7 +105,7 @@ function setupBankLoanButtons() {
       if (bankCreditEntryIndex + 1 < entriesChildren.length) {
         const balanceEntry = entriesChildren[bankCreditEntryIndex + 1].querySelector('input');
         if (balanceEntry && balanceEntry.style.background === 'rgb(238, 238, 238)') {
-          balanceEntry.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance());
+          balanceEntry.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
 
           if (window.CashflowCore.runningBalance() < 0) {
             balanceEntry.style.color = 'var(--danger)';
@@ -135,7 +131,7 @@ function setupBankLoanButtons() {
     const inp = document.createElement('input');
     inp.type = 'text';
     inp.readOnly = true;
-    inp.value = (amount >= 0 ? '+' : '-') + Math.abs(amount);
+    inp.value = window.formatNumberWithSign(amount);
     inp.dataset.bankCredit = 'true'; // Markiere als Bankkredit-Eintrag
 
     if (amount < 0) {
@@ -157,7 +153,7 @@ function setupBankLoanButtons() {
     const sumInp = document.createElement('input');
     sumInp.type = 'text';
     sumInp.readOnly = true;
-    sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance());
+    sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
     sumInp.style.background = '#eee';
 
     if (window.CashflowCore.runningBalance() < 0) {
