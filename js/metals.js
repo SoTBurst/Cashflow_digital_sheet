@@ -228,14 +228,13 @@ function updateSellButtonStates() {
     btnSellProperty.classList.remove('btn-disabled');
     btnSellProperty.title = 'Immobilien verkaufen';
   }
-  
-  // Unternehmen
-  const hasBusiness = window.businessAsset ? true : false;
+    // Unternehmen
+  const hasBusinesses = window.businessAssets ? Object.keys(window.businessAssets).length > 0 : false;
   const btnSellBusiness = document.getElementById('btn-sell-business');
-  btnSellBusiness.disabled = !hasBusiness;
+  btnSellBusiness.disabled = !hasBusinesses;
   if (btnSellBusiness.disabled) {
     btnSellBusiness.classList.add('btn-disabled');
-    btnSellBusiness.title = 'Kein Unternehmen zum Verkaufen vorhanden';
+    btnSellBusiness.title = 'Keine Unternehmen zum Verkaufen vorhanden';
   } else {
     btnSellBusiness.classList.remove('btn-disabled');
     btnSellBusiness.title = 'Unternehmen verkaufen';
@@ -269,16 +268,16 @@ function setupSellButtons() {
       alert('Verkauf-Funktion für Immobilien wird noch implementiert.');
     }
   });
-  
-  document.getElementById('btn-sell-business').addEventListener('click', () => {
-    if (window.businessAsset) {
+    document.getElementById('btn-sell-business').addEventListener('click', () => {
+    const hasBusinesses = window.businessAssets ? Object.keys(window.businessAssets).length > 0 : false;
+    if (hasBusinesses) {
       if (typeof window.showBusinessSellPopup === 'function') {
         window.showBusinessSellPopup();
       } else {
         console.error('showBusinessSellPopup function not found');
       }
     } else {
-      alert('Sie haben kein Unternehmen zum Verkaufen.');
+      alert('Sie haben keine Unternehmen zum Verkaufen.');
     }
   });
 }

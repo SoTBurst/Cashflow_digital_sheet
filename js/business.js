@@ -2,43 +2,47 @@
 
 // Global variables for easy debugging
 let businessBuyBtn, businessSellBtn;
-// Objekt zum Speichern des Unternehmens und seiner Daten
-let businessAsset = null; // Nur ein Unternehmen erlaubt
+// Objekt zum Speichern der Unternehmen und ihrer Daten
+let businessAssets = {}; // Mehrere Unternehmen erlaubt
 
 // Funktion zur Aktualisierung der Asset-Liste im Frontend
 function updateBusinessAssetsList() {
   const container = document.getElementById('business-assets-list');
   container.innerHTML = '';
   
-  if (!businessAsset) {
-    // Zeige Dummy-Kästchen wenn kein Unternehmen vorhanden ist
+  const businessEntries = Object.entries(businessAssets);
+  
+  if (businessEntries.length === 0) {
+    // Zeige Dummy-Kästchen wenn keine Unternehmen vorhanden sind
     createDummyBusinessRow(container);
   } else {
     // Zeige echte Unternehmen-Daten
-    const row = document.createElement('div');
-    row.classList.add('asset-item');
-    
-    // Name
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.readOnly = true;
-    nameInput.value = businessAsset.name;
-    
-    // Kaufpreis
-    const priceInput = document.createElement('input');
-    priceInput.type = 'number';
-    priceInput.readOnly = true;
-    priceInput.value = businessAsset.price.toFixed(2);
-    
-    // Monatlicher Cashflow
-    const cashflowInput = document.createElement('input');
-    cashflowInput.type = 'number';
-    cashflowInput.readOnly = true;
-    cashflowInput.value = businessAsset.cashflow.toFixed(2);
-    
-    // Zeile zusammenbauen
-    row.append(nameInput, priceInput, cashflowInput);
-    container.appendChild(row);
+    businessEntries.forEach(([name, asset]) => {
+      const row = document.createElement('div');
+      row.classList.add('asset-item');
+      
+      // Name
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.readOnly = true;
+      nameInput.value = name;
+      
+      // Kaufpreis
+      const priceInput = document.createElement('input');
+      priceInput.type = 'number';
+      priceInput.readOnly = true;
+      priceInput.value = asset.price.toFixed(2);
+      
+      // Monatlicher Cashflow
+      const cashflowInput = document.createElement('input');
+      cashflowInput.type = 'number';
+      cashflowInput.readOnly = true;
+      cashflowInput.value = asset.cashflow.toFixed(2);
+      
+      // Zeile zusammenbauen
+      row.append(nameInput, priceInput, cashflowInput);
+      container.appendChild(row);
+    });
   }
 }
 
@@ -81,23 +85,20 @@ document.addEventListener('DOMContentLoaded', function () {
   // Get button references
   businessBuyBtn = document.getElementById('btn-buy-business');
   businessSellBtn = document.getElementById('btn-sell-business');
-  
-  if (businessBuyBtn) {
+    if (businessBuyBtn) {
     businessBuyBtn.addEventListener('click', function () {
-      if (!businessAsset) {
-        showBusinessPopup();
-      } else {
-        alert('Sie können nur ein Unternehmen gleichzeitig besitzen.');
-      }
+      showBusinessPopup();
     });
   }
   
   if (businessSellBtn) {
     businessSellBtn.addEventListener('click', function () {
-      if (businessAsset) {
+      // Check if we have any businesses
+      const hasBusinesses = Object.keys(businessAssets).length > 0;
+      if (hasBusinesses) {
         showBusinessSellPopup();
       } else {
-        alert('Sie haben kein Unternehmen zum Verkaufen.');
+        alert('Sie haben keine Unternehmen zum Verkaufen.');
       }
     });
   }
@@ -119,7 +120,6 @@ function setupBusinessBuyPopup() {
   const cashflowInput = document.getElementById('business-cashflow');
   const confirmBtn = document.getElementById('business-buy-confirm');
   const cancelBtn = document.getElementById('business-buy-cancel');
-
   // Confirm button
   confirmBtn.addEventListener('click', function () {
     const businessName = nameInput.value.trim();
@@ -131,16 +131,20 @@ function setupBusinessBuyPopup() {
       return;
     }
 
+    if (businessAssets[businessName]) {
+      alert('Ein Unternehmen mit diesem Namen existiert bereits!');
+      return;
+    }
+
     if (price <= 0) {
       alert('Bitte geben Sie einen gültigen Kaufpreis ein!');
       return;
     }
 
-    if (window.CashflowCore.runningBalance() >= price && !businessAsset) {
+    if (window.CashflowCore.runningBalance() >= price) {
       // Kauf durchführen
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);
-      businessAsset = {
-        name: businessName,
+      businessAssets[businessName] = {
         price: price,
         cashflow: cashflow
       };
@@ -157,11 +161,7 @@ function setupBusinessBuyPopup() {
       
       hideBusinessPopup();
     } else {
-      if (window.CashflowCore.runningBalance() < price) {
-        alert('Nicht genügend Guthaben für diesen Kauf!');
-      } else if (businessAsset) {
-        alert('Sie besitzen bereits ein Unternehmen!');
-      }
+      alert('Nicht genügend Guthaben für diesen Kauf!');
     }
   });
 
@@ -178,22 +178,25 @@ function setupBusinessSellPopup() {
   const priceInput = document.getElementById('business-sell-price');
   const confirmBtn = document.getElementById('business-sell-confirm');
   const cancelBtn = document.getElementById('business-sell-cancel');
-
   // Confirm button
   confirmBtn.addEventListener('click', function () {
+    const businessName = nameSelect.value;
     const sellPrice = parseFloat(priceInput.value) || 0;
+
+    if (!businessName) {
+      alert('Bitte wählen Sie ein Unternehmen zum Verkaufen aus!');
+      return;
+    }
 
     if (sellPrice <= 0) {
       alert('Bitte geben Sie einen gültigen Verkaufspreis ein!');
       return;
     }
 
-    if (businessAsset) {
-      const businessName = businessAsset.name;
-      
+    if (businessAssets[businessName]) {
       // Verkauf durchführen
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + sellPrice);
-      businessAsset = null;
+      delete businessAssets[businessName];
       
       updateBusinessAssetsList();
       updateBusinessIncome();
@@ -229,25 +232,46 @@ function hideBusinessPopup() {
 }
 
 function showBusinessSellPopup() {
-  if (!businessAsset) {
-    alert('Sie haben kein Unternehmen zum Verkaufen.');
+  const availableBusinesses = Object.keys(businessAssets);
+  
+  if (availableBusinesses.length === 0) {
+    alert('Sie haben keine Unternehmen zum Verkaufen.');
     return;
   }
   
-  // Populate dropdown with current business
+  // Populate dropdown with current businesses
   const nameSelect = document.getElementById('business-sell-name');
   nameSelect.innerHTML = '';
   
-  const option = document.createElement('option');
-  option.value = businessAsset.name;
-  option.textContent = businessAsset.name;
-  nameSelect.appendChild(option);
+  // Add placeholder option
+  const placeholderOption = document.createElement('option');
+  placeholderOption.value = '';
+  placeholderOption.textContent = 'Bitte wählen...';
+  nameSelect.appendChild(placeholderOption);
   
-  // Show current cashflow
-  document.getElementById('business-current-cashflow').textContent = businessAsset.cashflow.toFixed(2) + ' €';
+  // Add available businesses to dropdown
+  availableBusinesses.forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    nameSelect.appendChild(option);
+  });
   
-  // Reset sell price
+  // Add event listener to update current cashflow when business is selected
+  nameSelect.addEventListener('change', function() {
+    const selectedBusiness = this.value;
+    const cashflowSpan = document.getElementById('business-current-cashflow');
+    
+    if (selectedBusiness && businessAssets[selectedBusiness]) {
+      cashflowSpan.textContent = businessAssets[selectedBusiness].cashflow.toFixed(2) + ' €';
+    } else {
+      cashflowSpan.textContent = '0 €';
+    }
+  });
+  
+  // Reset form values
   document.getElementById('business-sell-price').value = '';
+  document.getElementById('business-current-cashflow').textContent = '0 €';
 
   const popup = document.getElementById('business-sell-popup');
   popup.style.display = 'flex';
@@ -259,11 +283,14 @@ function hideBusinessSellPopup() {
 
 function updateBusinessIncome() {
   const businessIncomeInput = document.getElementById('input-income-business');
-  if (businessAsset) {
-    businessIncomeInput.value = businessAsset.cashflow.toFixed(2);
-  } else {
-    businessIncomeInput.value = '0';
-  }
+  
+  // Calculate total cashflow from all businesses
+  let totalCashflow = 0;
+  Object.values(businessAssets).forEach(business => {
+    totalCashflow += business.cashflow;
+  });
+  
+  businessIncomeInput.value = totalCashflow.toFixed(2);
 }
 
 function addBusinessPurchaseToEntries(businessName, price) {
@@ -369,8 +396,28 @@ window.showBusinessSellPopup = showBusinessSellPopup;
 window.hideBusinessSellPopup = hideBusinessSellPopup;
 window.updateBusinessIncome = updateBusinessIncome;
 
-// Make businessAsset accessible globally
+// Make businessAssets accessible globally
+Object.defineProperty(window, 'businessAssets', {
+  get: function() { return businessAssets; },
+  set: function(value) { businessAssets = value; }
+});
+
+// Keep businessAsset for backward compatibility (returns null or first business)
 Object.defineProperty(window, 'businessAsset', {
-  get: function() { return businessAsset; },
-  set: function(value) { businessAsset = value; }
+  get: function() { 
+    const businesses = Object.keys(businessAssets);
+    return businesses.length > 0 ? { 
+      name: businesses[0], 
+      ...businessAssets[businesses[0]] 
+    } : null; 
+  },
+  set: function(value) { 
+    // For backward compatibility - if someone sets a businessAsset, add it to businessAssets
+    if (value && value.name) {
+      businessAssets[value.name] = {
+        price: value.price,
+        cashflow: value.cashflow
+      };
+    }
+  }
 });
