@@ -288,6 +288,21 @@ button.btn-disabled {
   gap: 0.8rem;
 }
 
+/* Stocks summary fields in asset-control */
+#input-asset-stocks-qty,
+#input-asset-stocks-cost,
+#input-asset-stocks-name {
+  width: 80px;
+  max-width: 80px;
+  margin: 0 8px;
+}
+
+/* Make stocks assets list flex-grow to occupy available space */
+.asset-control #stocks-assets-list {
+  flex: 1;
+  margin-right: 8px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
