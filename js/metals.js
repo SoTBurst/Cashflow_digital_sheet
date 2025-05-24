@@ -139,13 +139,12 @@ function hideMetalsPopup() {
 function addMetalsPurchaseToEntries(coins, price) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
   
-  // Prüfen, ob das letzte Element ein leeres Eingabefeld ist
-  const isLastEntryEmpty = lastEntryIndex >= 0 && 
-                         entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  // Prüfen, ob das erste Element ein leeres Eingabefeld ist
+  const isFirstEntryEmpty = entriesChildren.length > 0 && 
+                         entriesChildren[0].querySelector('input').type === 'number';
   
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
   
   // Eintrag für den Edelmetallkauf erstellen
   const li = document.createElement('li');
@@ -158,10 +157,10 @@ function addMetalsPurchaseToEntries(coins, price) {
   
   li.append(inp);
   
-  if (insertBeforeElement) {
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
   } else {
-    ul.appendChild(li);
+    ul.prepend(li);
   }
   
   // Aktualisierte Kontostandsanzeige
@@ -178,11 +177,8 @@ function addMetalsPurchaseToEntries(coins, price) {
   
   sumLi.append(sumInp);
   
-  if (insertBeforeElement) {
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    ul.appendChild(sumLi);
-  }
+  // Kontostand-Eintrag nach dem Kauf-Eintrag einfügen
+  li.after(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;
@@ -377,13 +373,12 @@ function hideMetalsSellPopup() {
 function addMetalsSaleToEntries(coins, price) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
   
-  // Prüfen, ob das letzte Element ein leeres Eingabefeld ist
-  const isLastEntryEmpty = lastEntryIndex >= 0 && 
-                         entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  // Prüfen, ob das erste Element ein leeres Eingabefeld ist
+  const isFirstEntryEmpty = entriesChildren.length > 0 && 
+                         entriesChildren[0].querySelector('input').type === 'number';
   
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
   
   // Eintrag für den Edelmetallverkauf erstellen
   const li = document.createElement('li');
@@ -396,10 +391,10 @@ function addMetalsSaleToEntries(coins, price) {
   
   li.append(inp);
   
-  if (insertBeforeElement) {
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
   } else {
-    ul.appendChild(li);
+    ul.prepend(li);
   }
   
   // Aktualisierte Kontostandsanzeige
@@ -416,11 +411,8 @@ function addMetalsSaleToEntries(coins, price) {
   
   sumLi.append(sumInp);
   
-  if (insertBeforeElement) {
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    ul.appendChild(sumLi);
-  }
+  // Kontostand-Eintrag nach dem Verkauf-Eintrag einfügen
+  li.after(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;

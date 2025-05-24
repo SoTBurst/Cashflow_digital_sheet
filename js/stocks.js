@@ -188,13 +188,12 @@ function hideStocksPopup() {
 function addStocksPurchaseToEntries(shares, price, stockName) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
 
-  // Check if the last element is an empty input field
-  const isLastEntryEmpty = lastEntryIndex >= 0 &&
-    entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  // Check if the first element is an empty input field
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[0].querySelector('input').type === 'number';
 
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
 
   // Create entry for stock purchase
   const li = document.createElement('li');
@@ -210,10 +209,10 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
 
   li.append(inp);
 
-  if (insertBeforeElement) {
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
   } else {
-    ul.appendChild(li);
+    ul.prepend(li);
   }
 
   // Updated account balance display
@@ -230,11 +229,8 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
 
   sumLi.append(sumInp);
 
-  if (insertBeforeElement) {
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    ul.appendChild(sumLi);
-  }
+  // Insert balance entry after the stock purchase entry
+  li.after(sumLi);
 
   // Set global flag (for bank logic)
   window.lastActionWasManualEntry = true;
@@ -404,13 +400,12 @@ function hideStocksSellPopup() {
 function addStocksSaleToEntries(shares, price, stockName) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
 
-  // Check if the last element is an empty input field
-  const isLastEntryEmpty = lastEntryIndex >= 0 &&
-    entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  // Check if the first element is an empty input field
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[0].querySelector('input').type === 'number';
 
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
 
   // Create entry for stock sale
   const li = document.createElement('li');
@@ -426,10 +421,10 @@ function addStocksSaleToEntries(shares, price, stockName) {
 
   li.append(inp);
 
-  if (insertBeforeElement) {
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
   } else {
-    ul.appendChild(li);
+    ul.prepend(li);
   }
 
   // Updated account balance display
@@ -446,11 +441,8 @@ function addStocksSaleToEntries(shares, price, stockName) {
 
   sumLi.append(sumInp);
 
-  if (insertBeforeElement) {
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    ul.appendChild(sumLi);
-  }
+  // Insert balance entry after the stock sale entry
+  li.after(sumLi);
 
   // Set global flag (for bank logic)
   window.lastActionWasManualEntry = true;

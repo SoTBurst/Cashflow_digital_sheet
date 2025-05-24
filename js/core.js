@@ -46,7 +46,8 @@ function renderBaseEntries() {
   runningBalance = initialBalance;
   
   // Schleife beginnt bei Index 1, um den ersten Wert zu überspringen
-  for (let i = 1; i < arr.length; i++) {
+  // Umgekehrte Reihenfolge - neueste Einträge oben
+  for (let i = arr.length - 1; i >= 1; i--) {
     const num = arr[i];
     const li = document.createElement('li');
     const inp = document.createElement('input');
@@ -83,7 +84,7 @@ function addEntry() {
     }
   });
   li.append(inp); 
-  ul.append(li); 
+  ul.prepend(li); // Neues Eingabefeld oben einfügen
   inp.focus();
 }
 
@@ -180,13 +181,13 @@ function setupPayButtons() {
 function addLiabilityPaymentToEntries(type, amount) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
+  
+  // Finde das erste leere Eingabefeld (für neue Einträge) - sollte jetzt oben sein
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
 
-  // Finden des letzten leeren Eingabefelds (für neue Einträge)
-  const isLastEntryEmpty = lastEntryIndex >= 0 &&
-    entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
-
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
 
   // Erstellen eines Eintrags für die Verbindlichkeitsrückzahlung
   const li = document.createElement('li');
@@ -213,12 +214,12 @@ function addLiabilityPaymentToEntries(type, amount) {
 
   li.append(inp);
 
-  if (insertBeforeElement) {
-    // Einfügen vor dem leeren Eingabefeld
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    // Einfügen nach dem leeren Eingabefeld
+    insertAfterElement.after(li);
   } else {
-    // Anfügen am Ende, wenn kein leeres Eingabefeld vorhanden ist
-    ul.appendChild(li);
+    // Am Anfang einfügen, wenn kein leeres Eingabefeld vorhanden ist
+    ul.prepend(li);
   }
 
   // Aktualisiere den Kontostand-Eintrag
@@ -235,13 +236,8 @@ function addLiabilityPaymentToEntries(type, amount) {
 
   sumLi.append(sumInp);
 
-  if (insertBeforeElement) {
-    // Einfügen nach dem Verbindlichkeits-Eintrag und vor dem leeren Eingabefeld
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    // Anfügen am Ende
-    ul.appendChild(sumLi);
-  }
+  // Kontostand-Eintrag nach dem Verbindlichkeits-Eintrag einfügen
+  li.after(sumLi);
 
   // Nach Bezahlung einer Verbindlichkeit Flag setzen, damit updateBankEntryInList weiß,
   // dass es einen neuen Eintrag erstellen soll für den nächsten Bankkredit
