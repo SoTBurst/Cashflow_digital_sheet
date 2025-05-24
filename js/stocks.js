@@ -36,7 +36,7 @@ function updateStocksAssetsList() {
       const costInput = document.createElement('input');
       costInput.type = 'number';
       costInput.readOnly = true;
-      costInput.value = asset.cost.toFixed(2);
+      costInput.value = Math.round(asset.cost);
       // Zeile zusammenbauen
       row.append(nameInput, qtyInput, costInput);
       container.appendChild(row);
@@ -70,7 +70,7 @@ function createDummyStockRow(container) {
   costInput.type = 'number';
   costInput.readOnly = true;
   costInput.value = '';
-  costInput.placeholder = '0.00€';
+  costInput.placeholder = '0€';
   costInput.style.opacity = '0.5';
   
   // Zeile zusammenbauen
@@ -166,7 +166,7 @@ function updateStocksPriceCalculation() {
 
   priceInput.placeholder = 'Preis pro Aktie';
   totalContainer.style.display = 'contents';
-  totalPrice.textContent = (inputPrice * shares).toFixed(2) + " €";
+  totalPrice.textContent = Math.round(inputPrice * shares) + " €";
 }
 
 function showStocksPopup() {
@@ -175,7 +175,7 @@ function showStocksPopup() {
   document.getElementById('stocks-shares').value = '1';
   document.getElementById('stocks-price').value = '';
   document.getElementById('stocks-price').placeholder = 'Preis pro Aktie';
-  document.getElementById('stocks-total-price').textContent = '0.00 €';
+  document.getElementById('stocks-total-price').textContent = '0 €';
 
   const popup = document.getElementById('stocks-popup');
   popup.style.display = 'flex';
@@ -200,7 +200,7 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '-' + price.toFixed(2);
+  inp.value = '-' + Math.round(price);
   inp.style.color = 'var(--danger)';
   
   // Include stock name in title if provided
@@ -214,13 +214,12 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
   } else {
     ul.prepend(li);
   }
-
   // Updated account balance display
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {
@@ -318,10 +317,9 @@ function updateStocksSellPriceCalculation() {
 
   const shares = parseInt(sharesInput.value) || 0;
   const inputPrice = parseFloat(priceInput.value) || 0;
-
   priceInput.placeholder = 'Preis pro Aktie';
   totalContainer.style.display = 'contents';
-  totalPrice.textContent = (inputPrice * shares).toFixed(2) + " €";
+  totalPrice.textContent = Math.round(inputPrice * shares) + " €";
 
 }
 
@@ -384,7 +382,7 @@ function showStocksSellPopup() {
   document.getElementById('stocks-sell-shares').value = '1';
   document.getElementById('stocks-sell-price').value = '';
   document.getElementById('stocks-sell-price').placeholder = 'Preis pro Aktie';
-  document.getElementById('stocks-sell-total-price').textContent = '0.00 €';
+  document.getElementById('stocks-sell-total-price').textContent = '0 €';
   document.getElementById('stocks-available').textContent = '0';
 
   // Show popup
@@ -412,7 +410,7 @@ function addStocksSaleToEntries(shares, price, stockName) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '+' + price.toFixed(2);
+  inp.value = '+' + Math.round(price);
   inp.style.color = ''; // Positive amounts in standard color
   
   // Include stock name in title if provided
@@ -431,8 +429,7 @@ function addStocksSaleToEntries(shares, price, stockName) {
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.readOnly = true;  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {

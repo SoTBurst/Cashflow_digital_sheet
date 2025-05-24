@@ -122,9 +122,8 @@ function updateDisplayBalance() {
   // Vorzeichen für aktuellen Kontostand immer anzeigen
   const prefix = runningBalance >= 0 ? '+' : '-';
   const currentBalanceEl = document.getElementById('current-balance');
-
   // Text mit Vorzeichen setzen
-  currentBalanceEl.textContent = prefix + Math.abs(runningBalance).toFixed(2).replace('.', ',');
+  currentBalanceEl.textContent = prefix + Math.abs(Math.round(runningBalance)).toString().replace('.', ',');
   
   // Farbe anpassen - rot bei negativen Werten
   currentBalanceEl.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit';

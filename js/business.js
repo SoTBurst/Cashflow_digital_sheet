@@ -29,7 +29,7 @@ function updateBusinessAssetsList() {
       const cashflowInput = document.createElement('input');
       cashflowInput.type = 'number';
       cashflowInput.readOnly = true;
-      cashflowInput.value = asset.cashflow.toFixed(2);
+      cashflowInput.value = Math.round(asset.cashflow);
       cashflowInput.style.cursor = 'pointer';
       cashflowInput.title = 'Doppelklick zum Bearbeiten';
       
@@ -42,7 +42,7 @@ function updateBusinessAssetsList() {
       const priceInput = document.createElement('input');
       priceInput.type = 'number';
       priceInput.readOnly = true;
-      priceInput.value = asset.price.toFixed(2);
+      priceInput.value = Math.round(asset.price);
       
       // Zeile zusammenbauen
       row.append(nameInput, cashflowInput, priceInput);
@@ -68,7 +68,7 @@ function createDummyBusinessRow(container) {
   cashflowInput.type = 'number';
   cashflowInput.readOnly = true;
   cashflowInput.value = '';
-  cashflowInput.placeholder = '0.00€';
+  cashflowInput.placeholder = '0€';
   cashflowInput.style.opacity = '0.5';
   
   // Dummy Preis-Feld
@@ -76,7 +76,7 @@ function createDummyBusinessRow(container) {
   priceInput.type = 'number';
   priceInput.readOnly = true;
   priceInput.value = '';
-  priceInput.placeholder = '0.00€';
+  priceInput.placeholder = '0€';
   priceInput.style.opacity = '0.5';
   
   // Zeile zusammenbauen
@@ -296,7 +296,7 @@ function showBusinessSellPopup() {
     const cashflowSpan = document.getElementById('business-current-cashflow');
     
     if (selectedBusiness && businessAssets[selectedBusiness]) {
-      cashflowSpan.textContent = businessAssets[selectedBusiness].cashflow.toFixed(2) + ' €';
+      cashflowSpan.textContent = Math.round(businessAssets[selectedBusiness].cashflow) + ' €';
     } else {
       cashflowSpan.textContent = '0 €';
     }
@@ -323,9 +323,8 @@ function showBusinessCashflowEditPopup(businessName) {
   const business = businessAssets[businessName];
   
   // Set popup values
-  document.getElementById('business-edit-name').textContent = businessName;
-  document.getElementById('business-edit-current-cashflow').textContent = business.cashflow.toFixed(2) + ' €';
-  document.getElementById('business-edit-cashflow').value = business.cashflow.toFixed(2);
+  document.getElementById('business-edit-name').textContent = businessName;  document.getElementById('business-edit-current-cashflow').textContent = Math.round(business.cashflow) + ' €';
+  document.getElementById('business-edit-cashflow').value = Math.round(business.cashflow);
   
   const popup = document.getElementById('business-cashflow-edit-popup');
   popup.style.display = 'flex';
@@ -344,7 +343,7 @@ function updateBusinessIncome() {
     totalCashflow += business.cashflow;
   });
   
-  businessIncomeInput.value = totalCashflow.toFixed(2);
+  businessIncomeInput.value = Math.round(totalCashflow);
 }
 
 function addBusinessPurchaseToEntries(businessName, price) {
@@ -356,13 +355,12 @@ function addBusinessPurchaseToEntries(businessName, price) {
     entriesChildren[0].querySelector('input').type === 'number';
 
   const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
-
   // Create entry for business purchase
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '-' + price.toFixed(2);
+  inp.value = '-' + Math.round(price);
   inp.style.color = 'var(--danger)';
   inp.title = `Unternehmen "${businessName}" gekauft`;
 
@@ -379,7 +377,7 @@ function addBusinessPurchaseToEntries(businessName, price) {
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {
@@ -410,7 +408,7 @@ function addBusinessSaleToEntries(businessName, price) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '+' + price.toFixed(2);
+  inp.value = '+' + Math.round(price);
   inp.style.color = ''; // Positive amounts in standard color
   inp.title = `Unternehmen "${businessName}" verkauft`;
 
@@ -421,13 +419,12 @@ function addBusinessSaleToEntries(businessName, price) {
   } else {
     ul.prepend(li);
   }
-
   // Updated account balance display
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {

@@ -39,19 +39,19 @@ function updatePropertyAssetsList() {
       const cashflowInput = document.createElement('input');
       cashflowInput.type = 'number';
       cashflowInput.readOnly = true;
-      cashflowInput.value = (asset.cashflow || 0).toFixed(2);
+      cashflowInput.value = Math.round(asset.cashflow || 0);
       
       // Eigenanteil
       const downInput = document.createElement('input');
       downInput.type = 'number';
       downInput.readOnly = true;
-      downInput.value = asset.down.toFixed(2);
+      downInput.value = Math.round(asset.down);
       
       // Kaufpreis
       const priceInput = document.createElement('input');
       priceInput.type = 'number';
       priceInput.readOnly = true;
-      priceInput.value = asset.price.toFixed(2);
+      priceInput.value = Math.round(asset.price);
       
       // Zeile zusammenbauen
       row.append(typeInput, cashflowInput, downInput, priceInput);
@@ -81,14 +81,14 @@ function createDummyPropertyRow(container) {
   downInput.type = 'number';
   downInput.readOnly = true;
   downInput.value = '';
-  downInput.placeholder = '0.00€';
+  downInput.placeholder = '0€';
   downInput.style.opacity = '0.5';
     // Dummy Kaufpreis-Feld
   const priceInput = document.createElement('input');
   priceInput.type = 'number';
   priceInput.readOnly = true;
   priceInput.value = '';
-  priceInput.placeholder = '0.00€';
+  priceInput.placeholder = '0€';
   priceInput.style.opacity = '0.5';
   
   // Dummy Cashflow-Feld
@@ -96,7 +96,7 @@ function createDummyPropertyRow(container) {
   cashflowInput.type = 'number';
   cashflowInput.readOnly = true;
   cashflowInput.value = '';
-  cashflowInput.placeholder = '0.00€';
+  cashflowInput.placeholder = '0€';
   cashflowInput.style.opacity = '0.5';
     // Zeile zusammenbauen
   row.append(typeInput, cashflowInput, downInput, priceInput);
@@ -114,11 +114,10 @@ function updatePropertyTotals() {
     totalPrice += asset.price;
     totalCashflow += asset.cashflow || 0;
   });
-  
-  // Aktualisiere die Input-Felder
-  document.getElementById('input-asset-property-down').value = totalDown.toFixed(2);
-  document.getElementById('input-asset-property-cost').value = totalPrice.toFixed(2);
-  document.getElementById('input-income-property').value = totalCashflow.toFixed(2);
+    // Aktualisiere die Input-Felder
+  document.getElementById('input-asset-property-down').value = Math.round(totalDown);
+  document.getElementById('input-asset-property-cost').value = Math.round(totalPrice);
+  document.getElementById('input-income-property').value = Math.round(totalCashflow);
 }
 
 // Setup-Funktion für Kaufen-Button
@@ -216,10 +215,9 @@ function handlePropertySellSelectionChange() {
   
   if (selectedId && propertyAssets[selectedId]) {
     const asset = propertyAssets[selectedId];
-    document.getElementById('property-sell-price').value = '';
-    document.getElementById('property-current-down').textContent = asset.down.toFixed(2) + ' €';
-    document.getElementById('property-current-price').textContent = asset.price.toFixed(2) + ' €';
-    document.getElementById('property-current-cashflow').textContent = (asset.cashflow || 0).toFixed(2) + ' €';
+    document.getElementById('property-sell-price').value = '';    document.getElementById('property-current-down').textContent = Math.round(asset.down) + ' €';
+    document.getElementById('property-current-price').textContent = Math.round(asset.price) + ' €';
+    document.getElementById('property-current-cashflow').textContent = Math.round(asset.cashflow || 0) + ' €';
   }
 }
 
@@ -350,12 +348,11 @@ function addPropertyPurchaseToEntries(type, down, price) {
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
-  inp.readOnly = true;
-  inp.value = `-${down.toFixed(2)}`;
+  inp.readOnly = true;  inp.value = `-${Math.round(down)}`;
   inp.style.color = 'var(--danger)';
   
   const typeName = propertyTypes[type]?.name || type;
-  inp.title = `${typeName} gekauft - Eigenanteil: ${down.toFixed(2)} €, Kaufpreis: ${price.toFixed(2)} €`;
+  inp.title = `${typeName} gekauft - Eigenanteil: ${Math.round(down)} €, Kaufpreis: ${Math.round(price)} €`;
   
   li.append(inp);
   
@@ -364,13 +361,12 @@ function addPropertyPurchaseToEntries(type, down, price) {
   } else {
     ul.prepend(li);
   }
-  
-  // Aktualisierte Kontostandsanzeige
+    // Aktualisierte Kontostandsanzeige
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {
@@ -396,11 +392,10 @@ function addPropertySaleToEntries(type, price) {
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
-  inp.readOnly = true;
-  inp.value = `+${price.toFixed(2)}`;
+  inp.readOnly = true;  inp.value = `+${Math.round(price)}`;
   
   const typeName = propertyTypes[type]?.name || type;
-  inp.title = `${typeName} verkauft für ${price.toFixed(2)} €`;
+  inp.title = `${typeName} verkauft für ${Math.round(price)} €`;
   
   li.append(inp);
   
@@ -414,8 +409,7 @@ function addPropertySaleToEntries(type, price) {
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.readOnly = true;  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {
