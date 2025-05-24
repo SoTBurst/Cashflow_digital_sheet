@@ -141,7 +141,8 @@ function updateDisplayBalance() {
 
 function updateSummary() {
   const salary = baseIncome;
-  const passive = (+document.getElementById('input-income-property').value || 0);
+  const passive = (+document.getElementById('input-income-property').value || 0) + 
+                  (+document.getElementById('input-income-business').value || 0);
   const totalInc = salary + passive;
   const totalExp =
     (+document.getElementById('input-expenses-taxes').value || 0) +
@@ -282,9 +283,9 @@ function loadData(profile) {
   balanceArray = data.bal;
   baseIncome = data.inc; 
   baseExpenses = data.exp;
-  obligations = data.ob;
-  document.getElementById('input-income-salary').value = baseIncome;
+  obligations = data.ob;  document.getElementById('input-income-salary').value = baseIncome;
   document.getElementById('input-income-property').value = 0;
+  document.getElementById('input-income-business').value = 0;
   document.getElementById('input-expenses-taxes').value = data.taxes;
   document.getElementById('input-expenses-mortgage').value = obligations[0][1];
   document.getElementById('input-expenses-bafog').value = obligations[1][1];
@@ -302,10 +303,10 @@ function loadData(profile) {
   document.getElementById('input-liability-autoloan').value = obligations[2][0];
   document.getElementById('input-liability-cc').value = obligations[3][0]; 
   document.getElementById('input-liability-bank').value = bankLoanAmount;
-
   const sel = document.getElementById('profile-selector');
   document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
-  document.getElementById('input-income-property').addEventListener('input', updateSummary);      
+  document.getElementById('input-income-property').addEventListener('input', updateSummary);
+  document.getElementById('input-income-business').addEventListener('input', updateSummary);
   updateSummary();
   renderBaseEntries();
   updatePayButtonStates();
