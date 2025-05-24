@@ -234,15 +234,17 @@ function setupSellButtons() {
     if (metalsAmount > 0) {
       showMetalsSellPopup();
     }
-  });
-  document.getElementById('btn-sell-stocks').addEventListener('click', () => {
-    const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
-    if (stocksQty > 0) {
+  });  document.getElementById('btn-sell-stocks').addEventListener('click', () => {
+    // Check if we have any stocks with quantity > 0
+    const hasStocks = window.stocksAssets ? Object.values(window.stocksAssets).some(asset => asset.qty > 0) : false;
+    if (hasStocks) {
       if (typeof window.showStocksSellPopup === 'function') {
         window.showStocksSellPopup();
       } else {
         console.error('showStocksSellPopup function not found');
       }
+    } else {
+      alert('Sie haben keine Aktien zum Verkaufen.');
     }
   });
   

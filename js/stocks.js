@@ -83,11 +83,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // Get button references
   stocksBuyBtn = document.getElementById('btn-buy-stocks');
   stocksSellBtn = document.getElementById('btn-sell-stocks');
-
   if (stocksSellBtn) {
     stocksSellBtn.addEventListener('click', function () {
-      const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
-      if (stocksQty > 0) {
+      // Check if we have any stocks with quantity > 0
+      const hasStocks = Object.values(stocksAssets).some(asset => asset.qty > 0);
+      if (hasStocks) {
         showStocksSellPopup();
       } else {
         alert('Sie haben keine Aktien zum Verkaufen.');
@@ -255,31 +255,21 @@ function setupStocksSellPopup() {
   const confirmBtn = document.getElementById('stocks-sell-confirm');
   const cancelBtn = document.getElementById('stocks-sell-cancel');
 
-  // Select mit verfügbaren Aktien füllen
-  const stockNameSelect = document.getElementById('stocks-sell-name');
-  stockNameSelect.innerHTML = '';
-  const names = Object.keys(stocksAssets).filter(name => stocksAssets[name].qty > 0);
-  if (names.length === 0) {
-    const emptyOption = document.createElement('option');
-    emptyOption.value = '';
-    emptyOption.textContent = 'Keine Aktien';
-    stockNameSelect.appendChild(emptyOption);
-  } else {
-    names.forEach(name => {
-      const option = document.createElement('option');
-      option.value = name;
-      option.textContent = `${name} (${stocksAssets[name].qty})`;
-      stockNameSelect.appendChild(option);
-    });
-  }
-
   // Input changes
   sharesInput.addEventListener('input', updateStocksSellPriceCalculation);
   priceInput.addEventListener('input', updateStocksSellPriceCalculation);
+  
   // Confirm button
   confirmBtn.addEventListener('click', function () {
     console.log('Stock sell confirm clicked');
+    const stockNameSelect = document.getElementById('stocks-sell-name');
     const stockName = stockNameSelect.value;
+    
+    if (!stockName) {
+      alert('Bitte wählen Sie eine Aktie zum Verkaufen aus!');
+      return;
+    }
+    
     const asset = stocksAssets[stockName] || { qty: 0, cost: 0 };
     const totalShares = asset.qty;
     const sharesToSell = parseInt(sharesInput.value) || 0;
@@ -297,13 +287,6 @@ function setupStocksSellPopup() {
       }
       updateStocksAssetsList();
 
-      // Aktualisiere Gesamt-Anzahl und Kosten
-      const totalQty = Object.values(stocksAssets).reduce((sum, a) => sum + a.qty, 0);
-      const totalCost = Object.values(stocksAssets).reduce((sum, a) => sum + a.cost, 0);
-      document.getElementById('input-asset-stocks-qty').value = totalQty;
-      document.getElementById('input-asset-stocks-cost').value = totalCost;
-      document.getElementById('input-asset-stocks-name').value = '';
-
       // Kontostand updaten
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + price);
       addStocksSaleToEntries(sharesToSell, price, stockName);
@@ -311,7 +294,11 @@ function setupStocksSellPopup() {
       if (typeof window.updateSellButtonStates === 'function') window.updateSellButtonStates();
       hideStocksSellPopup();
     } else {
-      alert('Ungültige Verkaufsangabe');
+      if (sharesToSell > totalShares) {
+        alert(`Sie können maximal ${totalShares} Aktien von ${stockName} verkaufen!`);
+      } else {
+        alert('Bitte geben Sie gültige Werte ein!');
+      }
     }
   });
   
@@ -344,55 +331,67 @@ function updateStocksSellPriceCalculation() {
 
 function showStocksSellPopup() {
   console.log('Showing stocks sell popup');
-  const totalShares = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
-  const currentStockName = document.getElementById('input-asset-stocks-name').value || '';
   
-  // Get the select element
+  // Get the select element and populate it with available stocks
   const stockNameSelect = document.getElementById('stocks-sell-name');
-  
-  // Clear existing options
   stockNameSelect.innerHTML = '';
   
-  // If we have a current stock name, make sure it's in the array
-  if (currentStockName && !stockNames.includes(currentStockName)) {
-    stockNames.push(currentStockName);
+  // Get all stocks with quantity > 0
+  const availableStocks = Object.keys(stocksAssets).filter(name => stocksAssets[name].qty > 0);
+  
+  if (availableStocks.length === 0) {
+    // This shouldn't happen since we check before opening the popup
+    const emptyOption = document.createElement('option');
+    emptyOption.value = '';
+    emptyOption.textContent = 'Keine Aktien verfügbar';
+    stockNameSelect.appendChild(emptyOption);
+    alert('Sie haben keine Aktien zum Verkaufen.');
+    return;
   }
   
-  // If we don't have any names in the array yet but have a current name
-  if (stockNames.length === 0 && currentStockName) {
-    stockNames.push(currentStockName);
-  }
+  // Add placeholder option
+  const placeholderOption = document.createElement('option');
+  placeholderOption.value = '';
+  placeholderOption.textContent = 'Bitte wählen...';
+  stockNameSelect.appendChild(placeholderOption);
   
-  // Add an empty option
-  const emptyOption = document.createElement('option');
-  emptyOption.value = '';
-  emptyOption.textContent = 'Bitte wählen';
-  stockNameSelect.appendChild(emptyOption);
-  
-  // Add all stock names as options
-  stockNames.forEach(name => {
+  // Add available stocks to dropdown
+  availableStocks.forEach(name => {
     const option = document.createElement('option');
     option.value = name;
-    option.textContent = name;
-    
-    // If this is the current stock name, select it
-    if (name === currentStockName) {
-      option.selected = true;
-    }
-    
+    option.textContent = `${name} (${stocksAssets[name].qty} Stück)`;
     stockNameSelect.appendChild(option);
   });
+  
+  // Add event listener to update available quantity when stock is selected
+  stockNameSelect.addEventListener('change', function() {
+    const selectedStock = this.value;
+    const availableSpan = document.getElementById('stocks-available');
+    const sharesInput = document.getElementById('stocks-sell-shares');
+    
+    if (selectedStock && stocksAssets[selectedStock]) {
+      const availableQty = stocksAssets[selectedStock].qty;
+      availableSpan.textContent = availableQty;
+      sharesInput.max = availableQty;
+      sharesInput.value = Math.min(parseInt(sharesInput.value) || 1, availableQty);
+    } else {
+      availableSpan.textContent = '0';
+      sharesInput.max = 0;
+      sharesInput.value = '1';
+    }
+    
+    // Update price calculation
+    updateStocksSellPriceCalculation();
+  });
 
-  // Reset and show popup
+  // Reset form values
   document.getElementById('stocks-sell-shares').value = '1';
   document.getElementById('stocks-sell-price').value = '';
   document.getElementById('stocks-sell-price').placeholder = 'Preis pro Aktie';
-  document.getElementById('stocks-total-price').textContent = '0.00 €';
-  document.getElementById('stocks-available').textContent = totalShares;
+  document.getElementById('stocks-sell-total-price').textContent = '0.00 €';
+  document.getElementById('stocks-available').textContent = '0';
 
-  // Set max value for share count
-  document.getElementById('stocks-sell-shares').max = totalShares;
-
+  // Show popup
   const popup = document.getElementById('stocks-sell-popup');
   popup.style.display = 'flex';
 }
@@ -457,8 +456,9 @@ function addStocksSaleToEntries(shares, price, stockName) {
   window.lastActionWasManualEntry = true;
 }
 
-// Make functions available globally
+// Make functions and data available globally
 window.showStocksPopup = showStocksPopup;
 window.hideStocksPopup = hideStocksPopup;
 window.showStocksSellPopup = showStocksSellPopup;
 window.hideStocksSellPopup = hideStocksSellPopup;
+window.stocksAssets = stocksAssets;
