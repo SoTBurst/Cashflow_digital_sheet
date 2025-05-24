@@ -187,8 +187,30 @@
         <button id="business-sell-confirm">Verkaufen</button>
         <button id="business-sell-cancel">Abbrechen</button>
       </div>
+    </div>  </div>
+  
+  <!-- Popup für Unternehmen Cashflow bearbeiten -->
+  <div id="business-cashflow-edit-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Cashflow bearbeiten</h3>
+      <div class="popup-grid">
+        <label>Unternehmen:</label>
+        <span id="business-edit-name">-</span>
+        
+        <label>Aktueller Cashflow:</label>
+        <span id="business-edit-current-cashflow">0 €</span>
+        
+        <label>Neuer Cashflow:</label>
+        <input id="business-edit-cashflow" type="number" value="0" placeholder="Monatlicher Cashflow in €">
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="business-edit-confirm">Speichern</button>
+        <button id="business-edit-cancel">Abbrechen</button>
+      </div>
     </div>
   </div>
+  
   <!-- Popup für Immobilien Kauf -->
   <div id="property-popup" class="popup-overlay">
     <div class="popup-content">

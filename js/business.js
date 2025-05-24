@@ -25,12 +25,18 @@ function updateBusinessAssetsList() {
       nameInput.type = 'text';
       nameInput.readOnly = true;
       nameInput.value = name;
-      
-      // Monatlicher Cashflow
+        // Monatlicher Cashflow
       const cashflowInput = document.createElement('input');
       cashflowInput.type = 'number';
       cashflowInput.readOnly = true;
       cashflowInput.value = asset.cashflow.toFixed(2);
+      cashflowInput.style.cursor = 'pointer';
+      cashflowInput.title = 'Doppelklick zum Bearbeiten';
+      
+      // Add double-click event to edit cashflow
+      cashflowInput.addEventListener('dblclick', function() {
+        showBusinessCashflowEditPopup(name);
+      });
       
       // Kaufpreis
       const priceInput = document.createElement('input');
@@ -100,10 +106,10 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   }
-
   // Setup popups
   setupBusinessBuyPopup();
   setupBusinessSellPopup();
+  setupBusinessCashflowEditPopup();
   
   // Initialize with dummy boxes
   updateBusinessAssetsList();
@@ -211,8 +217,37 @@ function setupBusinessSellPopup() {
   });
 
   cancelBtn.addEventListener('click', hideBusinessSellPopup);
+  // Close on outside click  popup.addEventListener('click', e => { if (e.target === popup) hideBusinessSellPopup(); });
+}
+
+function setupBusinessCashflowEditPopup() {
+  const popup = document.getElementById('business-cashflow-edit-popup');
+  if (!popup) return;
+
+  const cashflowInput = document.getElementById('business-edit-cashflow');
+  const confirmBtn = document.getElementById('business-edit-confirm');
+  const cancelBtn = document.getElementById('business-edit-cancel');
+  
+  // Confirm button
+  confirmBtn.addEventListener('click', function () {
+    const businessName = document.getElementById('business-edit-name').textContent;
+    const newCashflow = parseFloat(cashflowInput.value) || 0;
+
+    if (businessAssets[businessName]) {
+      // Update cashflow
+      businessAssets[businessName].cashflow = newCashflow;
+      
+      updateBusinessAssetsList();
+      updateBusinessIncome();
+      window.CashflowCore.updateSummary();
+      
+      hideBusinessCashflowEditPopup();
+    }
+  });
+
+  cancelBtn.addEventListener('click', hideBusinessCashflowEditPopup);
   // Close on outside click
-  popup.addEventListener('click', e => { if (e.target === popup) hideBusinessSellPopup(); });
+  popup.addEventListener('click', e => { if (e.target === popup) hideBusinessCashflowEditPopup(); });
 }
 
 function showBusinessPopup() {
@@ -277,6 +312,27 @@ function showBusinessSellPopup() {
 
 function hideBusinessSellPopup() {
   document.getElementById('business-sell-popup').style.display = 'none';
+}
+
+function showBusinessCashflowEditPopup(businessName) {
+  if (!businessAssets[businessName]) {
+    alert('Unternehmen nicht gefunden!');
+    return;
+  }
+  
+  const business = businessAssets[businessName];
+  
+  // Set popup values
+  document.getElementById('business-edit-name').textContent = businessName;
+  document.getElementById('business-edit-current-cashflow').textContent = business.cashflow.toFixed(2) + ' €';
+  document.getElementById('business-edit-cashflow').value = business.cashflow.toFixed(2);
+  
+  const popup = document.getElementById('business-cashflow-edit-popup');
+  popup.style.display = 'flex';
+}
+
+function hideBusinessCashflowEditPopup() {
+  document.getElementById('business-cashflow-edit-popup').style.display = 'none';
 }
 
 function updateBusinessIncome() {
@@ -392,6 +448,8 @@ window.showBusinessPopup = showBusinessPopup;
 window.hideBusinessPopup = hideBusinessPopup;
 window.showBusinessSellPopup = showBusinessSellPopup;
 window.hideBusinessSellPopup = hideBusinessSellPopup;
+window.showBusinessCashflowEditPopup = showBusinessCashflowEditPopup;
+window.hideBusinessCashflowEditPopup = hideBusinessCashflowEditPopup;
 window.updateBusinessIncome = updateBusinessIncome;
 
 // Make businessAssets accessible globally
