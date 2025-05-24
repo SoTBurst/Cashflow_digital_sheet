@@ -24,11 +24,11 @@ function updateBusinessAssetsList() {
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.readOnly = true;
-      nameInput.value = name;        // Monatlicher Cashflow
+      nameInput.value = name;      // Monatlicher Cashflow
       const cashflowInput = document.createElement('input');
       cashflowInput.type = 'text';
       cashflowInput.readOnly = true;
-      cashflowInput.value = Math.round(asset.cashflow) + ' €';
+      cashflowInput.value = window.formatCurrency(asset.cashflow);
       cashflowInput.style.cursor = 'pointer';
       cashflowInput.title = 'Doppelklick zum Bearbeiten';
       
@@ -36,12 +36,11 @@ function updateBusinessAssetsList() {
       cashflowInput.addEventListener('dblclick', function() {
         showBusinessCashflowEditPopup(name);
       });
-      
-      // Kaufpreis
+        // Kaufpreis
       const priceInput = document.createElement('input');
       priceInput.type = 'text';
       priceInput.readOnly = true;
-      priceInput.value = Math.round(asset.price) + ' €';
+      priceInput.value = window.formatCurrency(asset.price);
       
       // Zeile zusammenbauen
       row.append(nameInput, cashflowInput, priceInput);
@@ -292,17 +291,16 @@ function showBusinessSellPopup() {
   nameSelect.addEventListener('change', function() {
     const selectedBusiness = this.value;
     const cashflowSpan = document.getElementById('business-current-cashflow');
-    
-    if (selectedBusiness && businessAssets[selectedBusiness]) {
-      cashflowSpan.textContent = Math.round(businessAssets[selectedBusiness].cashflow) + ' €';
+      if (selectedBusiness && businessAssets[selectedBusiness]) {
+      cashflowSpan.textContent = window.formatCurrency(businessAssets[selectedBusiness].cashflow);
     } else {
-      cashflowSpan.textContent = '0 €';
+      cashflowSpan.textContent = window.formatCurrency(0);
     }
   });
   
   // Reset form values
   document.getElementById('business-sell-price').value = '';
-  document.getElementById('business-current-cashflow').textContent = '0 €';
+  document.getElementById('business-current-cashflow').textContent = window.formatCurrency(0);
 
   const popup = document.getElementById('business-sell-popup');
   popup.style.display = 'flex';
@@ -319,9 +317,8 @@ function showBusinessCashflowEditPopup(businessName) {
   }
   
   const business = businessAssets[businessName];
-  
-  // Set popup values
-  document.getElementById('business-edit-name').textContent = businessName;  document.getElementById('business-edit-current-cashflow').textContent = Math.round(business.cashflow) + ' €';
+    // Set popup values
+  document.getElementById('business-edit-name').textContent = businessName;  document.getElementById('business-edit-current-cashflow').textContent = window.formatCurrency(business.cashflow);
   document.getElementById('business-edit-cashflow').value = Math.round(business.cashflow);
   
   const popup = document.getElementById('business-cashflow-edit-popup');
@@ -341,7 +338,7 @@ function updateBusinessIncome() {
     totalCashflow += business.cashflow;
   });
   
-  businessIncomeInput.value = Math.round(totalCashflow) + ' €';
+  businessIncomeInput.value = window.formatCurrency(totalCashflow);
 }
 
 function addBusinessPurchaseToEntries(businessName, price) {
@@ -352,16 +349,14 @@ function addBusinessPurchaseToEntries(businessName, price) {
   const isFirstEntryEmpty = entriesChildren.length > 0 &&
     entriesChildren[0].querySelector('input').type === 'number';
 
-  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
-  // Create entry for business purchase
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;  // Create entry for business purchase
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '-' + Math.round(price);
+  inp.value = window.formatNumberWithSign(-price);
   inp.style.color = 'var(--danger)';
   inp.title = `Unternehmen "${businessName}" gekauft`;
-
   li.append(inp);
 
   if (insertAfterElement) {
@@ -375,7 +370,7 @@ function addBusinessPurchaseToEntries(businessName, price) {
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {
@@ -400,13 +395,12 @@ function addBusinessSaleToEntries(businessName, price) {
     entriesChildren[0].querySelector('input').type === 'number';
 
   const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
-
   // Create entry for business sale
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '+' + Math.round(price);
+  inp.value = window.formatNumberWithSign(price);
   inp.style.color = ''; // Positive amounts in standard color
   inp.title = `Unternehmen "${businessName}" verkauft`;
 
@@ -415,14 +409,13 @@ function addBusinessSaleToEntries(businessName, price) {
   if (insertAfterElement) {
     insertAfterElement.after(li);
   } else {
-    ul.prepend(li);
-  }
+    ul.prepend(li);  }
   // Updated account balance display
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {

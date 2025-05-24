@@ -35,7 +35,7 @@ function updateStocksAssetsList() {
       const costInput = document.createElement('input');
       costInput.type = 'text';
       costInput.readOnly = true;
-      costInput.value = Math.round(asset.cost) + ' €';
+      costInput.value = window.formatCurrency(asset.cost);
       // Zeile zusammenbauen
       row.append(nameInput, qtyInput, costInput);
       container.appendChild(row);
@@ -164,7 +164,7 @@ function updateStocksPriceCalculation() {
 
   priceInput.placeholder = 'Preis pro Aktie';
   totalContainer.style.display = 'contents';
-  totalPrice.textContent = Math.round(inputPrice * shares) + " €";
+  totalPrice.textContent = window.formatCurrency(inputPrice * shares);
 }
 
 function showStocksPopup() {
@@ -173,7 +173,7 @@ function showStocksPopup() {
   document.getElementById('stocks-shares').value = '1';
   document.getElementById('stocks-price').value = '';
   document.getElementById('stocks-price').placeholder = 'Preis pro Aktie';
-  document.getElementById('stocks-total-price').textContent = '0 €';
+  document.getElementById('stocks-total-price').textContent = window.formatCurrency(0);
 
   const popup = document.getElementById('stocks-popup');
   popup.style.display = 'flex';
@@ -198,7 +198,7 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '-' + Math.round(price);
+  inp.value = window.formatNumberWithSign(-price);
   inp.style.color = 'var(--danger)';
   
   // Include stock name in title if provided
@@ -212,12 +212,11 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
   } else {
     ul.prepend(li);
   }
-  // Updated account balance display
-  const sumLi = document.createElement('li');
+  // Updated account balance display  const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {
@@ -317,7 +316,7 @@ function updateStocksSellPriceCalculation() {
   const inputPrice = parseFloat(priceInput.value) || 0;
   priceInput.placeholder = 'Preis pro Aktie';
   totalContainer.style.display = 'contents';
-  totalPrice.textContent = Math.round(inputPrice * shares) + " €";
+  totalPrice.textContent = window.formatCurrency(inputPrice * shares);
 
 }
 
@@ -408,7 +407,7 @@ function addStocksSaleToEntries(shares, price, stockName) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '+' + Math.round(price);
+  inp.value = window.formatNumberWithSign(price);
   inp.style.color = ''; // Positive amounts in standard color
   
   // Include stock name in title if provided
@@ -423,11 +422,10 @@ function addStocksSaleToEntries(shares, price, stockName) {
     ul.prepend(li);
   }
 
-  // Updated account balance display
-  const sumLi = document.createElement('li');
+  // Updated account balance display  const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.readOnly = true;  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {

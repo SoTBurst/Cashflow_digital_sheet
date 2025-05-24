@@ -159,7 +159,7 @@ function addMetalsPurchaseToEntries(coins, price) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '-' + window.formatNumber(Math.round(price));
+  inp.value = window.formatNumberWithSign(-price);
   inp.style.color = 'var(--danger)';
   inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} gekauft`;
   
@@ -414,7 +414,7 @@ function addMetalsSaleToEntries(coins, price) {
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '+' + Math.round(price);
+  inp.value = window.formatNumberWithSign(price);
   inp.style.color = ''; // Positive Beträge in Standardfarbe
   inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} verkauft`;
   
@@ -425,12 +425,11 @@ function addMetalsSaleToEntries(coins, price) {
   } else {
     ul.prepend(li);
   }
-  
-  // Aktualisierte Kontostandsanzeige
+    // Aktualisierte Kontostandsanzeige
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.readOnly = true;  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {

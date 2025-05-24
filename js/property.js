@@ -33,24 +33,21 @@ function updatePropertyAssetsList() {
       const typeInput = document.createElement('input');
       typeInput.type = 'text';
       typeInput.readOnly = true;
-      typeInput.value = propertyTypes[asset.type]?.name || asset.type;
-        // Monatlicher Cashflow
+      typeInput.value = propertyTypes[asset.type]?.name || asset.type;      // Monatlicher Cashflow
       const cashflowInput = document.createElement('input');
       cashflowInput.type = 'text';
       cashflowInput.readOnly = true;
-      cashflowInput.value = Math.round(asset.cashflow || 0) + ' €';
-      
-      // Eigenanteil
+      cashflowInput.value = window.formatCurrency(asset.cashflow || 0);
+        // Eigenanteil
       const downInput = document.createElement('input');
       downInput.type = 'text';
       downInput.readOnly = true;
-      downInput.value = Math.round(asset.down) + ' €';
-      
-      // Kaufpreis
+      downInput.value = window.formatCurrency(asset.down);
+        // Kaufpreis
       const priceInput = document.createElement('input');
       priceInput.type = 'text';
       priceInput.readOnly = true;
-      priceInput.value = Math.round(asset.price) + ' €';
+      priceInput.value = window.formatCurrency(asset.price);
       
       // Zeile zusammenbauen
       row.append(typeInput, cashflowInput, downInput, priceInput);
@@ -111,11 +108,10 @@ function updatePropertyTotals() {
     totalDown += asset.down;
     totalPrice += asset.price;
     totalCashflow += asset.cashflow || 0;
-  });
-  // Aktualisiere die Input-Felder
-  document.getElementById('input-asset-property-down').value = Math.round(totalDown);
-  document.getElementById('input-asset-property-cost').value = Math.round(totalPrice);
-  document.getElementById('input-income-property').value = Math.round(totalCashflow) + ' €';
+  });  // Aktualisiere die Input-Felder
+  document.getElementById('input-asset-property-down').value = window.formatNumber(totalDown);
+  document.getElementById('input-asset-property-cost').value = window.formatNumber(totalPrice);
+  document.getElementById('input-income-property').value = window.formatCurrency(totalCashflow);
 }
 
 // Setup-Funktion für Kaufen-Button
@@ -217,14 +213,13 @@ function handlePropertyTypeChange() {
 function handlePropertySellSelectionChange() {
   const selectElement = document.getElementById('property-sell-name');
   const selectedId = selectElement.value;
-  
-  if (selectedId && propertyAssets[selectedId]) {
+    if (selectedId && propertyAssets[selectedId]) {
     const asset = propertyAssets[selectedId];
     document.getElementById('property-sell-price').value = '';
-    document.getElementById('property-current-down').textContent = Math.round(asset.down) + ' €';
-    document.getElementById('property-current-price').textContent = Math.round(asset.price) + ' €';
+    document.getElementById('property-current-down').textContent = window.formatCurrency(asset.down);
+    document.getElementById('property-current-price').textContent = window.formatCurrency(asset.price);
     document.getElementById('property-current-units').textContent = asset.units;
-    document.getElementById('property-current-cashflow').textContent = Math.round(asset.cashflow || 0) + ' €';
+    document.getElementById('property-current-cashflow').textContent = window.formatCurrency(asset.cashflow || 0);
     
     // Verkaufsmodus-Placeholder und Berechnung aktualisieren
     handlePropertySellModeChange();
@@ -266,10 +261,9 @@ function handlePropertySellModeChange() {
 function updatePropertySellCalculation() {
   const selectElement = document.getElementById('property-sell-name');
   const selectedId = selectElement.value;
-  
-  if (!selectedId || !propertyAssets[selectedId]) {
-    document.getElementById('property-sell-total-price').textContent = '0 €';
-    document.getElementById('property-profit-preview').textContent = '0 €';
+    if (!selectedId || !propertyAssets[selectedId]) {
+    document.getElementById('property-sell-total-price').textContent = window.formatCurrency(0);
+    document.getElementById('property-profit-preview').textContent = window.formatCurrency(0);
     return;
   }
   
@@ -297,10 +291,9 @@ function updatePropertySellCalculation() {
   
   // Gewinn berechnen: Verkaufspreis + Eigenanteil - Kaufpreis
   const profit = totalSellPrice + asset.down - asset.price;
-  
-  // Anzeige aktualisieren
-  document.getElementById('property-sell-total-price').textContent = Math.round(totalSellPrice) + ' €';
-  document.getElementById('property-profit-preview').textContent = Math.round(profit) + ' €';
+    // Anzeige aktualisieren
+  document.getElementById('property-sell-total-price').textContent = window.formatCurrency(totalSellPrice);
+  document.getElementById('property-profit-preview').textContent = window.formatCurrency(profit);
   
   // Farbe für Gewinn/Verlust
   const profitElement = document.getElementById('property-profit-preview');
@@ -469,22 +462,20 @@ function addPropertyPurchaseToEntries(type, down, price) {
   const ul = document.getElementById('entries');
   const emptyInput = ul.querySelector('input[value=""]');
   const insertAfterElement = emptyInput ? emptyInput.parentNode : null;
-  
-  // Neuen Eintrag für den Immobilienkauf erstellen
+    // Neuen Eintrag für den Immobilienkauf erstellen
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
-  inp.readOnly = true;  inp.value = `-${Math.round(down)}`;
+  inp.readOnly = true;  inp.value = window.formatNumberWithSign(-down);
   inp.style.color = 'var(--danger)';
   
   const typeName = propertyTypes[type]?.name || type;
-  inp.title = `${typeName} gekauft - Eigenanteil: ${Math.round(down)} €, Kaufpreis: ${Math.round(price)} €`;
+  inp.title = `${typeName} gekauft - Eigenanteil: ${window.formatCurrency(down)}, Kaufpreis: ${window.formatCurrency(price)}`;
   
   li.append(inp);
   
   if (insertAfterElement) {
-    insertAfterElement.after(li);
-  } else {
+    insertAfterElement.after(li);  } else {
     ul.prepend(li);
   }
     // Aktualisierte Kontostandsanzeige
@@ -492,7 +483,7 @@ function addPropertyPurchaseToEntries(type, down, price) {
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {
@@ -516,14 +507,13 @@ function addPropertySaleToEntries(type, sellPrice, downPayment, originalPrice) {
   
   const typeName = propertyTypes[type]?.name || type;
   const profit = sellPrice + downPayment - originalPrice;
-  
-  // Verkaufseintrag erstellen
+    // Verkaufseintrag erstellen
   const sellLi = document.createElement('li');
   const sellInp = document.createElement('input');
   sellInp.type = 'text';
   sellInp.readOnly = true;
-  sellInp.value = `+${Math.round(sellPrice + downPayment)}`;
-  sellInp.title = `${typeName} verkauft - Verkaufspreis: ${Math.round(sellPrice)} €, Eigenanteil zurück: ${Math.round(downPayment)} €, Gewinn: ${Math.round(profit)} €`;
+  sellInp.value = window.formatNumberWithSign(sellPrice + downPayment);
+  sellInp.title = `${typeName} verkauft - Verkaufspreis: ${window.formatCurrency(sellPrice)}, Eigenanteil zurück: ${window.formatCurrency(downPayment)}, Gewinn: ${window.formatCurrency(profit)}`;
   
   sellLi.append(sellInp);
   
@@ -532,27 +522,25 @@ function addPropertySaleToEntries(type, sellPrice, downPayment, originalPrice) {
   } else {
     ul.prepend(sellLi);
   }
-  
-  // Kosten-Abbuchung für ursprünglichen Kaufpreis
+    // Kosten-Abbuchung für ursprünglichen Kaufpreis
   const costLi = document.createElement('li');
   const costInp = document.createElement('input');
   costInp.type = 'text';
   costInp.readOnly = true;
-  costInp.value = `-${Math.round(originalPrice)}`;
+  costInp.value = window.formatNumberWithSign(-originalPrice);
   costInp.style.color = 'var(--danger)';
   costInp.title = `${typeName} - Ursprüngliche Kaufkosten abgezogen`;
   
   costLi.append(costInp);
   sellLi.after(costLi);
-  
-  // Aktualisierte Kontostandsanzeige
+    // Aktualisierte Kontostandsanzeige
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
-  
+
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
   }
