@@ -20,18 +20,11 @@ function updateBusinessAssetsList() {
     businessEntries.forEach(([name, asset]) => {
       const row = document.createElement('div');
       row.classList.add('asset-item');
-      
-      // Name
+        // Name
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.readOnly = true;
       nameInput.value = name;
-      
-      // Kaufpreis
-      const priceInput = document.createElement('input');
-      priceInput.type = 'number';
-      priceInput.readOnly = true;
-      priceInput.value = asset.price.toFixed(2);
       
       // Monatlicher Cashflow
       const cashflowInput = document.createElement('input');
@@ -39,8 +32,14 @@ function updateBusinessAssetsList() {
       cashflowInput.readOnly = true;
       cashflowInput.value = asset.cashflow.toFixed(2);
       
+      // Kaufpreis
+      const priceInput = document.createElement('input');
+      priceInput.type = 'number';
+      priceInput.readOnly = true;
+      priceInput.value = asset.price.toFixed(2);
+      
       // Zeile zusammenbauen
-      row.append(nameInput, priceInput, cashflowInput);
+      row.append(nameInput, cashflowInput, priceInput);
       container.appendChild(row);
     });
   }
@@ -50,22 +49,13 @@ function updateBusinessAssetsList() {
 function createDummyBusinessRow(container) {
   const row = document.createElement('div');
   row.classList.add('asset-item', 'dummy-business-row');
-  
-  // Dummy Name-Feld
+    // Dummy Name-Feld
   const nameInput = document.createElement('input');
   nameInput.type = 'text';
   nameInput.readOnly = true;
   nameInput.value = '';
   nameInput.placeholder = 'Name';
   nameInput.style.opacity = '0.5';
-  
-  // Dummy Preis-Feld
-  const priceInput = document.createElement('input');
-  priceInput.type = 'number';
-  priceInput.readOnly = true;
-  priceInput.value = '';
-  priceInput.placeholder = '0.00€';
-  priceInput.style.opacity = '0.5';
   
   // Dummy Cashflow-Feld
   const cashflowInput = document.createElement('input');
@@ -75,8 +65,16 @@ function createDummyBusinessRow(container) {
   cashflowInput.placeholder = '0.00€';
   cashflowInput.style.opacity = '0.5';
   
+  // Dummy Preis-Feld
+  const priceInput = document.createElement('input');
+  priceInput.type = 'number';
+  priceInput.readOnly = true;
+  priceInput.value = '';
+  priceInput.placeholder = '0.00€';
+  priceInput.style.opacity = '0.5';
+  
   // Zeile zusammenbauen
-  row.append(nameInput, priceInput, cashflowInput);
+  row.append(nameInput, cashflowInput, priceInput);
   container.appendChild(row);
 }
 

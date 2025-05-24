@@ -29,12 +29,17 @@ function updatePropertyAssetsList() {
     propertyEntries.forEach(([id, asset]) => {
       const row = document.createElement('div');
       row.classList.add('asset-item');
-      
-      // Typ
+        // Typ
       const typeInput = document.createElement('input');
       typeInput.type = 'text';
       typeInput.readOnly = true;
       typeInput.value = propertyTypes[asset.type]?.name || asset.type;
+      
+      // Monatlicher Cashflow
+      const cashflowInput = document.createElement('input');
+      cashflowInput.type = 'number';
+      cashflowInput.readOnly = true;
+      cashflowInput.value = (asset.cashflow || 0).toFixed(2);
       
       // Eigenanteil
       const downInput = document.createElement('input');
@@ -49,7 +54,7 @@ function updatePropertyAssetsList() {
       priceInput.value = asset.price.toFixed(2);
       
       // Zeile zusammenbauen
-      row.append(typeInput, downInput, priceInput);
+      row.append(typeInput, cashflowInput, downInput, priceInput);
       container.appendChild(row);
     });
     
@@ -78,8 +83,7 @@ function createDummyPropertyRow(container) {
   downInput.value = '';
   downInput.placeholder = '0.00€';
   downInput.style.opacity = '0.5';
-  
-  // Dummy Kaufpreis-Feld
+    // Dummy Kaufpreis-Feld
   const priceInput = document.createElement('input');
   priceInput.type = 'number';
   priceInput.readOnly = true;
@@ -87,8 +91,15 @@ function createDummyPropertyRow(container) {
   priceInput.placeholder = '0.00€';
   priceInput.style.opacity = '0.5';
   
-  // Zeile zusammenbauen
-  row.append(typeInput, downInput, priceInput);
+  // Dummy Cashflow-Feld
+  const cashflowInput = document.createElement('input');
+  cashflowInput.type = 'number';
+  cashflowInput.readOnly = true;
+  cashflowInput.value = '';
+  cashflowInput.placeholder = '0.00€';
+  cashflowInput.style.opacity = '0.5';
+    // Zeile zusammenbauen
+  row.append(typeInput, cashflowInput, downInput, priceInput);
   container.appendChild(row);
 }
 
