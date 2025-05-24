@@ -34,24 +34,23 @@ function updatePropertyAssetsList() {
       typeInput.type = 'text';
       typeInput.readOnly = true;
       typeInput.value = propertyTypes[asset.type]?.name || asset.type;
-      
-      // Monatlicher Cashflow
+        // Monatlicher Cashflow
       const cashflowInput = document.createElement('input');
-      cashflowInput.type = 'number';
+      cashflowInput.type = 'text';
       cashflowInput.readOnly = true;
-      cashflowInput.value = Math.round(asset.cashflow || 0);
+      cashflowInput.value = Math.round(asset.cashflow || 0) + ' €';
       
       // Eigenanteil
       const downInput = document.createElement('input');
-      downInput.type = 'number';
+      downInput.type = 'text';
       downInput.readOnly = true;
-      downInput.value = Math.round(asset.down);
+      downInput.value = Math.round(asset.down) + ' €';
       
       // Kaufpreis
       const priceInput = document.createElement('input');
-      priceInput.type = 'number';
+      priceInput.type = 'text';
       priceInput.readOnly = true;
-      priceInput.value = Math.round(asset.price);
+      priceInput.value = Math.round(asset.price) + ' €';
       
       // Zeile zusammenbauen
       row.append(typeInput, cashflowInput, downInput, priceInput);
@@ -75,28 +74,27 @@ function createDummyPropertyRow(container) {
   typeInput.value = '';
   typeInput.placeholder = 'Typ';
   typeInput.style.opacity = '0.5';
-  
-  // Dummy Eigenanteil-Feld
+    // Dummy Eigenanteil-Feld
   const downInput = document.createElement('input');
-  downInput.type = 'number';
+  downInput.type = 'text';
   downInput.readOnly = true;
   downInput.value = '';
-  downInput.placeholder = '0€';
+  downInput.placeholder = '0 €';
   downInput.style.opacity = '0.5';
     // Dummy Kaufpreis-Feld
   const priceInput = document.createElement('input');
-  priceInput.type = 'number';
+  priceInput.type = 'text';
   priceInput.readOnly = true;
   priceInput.value = '';
-  priceInput.placeholder = '0€';
+  priceInput.placeholder = '0 €';
   priceInput.style.opacity = '0.5';
   
   // Dummy Cashflow-Feld
   const cashflowInput = document.createElement('input');
-  cashflowInput.type = 'number';
+  cashflowInput.type = 'text';
   cashflowInput.readOnly = true;
   cashflowInput.value = '';
-  cashflowInput.placeholder = '0€';
+  cashflowInput.placeholder = '0 €';
   cashflowInput.style.opacity = '0.5';
     // Zeile zusammenbauen
   row.append(typeInput, cashflowInput, downInput, priceInput);
@@ -114,10 +112,10 @@ function updatePropertyTotals() {
     totalPrice += asset.price;
     totalCashflow += asset.cashflow || 0;
   });
-    // Aktualisiere die Input-Felder
+  // Aktualisiere die Input-Felder
   document.getElementById('input-asset-property-down').value = Math.round(totalDown);
   document.getElementById('input-asset-property-cost').value = Math.round(totalPrice);
-  document.getElementById('input-income-property').value = Math.round(totalCashflow);
+  document.getElementById('input-income-property').value = Math.round(totalCashflow) + ' €';
 }
 
 // Setup-Funktion für Kaufen-Button

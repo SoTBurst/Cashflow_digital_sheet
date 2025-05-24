@@ -140,16 +140,16 @@ function updateDisplayBalance() {
 
 function updateSummary() {
   const salary = baseIncome;
-  const passive = (+document.getElementById('input-income-property').value || 0) + 
-                  (+document.getElementById('input-income-business').value || 0);
+  const passive = (parseFloat(document.getElementById('input-income-property').value) || 0) + 
+                  (parseFloat(document.getElementById('input-income-business').value) || 0);
   const totalInc = salary + passive;
   const totalExp =
-    (+document.getElementById('input-expenses-taxes').value || 0) +
-    (+document.getElementById('input-expenses-mortgage').value || 0) +
-    (+document.getElementById('input-expenses-bafog').value || 0) +
-    (+document.getElementById('input-expenses-autoloan').value || 0) +
-    (+document.getElementById('input-expenses-cc').value || 0) +
-    (+document.getElementById('input-expenses-bank').value || 0);
+    (parseFloat(document.getElementById('input-expenses-taxes').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-mortgage').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-bafog').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-autoloan').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-cc').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-bank').value) || 0);
   document.getElementById('sum-salary').textContent = salary + ' €';
   document.getElementById('sum-passive').textContent = passive + ' €';
   document.getElementById('sum-total-income').textContent = totalInc + ' €';
@@ -167,8 +167,8 @@ function setupPayButtons() {
       if (runningBalance >= amount && amount > 0) {
         // Aktion bei ausreichendem Guthaben ausführen
         runningBalance -= amount;
-        liInput.value = 0;
-        expInput.value = 0;
+        liInput.value = '0 €';
+        expInput.value = '0 €';
         addLiabilityPaymentToEntries(type, amount);
         updateDisplayBalance();
         updateSummary();
@@ -282,26 +282,25 @@ function loadData(profile) {
   balanceArray = data.bal;
   baseIncome = data.inc; 
   baseExpenses = data.exp;
-  obligations = data.ob;  document.getElementById('input-income-salary').value = baseIncome;
-  document.getElementById('input-income-property').value = 0;
-  document.getElementById('input-income-business').value = 0;
-  document.getElementById('input-expenses-taxes').value = data.taxes;
-  document.getElementById('input-expenses-mortgage').value = obligations[0][1];
-  document.getElementById('input-expenses-bafog').value = obligations[1][1];
-  document.getElementById('input-expenses-autoloan').value = obligations[2][1];
-  document.getElementById('input-expenses-cc').value = obligations[3][1];
+  obligations = data.ob;  document.getElementById('input-income-salary').value = baseIncome + ' €';
+  document.getElementById('input-income-property').value = '0 €';
+  document.getElementById('input-income-business').value = '0 €';
+  document.getElementById('input-expenses-taxes').value = data.taxes + ' €';
+  document.getElementById('input-expenses-mortgage').value = obligations[0][1] + ' €';
+  document.getElementById('input-expenses-bafog').value = obligations[1][1] + ' €';
+  document.getElementById('input-expenses-autoloan').value = obligations[2][1] + ' €';
+  document.getElementById('input-expenses-cc').value = obligations[3][1] + ' €';
 
   // Bankkredit-Zinszahlung (10% der Schulden)
   const bankLoanAmount = obligations[4][0];
-  const bankLoanPayment = Math.round(bankLoanAmount * 0.1);
-  document.getElementById('input-expenses-bank').value = bankLoanPayment;
+  const bankLoanPayment = Math.round(bankLoanAmount * 0.1);  document.getElementById('input-expenses-bank').value = bankLoanPayment + ' €';
 
   // Verbindlichkeiten ausfüllen (erster Wert aus jedem ob-Tupel)
-  document.getElementById('input-liability-mortgage').value = obligations[0][0];
-  document.getElementById('input-liability-bafog').value = obligations[1][0];
-  document.getElementById('input-liability-autoloan').value = obligations[2][0];
-  document.getElementById('input-liability-cc').value = obligations[3][0]; 
-  document.getElementById('input-liability-bank').value = bankLoanAmount;
+  document.getElementById('input-liability-mortgage').value = obligations[0][0] + ' €';
+  document.getElementById('input-liability-bafog').value = obligations[1][0] + ' €';
+  document.getElementById('input-liability-autoloan').value = obligations[2][0] + ' €';
+  document.getElementById('input-liability-cc').value = obligations[3][0] + ' €'; 
+  document.getElementById('input-liability-bank').value = bankLoanAmount + ' €';
   const sel = document.getElementById('profile-selector');
   document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
   document.getElementById('input-income-property').addEventListener('input', updateSummary);

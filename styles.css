@@ -410,3 +410,67 @@ button.btn-disabled {
   padding: 0;
   list-style: none;
 }
+
+/* Automatically add € symbol to specific input fields */
+#input-income-salary::after,
+#input-income-property::after,
+#input-income-business::after,
+#input-expenses-taxes::after,
+#input-expenses-mortgage::after,
+#input-expenses-bafog::after,
+#input-expenses-autoloan::after,
+#input-expenses-cc::after,
+#input-expenses-bank::after,
+#input-liability-mortgage::after,
+#input-liability-bafog::after,
+#input-liability-autoloan::after,
+#input-liability-cc::after,
+#input-liability-bank::after {
+  content: " €";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text);
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+
+/* Position container for input fields with € symbol */
+.grid6 > input,
+.grid4 > input,
+.liability-control > input {
+  position: relative;
+}
+
+/* Wrapper for inputs that need € symbol positioning */
+.grid6,
+.grid4,
+.liability-control {
+  position: relative;
+}
+
+/* Add € symbol through pseudo-element approach for specific containers */
+.grid6 > input[readonly]::before,
+.grid4 > input[readonly]::before,
+.liability-control > input[readonly]::before {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Alternative approach: Add € symbol after the input value using data attribute */
+.grid6 > input[readonly],
+.grid4 > input[readonly],
+.liability-control > input[readonly] {
+  padding-right: 25px;
+}
+
+.grid6 > input[readonly]:not(:empty):after,
+.grid4 > input[readonly]:not(:empty):after,
+.liability-control > input[readonly]:not(:empty):after {
+  content: " €";
+}

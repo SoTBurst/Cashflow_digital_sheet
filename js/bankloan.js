@@ -4,7 +4,6 @@ function setupBankLoanButtons() {
   // Tracking-Variable für die aktuelle Sequenz von Bankkrediten
   let currentBankEntryAmount = 0;
   let currentBankEntryElement = null;
-
   // Knopf zum Abbezahlen von 1000 Euro
   document.getElementById('btn-pay-bank-1000').addEventListener('click', () => {
     const loanInput = document.getElementById('input-liability-bank');
@@ -13,14 +12,14 @@ function setupBankLoanButtons() {
     if (loanAmount >= 1000 && window.CashflowCore.runningBalance() >= 1000) {
       // Kredit um 1000 reduzieren
       const newLoanAmount = loanAmount - 1000;
-      loanInput.value = newLoanAmount;
+      loanInput.value = newLoanAmount + ' €';
 
       // Kontostand anpassen
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - 1000);
 
       // Zinszahlung anpassen (10% des neuen Betrags)
       const newPayment = Math.round(newLoanAmount * 0.1);
-      document.getElementById('input-expenses-bank').value = newPayment;
+      document.getElementById('input-expenses-bank').value = newPayment + ' €';
 
       // Kontostandanzeige im Bargeldkonto aktualisieren
       updateBankEntryInList(-1000);
@@ -36,18 +35,16 @@ function setupBankLoanButtons() {
   // Knopf zum Aufnehmen von 1000 Euro
   document.getElementById('btn-take-bank-1000').addEventListener('click', () => {
     const loanInput = document.getElementById('input-liability-bank');
-    const loanAmount = parseFloat(loanInput.value) || 0;
-
-    // Kredit um 1000 erhöhen
+    const loanAmount = parseFloat(loanInput.value) || 0;    // Kredit um 1000 erhöhen
     const newLoanAmount = loanAmount + 1000;
-    loanInput.value = newLoanAmount;
+    loanInput.value = newLoanAmount + ' €';
 
     // Kontostand anpassen
     window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + 1000);
 
     // Zinszahlung anpassen (10% des neuen Betrags)
     const newPayment = Math.round(newLoanAmount * 0.1);
-    document.getElementById('input-expenses-bank').value = newPayment;
+    document.getElementById('input-expenses-bank').value = newPayment + ' €';
 
     // Kontostandanzeige im Bargeldkonto aktualisieren
     updateBankEntryInList(1000);

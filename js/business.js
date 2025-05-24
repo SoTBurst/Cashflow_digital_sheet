@@ -24,12 +24,11 @@ function updateBusinessAssetsList() {
       const nameInput = document.createElement('input');
       nameInput.type = 'text';
       nameInput.readOnly = true;
-      nameInput.value = name;
-        // Monatlicher Cashflow
+      nameInput.value = name;        // Monatlicher Cashflow
       const cashflowInput = document.createElement('input');
-      cashflowInput.type = 'number';
+      cashflowInput.type = 'text';
       cashflowInput.readOnly = true;
-      cashflowInput.value = Math.round(asset.cashflow);
+      cashflowInput.value = Math.round(asset.cashflow) + ' €';
       cashflowInput.style.cursor = 'pointer';
       cashflowInput.title = 'Doppelklick zum Bearbeiten';
       
@@ -40,9 +39,9 @@ function updateBusinessAssetsList() {
       
       // Kaufpreis
       const priceInput = document.createElement('input');
-      priceInput.type = 'number';
+      priceInput.type = 'text';
       priceInput.readOnly = true;
-      priceInput.value = Math.round(asset.price);
+      priceInput.value = Math.round(asset.price) + ' €';
       
       // Zeile zusammenbauen
       row.append(nameInput, cashflowInput, priceInput);
@@ -62,21 +61,20 @@ function createDummyBusinessRow(container) {
   nameInput.value = '';
   nameInput.placeholder = 'Name';
   nameInput.style.opacity = '0.5';
-  
-  // Dummy Cashflow-Feld
+    // Dummy Cashflow-Feld
   const cashflowInput = document.createElement('input');
-  cashflowInput.type = 'number';
+  cashflowInput.type = 'text';
   cashflowInput.readOnly = true;
   cashflowInput.value = '';
-  cashflowInput.placeholder = '0€';
+  cashflowInput.placeholder = '0 €';
   cashflowInput.style.opacity = '0.5';
   
   // Dummy Preis-Feld
   const priceInput = document.createElement('input');
-  priceInput.type = 'number';
+  priceInput.type = 'text';
   priceInput.readOnly = true;
   priceInput.value = '';
-  priceInput.placeholder = '0€';
+  priceInput.placeholder = '0 €';
   priceInput.style.opacity = '0.5';
   
   // Zeile zusammenbauen
@@ -343,7 +341,7 @@ function updateBusinessIncome() {
     totalCashflow += business.cashflow;
   });
   
-  businessIncomeInput.value = Math.round(totalCashflow);
+  businessIncomeInput.value = Math.round(totalCashflow) + ' €';
 }
 
 function addBusinessPurchaseToEntries(businessName, price) {

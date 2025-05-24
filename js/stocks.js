@@ -31,12 +31,11 @@ function updateStocksAssetsList() {
       const qtyInput = document.createElement('input');
       qtyInput.type = 'number';
       qtyInput.readOnly = true;
-      qtyInput.value = asset.qty;
-      // Kosten
+      qtyInput.value = asset.qty;      // Kosten
       const costInput = document.createElement('input');
-      costInput.type = 'number';
+      costInput.type = 'text';
       costInput.readOnly = true;
-      costInput.value = Math.round(asset.cost);
+      costInput.value = Math.round(asset.cost) + ' €';
       // Zeile zusammenbauen
       row.append(nameInput, qtyInput, costInput);
       container.appendChild(row);
@@ -64,13 +63,12 @@ function createDummyStockRow(container) {
   qtyInput.value = '';
   qtyInput.placeholder = '0 Stück';
   qtyInput.style.opacity = '0.5';
-  
-  // Dummy Kosten-Feld
+    // Dummy Kosten-Feld
   const costInput = document.createElement('input');
-  costInput.type = 'number';
+  costInput.type = 'text';
   costInput.readOnly = true;
   costInput.value = '';
-  costInput.placeholder = '0€';
+  costInput.placeholder = '0 €';
   costInput.style.opacity = '0.5';
   
   // Zeile zusammenbauen
