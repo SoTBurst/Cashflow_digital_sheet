@@ -171,6 +171,12 @@ function showPropertySellPopup() {
     return;
   }
   
+  // Reset form
+  document.getElementById('property-sell-mode').value = 'total';
+  document.getElementById('property-sell-price').value = '';
+  document.getElementById('property-sell-total-container').style.display = 'none';
+  document.getElementById('property-profit-preview').textContent = '0 €';
+  
   // Populate property dropdown
   const selectElement = document.getElementById('property-sell-name');
   selectElement.innerHTML = '';
@@ -184,7 +190,8 @@ function showPropertySellPopup() {
   
   if (selectElement.options.length > 0) {
     selectElement.selectedIndex = 0;
-    handlePropertySellSelectionChange();  }
+    handlePropertySellSelectionChange();
+  }
   
   popup.style.display = 'flex';
 }
@@ -213,9 +220,94 @@ function handlePropertySellSelectionChange() {
   
   if (selectedId && propertyAssets[selectedId]) {
     const asset = propertyAssets[selectedId];
-    document.getElementById('property-sell-price').value = '';    document.getElementById('property-current-down').textContent = Math.round(asset.down) + ' €';
+    document.getElementById('property-sell-price').value = '';
+    document.getElementById('property-current-down').textContent = Math.round(asset.down) + ' €';
     document.getElementById('property-current-price').textContent = Math.round(asset.price) + ' €';
+    document.getElementById('property-current-units').textContent = asset.units;
     document.getElementById('property-current-cashflow').textContent = Math.round(asset.cashflow || 0) + ' €';
+    
+    // Verkaufsmodus-Placeholder und Berechnung aktualisieren
+    handlePropertySellModeChange();
+  }
+}
+
+// Handle property sell mode change
+function handlePropertySellModeChange() {
+  const modeSelect = document.getElementById('property-sell-mode');
+  const priceInput = document.getElementById('property-sell-price');
+  const totalContainer = document.getElementById('property-sell-total-container');
+  
+  const selectedMode = modeSelect.value;
+  
+  switch (selectedMode) {
+    case 'total':
+      priceInput.placeholder = 'Gesamtverkaufspreis';
+      totalContainer.style.display = 'none';
+      break;
+    case 'per-unit':
+      priceInput.placeholder = 'Preis pro Wohneinheit';
+      totalContainer.style.display = 'contents';
+      break;
+    case 'original-fixed':
+      priceInput.placeholder = 'Zusätzlicher Festwert in €';
+      totalContainer.style.display = 'contents';
+      break;
+    case 'original-percent':
+      priceInput.placeholder = 'Zusätzliche Prozent (%)';
+      totalContainer.style.display = 'contents';
+      break;
+  }
+  
+  // Berechnung aktualisieren
+  updatePropertySellCalculation();
+}
+
+// Update property sell calculation
+function updatePropertySellCalculation() {
+  const selectElement = document.getElementById('property-sell-name');
+  const selectedId = selectElement.value;
+  
+  if (!selectedId || !propertyAssets[selectedId]) {
+    document.getElementById('property-sell-total-price').textContent = '0 €';
+    document.getElementById('property-profit-preview').textContent = '0 €';
+    return;
+  }
+  
+  const asset = propertyAssets[selectedId];
+  const modeSelect = document.getElementById('property-sell-mode');
+  const priceInput = document.getElementById('property-sell-price');
+  const inputValue = parseFloat(priceInput.value) || 0;
+  
+  let totalSellPrice = 0;
+  
+  switch (modeSelect.value) {
+    case 'total':
+      totalSellPrice = inputValue;
+      break;
+    case 'per-unit':
+      totalSellPrice = inputValue * asset.units;
+      break;
+    case 'original-fixed':
+      totalSellPrice = asset.price + inputValue;
+      break;
+    case 'original-percent':
+      totalSellPrice = asset.price * (1 + inputValue / 100);
+      break;
+  }
+  
+  // Gewinn berechnen: Verkaufspreis + Eigenanteil - Kaufpreis
+  const profit = totalSellPrice + asset.down - asset.price;
+  
+  // Anzeige aktualisieren
+  document.getElementById('property-sell-total-price').textContent = Math.round(totalSellPrice) + ' €';
+  document.getElementById('property-profit-preview').textContent = Math.round(profit) + ' €';
+  
+  // Farbe für Gewinn/Verlust
+  const profitElement = document.getElementById('property-profit-preview');
+  if (profit >= 0) {
+    profitElement.style.color = 'var(--success, green)';
+  } else {
+    profitElement.style.color = 'var(--danger, red)';
   }
 }
 
@@ -289,12 +381,24 @@ function setupPropertySellPopup() {
     selectElement.addEventListener('change', handlePropertySellSelectionChange);
   }
   
+  // Verkaufsmodus-Änderung
+  const sellModeSelect = document.getElementById('property-sell-mode');
+  if (sellModeSelect) {
+    sellModeSelect.addEventListener('change', handlePropertySellModeChange);
+  }
+  
+  // Preis-Input-Änderung
+  const priceInput = document.getElementById('property-sell-price');
+  if (priceInput) {
+    priceInput.addEventListener('input', updatePropertySellCalculation);
+  }
+  
   // Bestätigen-Button
   const confirmBtn = document.getElementById('property-sell-confirm');
   if (confirmBtn) {
     confirmBtn.addEventListener('click', () => {
       const propertyId = document.getElementById('property-sell-name').value;
-      const sellPrice = parseFloat(document.getElementById('property-sell-price').value) || 0;
+      const inputValue = parseFloat(document.getElementById('property-sell-price').value) || 0;
       
       if (!propertyId || !propertyAssets[propertyId]) {
         alert('Bitte wählen Sie eine Immobilie zum Verkaufen aus!');
@@ -302,13 +406,37 @@ function setupPropertySellPopup() {
       }
       
       const asset = propertyAssets[propertyId];
+      const sellMode = document.getElementById('property-sell-mode').value;
       
-      if (sellPrice > 0) {
-        // Kontostand updaten
-        window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + sellPrice);
+      // Gesamtverkaufspreis basierend auf Modus berechnen
+      let totalSellPrice = 0;
+      switch (sellMode) {
+        case 'total':
+          totalSellPrice = inputValue;
+          break;
+        case 'per-unit':
+          totalSellPrice = inputValue * asset.units;
+          break;
+        case 'original-fixed':
+          totalSellPrice = asset.price + inputValue;
+          break;
+        case 'original-percent':
+          totalSellPrice = asset.price * (1 + inputValue / 100);
+          break;
+      }
+      
+      if (inputValue > 0 && totalSellPrice > 0) {
+        // Gesamterlös berechnen: Verkaufspreis + ursprünglicher Eigenanteil
+        const totalProceeds = totalSellPrice + asset.down;
+        
+        // Kontostand um den Gesamterlös erhöhen
+        window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + totalProceeds);
+        
+        // Ursprungspreis wieder abziehen (wie ein Rückkauf der Schulden)
+        window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - asset.price);
         
         // Eintrag zur Bargeldkonto-Liste hinzufügen
-        addPropertySaleToEntries(asset.type, sellPrice);
+        addPropertySaleToEntries(asset.type, totalSellPrice, asset.down, asset.price);
         
         // Asset entfernen
         delete propertyAssets[propertyId];
@@ -381,33 +509,48 @@ function addPropertyPurchaseToEntries(type, down, price) {
 }
 
 // Funktion zum Hinzufügen eines Immobilienverkaufs zur Bargeldkonto-Liste
-function addPropertySaleToEntries(type, price) {
+function addPropertySaleToEntries(type, sellPrice, downPayment, originalPrice) {
   const ul = document.getElementById('entries');
   const emptyInput = ul.querySelector('input[value=""]');
   const insertAfterElement = emptyInput ? emptyInput.parentNode : null;
   
-  // Neuen Eintrag für den Immobilienverkauf erstellen
-  const li = document.createElement('li');
-  const inp = document.createElement('input');
-  inp.type = 'text';
-  inp.readOnly = true;  inp.value = `+${Math.round(price)}`;
-  
   const typeName = propertyTypes[type]?.name || type;
-  inp.title = `${typeName} verkauft für ${Math.round(price)} €`;
+  const profit = sellPrice + downPayment - originalPrice;
   
-  li.append(inp);
+  // Verkaufseintrag erstellen
+  const sellLi = document.createElement('li');
+  const sellInp = document.createElement('input');
+  sellInp.type = 'text';
+  sellInp.readOnly = true;
+  sellInp.value = `+${Math.round(sellPrice + downPayment)}`;
+  sellInp.title = `${typeName} verkauft - Verkaufspreis: ${Math.round(sellPrice)} €, Eigenanteil zurück: ${Math.round(downPayment)} €, Gewinn: ${Math.round(profit)} €`;
+  
+  sellLi.append(sellInp);
   
   if (insertAfterElement) {
-    insertAfterElement.after(li);
+    insertAfterElement.after(sellLi);
   } else {
-    ul.prepend(li);
+    ul.prepend(sellLi);
   }
+  
+  // Kosten-Abbuchung für ursprünglichen Kaufpreis
+  const costLi = document.createElement('li');
+  const costInp = document.createElement('input');
+  costInp.type = 'text';
+  costInp.readOnly = true;
+  costInp.value = `-${Math.round(originalPrice)}`;
+  costInp.style.color = 'var(--danger)';
+  costInp.title = `${typeName} - Ursprüngliche Kaufkosten abgezogen`;
+  
+  costLi.append(costInp);
+  sellLi.after(costLi);
   
   // Aktualisierte Kontostandsanzeige
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
+  sumInp.readOnly = true;
+  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(Math.round(window.CashflowCore.runningBalance()));
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {
@@ -416,8 +559,8 @@ function addPropertySaleToEntries(type, price) {
   
   sumLi.append(sumInp);
   
-  // Kontostand-Eintrag nach dem Verkauf-Eintrag einfügen
-  li.after(sumLi);
+  // Kontostand-Eintrag nach dem Kosten-Eintrag einfügen
+  costLi.after(sumLi);
   
   // Globale Flag setzen
   window.lastActionWasManualEntry = true;

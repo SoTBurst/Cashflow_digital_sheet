@@ -246,8 +246,7 @@
       </div>
     </div>
   </div>
-  
-  <!-- Popup für Immobilien Verkauf -->
+    <!-- Popup für Immobilien Verkauf -->
   <div id="property-sell-popup" class="popup-overlay">
     <div class="popup-content">
       <h3>Immobilie verkaufen</h3>
@@ -257,14 +256,33 @@
           <!-- Options will be populated dynamically -->
         </select>
         
+        <label>Verkaufsmodus:</label>
+        <select id="property-sell-mode">
+          <option value="total">Gesamtpreis</option>
+          <option value="per-unit">Preis pro Wohneinheit</option>
+          <option value="original-fixed">Ursprungspreis + Festwert</option>
+          <option value="original-percent">Ursprungspreis + X Prozent</option>
+        </select>
+        
         <label>Verkaufspreis:</label>
         <input id="property-sell-price" type="number" min="0" value="0">
+        
+        <div id="property-sell-total-container" style="display: none">
+          <label>Gesamtverkaufspreis:</label>
+          <span id="property-sell-total-price">0 €</span>
+        </div>
+        
+        <label>Gewinnvoransicht:</label>
+        <span id="property-profit-preview">0 €</span>
         
         <label>Eigenanteil:</label>
         <span id="property-current-down">0 €</span>
         
         <label>Kaufpreis:</label>
         <span id="property-current-price">0 €</span>
+        
+        <label>Wohneinheiten:</label>
+        <span id="property-current-units">1</span>
         
         <label>Monatlicher Cashflow:</label>
         <span id="property-current-cashflow">0 €</span>
