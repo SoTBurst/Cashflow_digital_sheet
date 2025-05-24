@@ -62,7 +62,7 @@ function createDummyStockRow(container) {
   qtyInput.type = 'number';
   qtyInput.readOnly = true;
   qtyInput.value = '';
-  qtyInput.placeholder = '0';
+  qtyInput.placeholder = '0 Stück';
   qtyInput.style.opacity = '0.5';
   
   // Dummy Kosten-Feld
@@ -70,7 +70,7 @@ function createDummyStockRow(container) {
   costInput.type = 'number';
   costInput.readOnly = true;
   costInput.value = '';
-  costInput.placeholder = '0.00';
+  costInput.placeholder = '0.00€';
   costInput.style.opacity = '0.5';
   
   // Zeile zusammenbauen

@@ -398,6 +398,7 @@ button.btn-disabled {
   border: 1px dashed #ccc;
   color: #999;
   font-style: italic;
+  opacity: 0.5;
 }
 
 /* Stocks asset list spans full grid row */

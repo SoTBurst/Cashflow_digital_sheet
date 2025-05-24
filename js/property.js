@@ -76,7 +76,7 @@ function createDummyPropertyRow(container) {
   downInput.type = 'number';
   downInput.readOnly = true;
   downInput.value = '';
-  downInput.placeholder = '0.00';
+  downInput.placeholder = '0.00€';
   downInput.style.opacity = '0.5';
   
   // Dummy Kaufpreis-Feld
@@ -84,7 +84,7 @@ function createDummyPropertyRow(container) {
   priceInput.type = 'number';
   priceInput.readOnly = true;
   priceInput.value = '';
-  priceInput.placeholder = '0.00';
+  priceInput.placeholder = '0.00€';
   priceInput.style.opacity = '0.5';
   
   // Zeile zusammenbauen

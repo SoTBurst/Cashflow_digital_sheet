@@ -64,7 +64,7 @@ function createDummyBusinessRow(container) {
   priceInput.type = 'number';
   priceInput.readOnly = true;
   priceInput.value = '';
-  priceInput.placeholder = '0.00';
+  priceInput.placeholder = '0.00€';
   priceInput.style.opacity = '0.5';
   
   // Dummy Cashflow-Feld
@@ -72,7 +72,7 @@ function createDummyBusinessRow(container) {
   cashflowInput.type = 'number';
   cashflowInput.readOnly = true;
   cashflowInput.value = '';
-  cashflowInput.placeholder = '0.00';
+  cashflowInput.placeholder = '0.00€';
   cashflowInput.style.opacity = '0.5';
   
   // Zeile zusammenbauen
