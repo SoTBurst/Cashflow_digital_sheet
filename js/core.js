@@ -84,7 +84,6 @@ function addEntry() {
     }
   });
   li.append(inp); 
-  ul.prepend(li); // Neues Eingabefeld oben einfügen
   inp.focus();
 }
 
