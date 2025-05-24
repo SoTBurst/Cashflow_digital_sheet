@@ -136,6 +136,16 @@ label {
   align-items: center;
 }
 
+.grid6 {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto 1fr;
+  gap: 0.2rem;
+  column-gap: 0.5rem;
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  align-items: center;
+}
+
 .liability-control {
   display: flex;
   gap: 0.3rem;
@@ -288,6 +298,21 @@ button.btn-disabled {
   gap: 0.8rem;
 }
 
+/* Stocks summary fields in asset-control */
+#input-asset-stocks-qty,
+#input-asset-stocks-cost,
+#input-asset-stocks-name {
+  width: 80px;
+  max-width: 80px;
+  margin: 0 8px;
+}
+
+/* Make stocks assets list flex-grow to occupy available space */
+.asset-control #stocks-assets-list {
+  flex: 1;
+  margin-right: 8px;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -302,6 +327,11 @@ button.btn-disabled {
   
   .popup-grid {
     grid-template-columns: 1fr;
+  }
+  
+  .grid6 {
+    grid-template-columns: auto 1fr;
+    gap: 0.2rem;
   }
   
   body.taskbar-hidden .container {
@@ -322,4 +352,125 @@ button.btn-disabled {
   body.taskbar-hidden .mobile-handle {
     opacity: 1;
   }
+}
+
+/* Styles für dynamische Asset Items */
+.asset-item {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.asset-item input {
+  padding: 0.25rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #f9f9f9;
+}
+
+/* Styling für Dummy-Aktienzeilen */
+.dummy-stock-row input {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  color: #999;
+  font-style: italic;
+}
+
+/* Styling für Dummy-Unternehmenszeilen */
+.dummy-business-row input {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  color: #999;
+  font-style: italic;
+}
+
+/* Styling für Dummy-Immobilienzeilen */
+.dummy-property-row input {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  color: #999;
+  font-style: italic;
+}
+
+/* Styling für leeres Edelmetalle-Feld */
+#input-asset-metals.empty-metals {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  color: #999;
+  font-style: italic;
+  opacity: 0.5;
+}
+
+/* Stocks asset list spans full grid row */
+.asset-control .asset-list {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+/* Automatically add € symbol to specific input fields */
+#input-income-salary::after,
+#input-income-property::after,
+#input-income-business::after,
+#input-expenses-taxes::after,
+#input-expenses-mortgage::after,
+#input-expenses-bafog::after,
+#input-expenses-autoloan::after,
+#input-expenses-cc::after,
+#input-expenses-bank::after,
+#input-liability-mortgage::after,
+#input-liability-bafog::after,
+#input-liability-autoloan::after,
+#input-liability-cc::after,
+#input-liability-bank::after {
+  content: " €";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text);
+  pointer-events: none;
+  font-size: 0.9rem;
+}
+
+/* Position container for input fields with € symbol */
+.grid6 > input,
+.grid4 > input,
+.liability-control > input {
+  position: relative;
+}
+
+/* Wrapper for inputs that need € symbol positioning */
+.grid6,
+.grid4,
+.liability-control {
+  position: relative;
+}
+
+/* Add € symbol through pseudo-element approach for specific containers */
+.grid6 > input[readonly]::before,
+.grid4 > input[readonly]::before,
+.liability-control > input[readonly]::before {
+  content: "";
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Alternative approach: Add € symbol after the input value using data attribute */
+.grid6 > input[readonly],
+.grid4 > input[readonly],
+.liability-control > input[readonly] {
+  padding-right: 25px;
+}
+
+.grid6 > input[readonly]:not(:empty):after,
+.grid4 > input[readonly]:not(:empty):after,
+.liability-control > input[readonly]:not(:empty):after {
+  content: " €";
 }

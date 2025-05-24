@@ -29,8 +29,12 @@ document.addEventListener('DOMContentLoaded', function() {
   if (typeof setupMetalsPopup === 'function') {
     setupMetalsPopup();
   }
-  
-  if (typeof setupMetalsSellPopup === 'function') {
+    if (typeof setupMetalsSellPopup === 'function') {
     setupMetalsSellPopup();
+  }
+  
+  // Initial styling update for metals field
+  if (typeof updateMetalsFieldStyling === 'function') {
+    updateMetalsFieldStyling();
   }
 });

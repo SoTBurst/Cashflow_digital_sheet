@@ -2,6 +2,7 @@
 window.updateSellButtonStates = updateSellButtonStates;
 window.setupBuyButtons = setupBuyButtons;
 window.setupSellButtons = setupSellButtons;
+window.updateMetalsFieldStyling = updateMetalsFieldStyling;
 
 // Metals functionality - buying and selling
 
@@ -20,14 +21,19 @@ function setupBuyButtons() {
       console.error('showStocksPopup function not found');
     }
   });
-  
-  // Immobilien Kauf-Button (noch ohne Funktion)
+    // Immobilien Kauf-Button (noch ohne Funktion)
   document.getElementById('btn-buy-property').addEventListener('click', () => {
     // Functionality to be implemented
   });
   
-  // Setup für das Edelmetalle-Popup
-  setupMetalsPopup();
+  // Unternehmen Kauf-Button
+  document.getElementById('btn-buy-business').addEventListener('click', () => {
+    if (typeof window.showBusinessPopup === 'function') {
+      window.showBusinessPopup();
+    } else {
+      console.error('showBusinessPopup function not found');
+    }
+  });
 }
 
 function setupMetalsPopup() {
@@ -40,15 +46,24 @@ function setupMetalsPopup() {
   const confirmBtn = document.getElementById('metals-buy-confirm');
   const cancelBtn = document.getElementById('metals-buy-cancel');
   
+  // Entferne bestehende Event-Listener um Duplikate zu vermeiden
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  
   // Kaufart-Wechsel
+  buyTypeSelect.removeEventListener('change', updateMetalsPriceCalculation);
   buyTypeSelect.addEventListener('change', updateMetalsPriceCalculation);
   
   // Input-Änderungen
+  coinsInput.removeEventListener('input', updateMetalsPriceCalculation);
   coinsInput.addEventListener('input', updateMetalsPriceCalculation);
+  priceInput.removeEventListener('input', updateMetalsPriceCalculation);
   priceInput.addEventListener('input', updateMetalsPriceCalculation);
   
   // Buttons
-  confirmBtn.addEventListener('click', () => {
+  newConfirmBtn.addEventListener('click', () => {
     const coins = parseInt(coinsInput.value) || 0;
     let price;
     
@@ -64,11 +79,11 @@ function setupMetalsPopup() {
       
       // Anzahl der Münzen zu den Edelmetallen hinzufügen
       const currentMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
-      document.getElementById('input-asset-metals').value = currentMetals + coins;
-        // Kontostandanzeige aktualisieren
+      document.getElementById('input-asset-metals').value = currentMetals + coins;      // Kontostandanzeige aktualisieren
       addMetalsPurchaseToEntries(coins, price);
       window.CashflowCore.updateDisplayBalance();
       window.updateSellButtonStates();
+      updateMetalsFieldStyling();
       
       // Popup schließen
       hideMetalsPopup();
@@ -82,7 +97,7 @@ function setupMetalsPopup() {
     }
   });
   
-  cancelBtn.addEventListener('click', hideMetalsPopup);
+  newCancelBtn.addEventListener('click', hideMetalsPopup);
   
   // Klick außerhalb des Popups schließt es
   popup.addEventListener('click', (e) => {
@@ -101,8 +116,7 @@ function updateMetalsPriceCalculation() {
   
   const coins = parseInt(coinsInput.value) || 0;
   const inputPrice = parseFloat(priceInput.value) || 0;
-  
-  if (buyTypeSelect.value === 'total') {
+    if (buyTypeSelect.value === 'total') {
     // Gesamtpreis ausgewählt
     priceInput.placeholder = 'Gesamtpreis';
     totalContainer.style.display = 'none';
@@ -110,7 +124,7 @@ function updateMetalsPriceCalculation() {
     // Preis pro Münze ausgewählt
     priceInput.placeholder = 'Preis pro Münze';
     totalContainer.style.display = 'contents';
-    totalPrice.textContent = (inputPrice * coins).toFixed(2) + " €";
+    totalPrice.textContent = window.formatCurrency(inputPrice * coins);
   }
 }
 
@@ -133,37 +147,34 @@ function hideMetalsPopup() {
 function addMetalsPurchaseToEntries(coins, price) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
   
-  // Prüfen, ob das letzte Element ein leeres Eingabefeld ist
-  const isLastEntryEmpty = lastEntryIndex >= 0 && 
-                         entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  // Prüfen, ob das erste Element ein leeres Eingabefeld ist
+  const isFirstEntryEmpty = entriesChildren.length > 0 && 
+                         entriesChildren[0].querySelector('input').type === 'number';
   
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
   
   // Eintrag für den Edelmetallkauf erstellen
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '-' + price.toFixed(2);
+  inp.value = window.formatNumberWithSign(-price);
   inp.style.color = 'var(--danger)';
   inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} gekauft`;
   
   li.append(inp);
   
-  if (insertBeforeElement) {
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
   } else {
-    ul.appendChild(li);
-  }
-  
-  // Aktualisierte Kontostandsanzeige
+    ul.prepend(li);
+  }    // Aktualisierte Kontostandsanzeige
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {
@@ -172,11 +183,8 @@ function addMetalsPurchaseToEntries(coins, price) {
   
   sumLi.append(sumInp);
   
-  if (insertBeforeElement) {
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    ul.appendChild(sumLi);
-  }
+  // Kontostand-Eintrag nach dem Kauf-Eintrag einfügen
+  li.after(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;
@@ -196,8 +204,8 @@ function updateSellButtonStates() {
     btnSellMetals.title = 'Edelmetalle verkaufen';
   }
   
-  // Aktien
-  const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
+  // Aktien - use the actual stocksAssets object instead of non-existent input field
+  const stocksQty = window.stocksAssets ? Object.values(window.stocksAssets).reduce((sum, asset) => sum + asset.qty, 0) : 0;
   const btnSellStocks = document.getElementById('btn-sell-stocks');
   btnSellStocks.disabled = stocksQty <= 0;
   if (btnSellStocks.disabled) {
@@ -206,18 +214,27 @@ function updateSellButtonStates() {
   } else {
     btnSellStocks.classList.remove('btn-disabled');
     btnSellStocks.title = 'Aktien verkaufen';
-  }
-  
-  // Immobilien
-  const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
+  }    // Immobilien - use the actual propertyAssets object
+  const hasProperties = window.propertyAssets ? Object.keys(window.propertyAssets).length > 0 : false;
   const btnSellProperty = document.getElementById('btn-sell-property');
-  btnSellProperty.disabled = propertyDown <= 0;
+  btnSellProperty.disabled = !hasProperties;
   if (btnSellProperty.disabled) {
     btnSellProperty.classList.add('btn-disabled');
     btnSellProperty.title = 'Keine Immobilien zum Verkaufen vorhanden';
   } else {
     btnSellProperty.classList.remove('btn-disabled');
     btnSellProperty.title = 'Immobilien verkaufen';
+  }
+    // Unternehmen
+  const hasBusinesses = window.businessAssets ? Object.keys(window.businessAssets).length > 0 : false;
+  const btnSellBusiness = document.getElementById('btn-sell-business');
+  btnSellBusiness.disabled = !hasBusinesses;
+  if (btnSellBusiness.disabled) {
+    btnSellBusiness.classList.add('btn-disabled');
+    btnSellBusiness.title = 'Keine Unternehmen zum Verkaufen vorhanden';
+  } else {
+    btnSellBusiness.classList.remove('btn-disabled');
+    btnSellBusiness.title = 'Unternehmen verkaufen';
   }
 }
 
@@ -228,28 +245,42 @@ function setupSellButtons() {
     if (metalsAmount > 0) {
       showMetalsSellPopup();
     }
-  });
-  document.getElementById('btn-sell-stocks').addEventListener('click', () => {
-    const stocksQty = parseInt(document.getElementById('input-asset-stocks-qty').value) || 0;
-    if (stocksQty > 0) {
+  });  document.getElementById('btn-sell-stocks').addEventListener('click', () => {
+    // Check if we have any stocks with quantity > 0
+    const hasStocks = window.stocksAssets ? Object.values(window.stocksAssets).some(asset => asset.qty > 0) : false;
+    if (hasStocks) {
       if (typeof window.showStocksSellPopup === 'function') {
         window.showStocksSellPopup();
       } else {
         console.error('showStocksSellPopup function not found');
       }
+    } else {
+      alert('Sie haben keine Aktien zum Verkaufen.');
+    }
+  });    document.getElementById('btn-sell-property').addEventListener('click', () => {
+    const hasProperties = window.propertyAssets ? Object.keys(window.propertyAssets).length > 0 : false;
+    if (hasProperties) {
+      if (typeof window.showPropertySellPopup === 'function') {
+        window.showPropertySellPopup();
+      } else {
+        console.error('showPropertySellPopup function not found');
+      }
+    } else {
+      alert('Sie haben keine Immobilien zum Verkaufen.');
     }
   });
-  
-  document.getElementById('btn-sell-property').addEventListener('click', () => {
-    const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
-    if (propertyDown > 0) {
-      // Funktion für den Verkauf (kann später implementiert werden)
-      alert('Verkauf-Funktion für Immobilien wird noch implementiert.');
+    document.getElementById('btn-sell-business').addEventListener('click', () => {
+    const hasBusinesses = window.businessAssets ? Object.keys(window.businessAssets).length > 0 : false;
+    if (hasBusinesses) {
+      if (typeof window.showBusinessSellPopup === 'function') {
+        window.showBusinessSellPopup();
+      } else {
+        console.error('showBusinessSellPopup function not found');
+      }
+    } else {
+      alert('Sie haben keine Unternehmen zum Verkaufen.');
     }
   });
-  
-  // Setup für das Edelmetalle-Verkauf-Popup
-  setupMetalsSellPopup();
 }
 
 function setupMetalsSellPopup() {
@@ -262,15 +293,24 @@ function setupMetalsSellPopup() {
   const confirmBtn = document.getElementById('metals-sell-confirm');
   const cancelBtn = document.getElementById('metals-sell-cancel');
   
+  // Entferne bestehende Event-Listener um Duplikate zu vermeiden
+  const newConfirmBtn = confirmBtn.cloneNode(true);
+  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+  const newCancelBtn = cancelBtn.cloneNode(true);
+  cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+  
   // Verkaufsart-Wechsel
+  sellTypeSelect.removeEventListener('change', updateMetalsSellPriceCalculation);
   sellTypeSelect.addEventListener('change', updateMetalsSellPriceCalculation);
   
   // Input-Änderungen
+  coinsInput.removeEventListener('input', updateMetalsSellPriceCalculation);
   coinsInput.addEventListener('input', updateMetalsSellPriceCalculation);
+  priceInput.removeEventListener('input', updateMetalsSellPriceCalculation);
   priceInput.addEventListener('input', updateMetalsSellPriceCalculation);
   
   // Buttons
-  confirmBtn.addEventListener('click', () => {
+  newConfirmBtn.addEventListener('click', () => {
     const totalMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
     const coinsToSell = parseInt(coinsInput.value) || 0;
     let price;
@@ -288,10 +328,11 @@ function setupMetalsSellPopup() {
       
       // Anzahl der Münzen von den Edelmetallen abziehen
       document.getElementById('input-asset-metals').value = totalMetals - coinsToSell;
-      
-      // Kontostandanzeige aktualisieren
+        // Kontostandanzeige aktualisieren
       addMetalsSaleToEntries(coinsToSell, price);
       window.CashflowCore.updateDisplayBalance();
+      window.updateSellButtonStates();
+      updateMetalsFieldStyling();
       
       // Popup schließen
       hideMetalsSellPopup();
@@ -305,7 +346,7 @@ function setupMetalsSellPopup() {
     }
   });
   
-  cancelBtn.addEventListener('click', hideMetalsSellPopup);
+  newCancelBtn.addEventListener('click', hideMetalsSellPopup);
   
   // Klick außerhalb des Popups schließt es
   popup.addEventListener('click', (e) => {
@@ -328,12 +369,11 @@ function updateMetalsSellPriceCalculation() {
   if (sellTypeSelect.value === 'total') {
     // Gesamtpreis ausgewählt
     priceInput.placeholder = 'Gesamterlös';
-    totalContainer.style.display = 'none';
-  } else {
+    totalContainer.style.display = 'none';  } else {
     // Preis pro Münze ausgewählt
     priceInput.placeholder = 'Preis pro Münze';
     totalContainer.style.display = 'contents';
-    totalPrice.textContent = (inputPrice * coins).toFixed(2) + " €";
+    totalPrice.textContent = window.formatCurrency(inputPrice * coins);
   }
 }
 
@@ -362,37 +402,34 @@ function hideMetalsSellPopup() {
 function addMetalsSaleToEntries(coins, price) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
   
-  // Prüfen, ob das letzte Element ein leeres Eingabefeld ist
-  const isLastEntryEmpty = lastEntryIndex >= 0 && 
-                         entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+  // Prüfen, ob das erste Element ein leeres Eingabefeld ist
+  const isFirstEntryEmpty = entriesChildren.length > 0 && 
+                         entriesChildren[0].querySelector('input').type === 'number';
   
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
   
   // Eintrag für den Edelmetallverkauf erstellen
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-  inp.value = '+' + price.toFixed(2);
+  inp.value = window.formatNumberWithSign(price);
   inp.style.color = ''; // Positive Beträge in Standardfarbe
   inp.title = `${coins} Edelmetall-Münze${coins > 1 ? 'n' : ''} verkauft`;
   
   li.append(inp);
   
-  if (insertBeforeElement) {
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
   } else {
-    ul.appendChild(li);
+    ul.prepend(li);
   }
-  
-  // Aktualisierte Kontostandsanzeige
+    // Aktualisierte Kontostandsanzeige
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;
-  sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance()).toFixed(2);
+  sumInp.readOnly = true;  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
   
   if (window.CashflowCore.runningBalance() < 0) {
@@ -400,13 +437,24 @@ function addMetalsSaleToEntries(coins, price) {
   }
   
   sumLi.append(sumInp);
-  
-  if (insertBeforeElement) {
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    ul.appendChild(sumLi);
-  }
+    // Kontostand-Eintrag nach dem Verkauf-Eintrag einfügen
+  li.after(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;
+}
+
+// Funktion zur Aktualisierung des Edelmetalle-Feld-Stylings
+function updateMetalsFieldStyling() {
+  const metalsInput = document.getElementById('input-asset-metals');
+  const metalsAmount = parseInt(metalsInput.value) || 0;
+  
+  if (metalsAmount <= 0) {
+    // Leeres Feld - Dummy-Styling anwenden
+    metalsInput.classList.add('empty-metals');
+    metalsInput.value = '';
+  } else {
+    // Feld hat Wert - normales Styling
+    metalsInput.classList.remove('empty-metals');
+  }
 }

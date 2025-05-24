@@ -115,8 +115,7 @@
         <button id="stocks-buy-cancel">Abbrechen</button>
       </div>
     </div>
-  </div>
-    <!-- Popup für Aktien Verkauf -->  <div id="stocks-sell-popup" class="popup-overlay">
+  </div>    <!-- Popup für Aktien Verkauf -->  <div id="stocks-sell-popup" class="popup-overlay">
     <div class="popup-content">
       <h3>Aktien verkaufen</h3>
       <div class="popup-grid">
@@ -146,85 +145,236 @@
       </div>
     </div>
   </div>
+  <!-- Popup für Unternehmen Kauf -->
+  <div id="business-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Unternehmen kaufen</h3>
+      <div class="popup-grid">
+        <label>Name:</label>
+        <input id="business-name" type="text" value="" placeholder="Name des Unternehmens">
+        
+        <label>Kaufpreis:</label>
+        <input id="business-price" type="number" min="0" value="0" placeholder="Preis in €">
+        
+        <label>Monatlicher Cashflow:</label>
+        <input id="business-cashflow" type="number" value="0" placeholder="Monatlicher Gewinn in €">
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="business-buy-confirm">Kaufen</button>
+        <button id="business-buy-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+    <!-- Popup für Unternehmen Verkauf -->
+  <div id="business-sell-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Unternehmen verkaufen</h3>
+      <div class="popup-grid">
+        <label>Name:</label>
+        <select id="business-sell-name">
+          <!-- Options will be populated dynamically -->
+        </select>
+        
+        <label>Verkaufspreis:</label>
+        <input id="business-sell-price" type="number" min="0" value="0">
+        
+        <label>Monatlicher Cashflow:</label>
+        <span id="business-current-cashflow">0 €</span>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="business-sell-confirm">Verkaufen</button>
+        <button id="business-sell-cancel">Abbrechen</button>
+      </div>
+    </div>  </div>
+  
+  <!-- Popup für Unternehmen Cashflow bearbeiten -->
+  <div id="business-cashflow-edit-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Cashflow bearbeiten</h3>
+      <div class="popup-grid">
+        <label>Unternehmen:</label>
+        <span id="business-edit-name">-</span>
+        
+        <label>Aktueller Cashflow:</label>
+        <span id="business-edit-current-cashflow">0 €</span>
+        
+        <label>Neuer Cashflow:</label>
+        <input id="business-edit-cashflow" type="number" value="0" placeholder="Monatlicher Cashflow in €">
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="business-edit-confirm">Speichern</button>
+        <button id="business-edit-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Popup für Immobilien Kauf -->
+  <div id="property-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Immobilie kaufen</h3>
+      <div class="popup-grid">
+        <label>Typ:</label>
+        <select id="property-type">
+          <option value="efh">Einfamilienhaus (EFH)</option>
+          <option value="dp">Doppelhaus (DP)</option>
+          <option value="mfh">Mehrfamilienhaus (MFH)</option>
+          <option value="etw">Eigentumswohnung (ETW)</option>
+          <option value="ah">Appartmenthaus (AH)</option>
+        </select>
+        
+        <div id="property-units-container" style="display: none">
+          <label>Anzahl Wohneinheiten:</label>
+          <input id="property-units" type="number" min="1" value="1" placeholder="Anzahl Wohnungen">
+        </div>
+        
+        <label>Eigenanteil:</label>
+        <input id="property-down" type="number" min="0" value="0" placeholder="Anzahlung in €">
+        
+        <label>Kaufpreis:</label>
+        <input id="property-price" type="number" min="0" value="0" placeholder="Gesamtpreis in €">
+        
+        <label>Monatlicher Cashflow:</label>
+        <input id="property-cashflow" type="number" value="0" placeholder="Monatlicher Gewinn in €">
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="property-buy-confirm">Kaufen</button>
+        <button id="property-buy-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+    <!-- Popup für Immobilien Verkauf -->
+  <div id="property-sell-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Immobilie verkaufen</h3>
+      <div class="popup-grid">
+        <label>Immobilie:</label>
+        <select id="property-sell-name">
+          <!-- Options will be populated dynamically -->
+        </select>
+        
+        <label>Verkaufsmodus:</label>
+        <select id="property-sell-mode">
+          <option value="total">Gesamtpreis</option>
+          <option value="per-unit">Preis pro Wohneinheit</option>
+          <option value="original-fixed">Ursprungspreis + Festwert</option>
+          <option value="original-percent">Ursprungspreis + X Prozent</option>
+        </select>
+        
+        <label>Verkaufspreis:</label>
+        <input id="property-sell-price" type="number" min="0" value="0">
+        
+        <div id="property-sell-total-container" style="display: none">
+          <label>Gesamtverkaufspreis:</label>
+          <span id="property-sell-total-price">0 €</span>
+        </div>
+        
+        <label>Gewinnvoransicht:</label>
+        <span id="property-profit-preview">0 €</span>
+        
+        <label>Eigenanteil:</label>
+        <span id="property-current-down">0 €</span>
+        
+        <label>Kaufpreis:</label>
+        <span id="property-current-price">0 €</span>
+        
+        <label>Wohneinheiten:</label>
+        <span id="property-current-units">1</span>
+        
+        <label>Monatlicher Cashflow:</label>
+        <span id="property-current-cashflow">0 €</span>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="property-sell-confirm">Verkaufen</button>
+        <button id="property-sell-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
 
   <div class="container">
-    <div class="sheet">
-      <section>
-        <h2>1) Einkommen</h2>
-        <div class="grid4">
+    <div class="sheet">      <section>        <h2>1) Einkommen</h2>        <div class="grid6">
           <div class="label">Gehalt:</div>
-          <input id="input-income-salary" type="number" readonly>
-          <div class="label">Immobilien/Unternehmen:</div>
-          <input id="input-income-property" type="number" readonly>
+          <input id="input-income-salary" type="text" readonly>
+          <div class="label">Immobilien:</div>
+          <input id="input-income-property" type="text" readonly>
+          <div class="label">Unternehmen:</div>
+          <input id="input-income-business" type="text" readonly>
         </div>
       </section>
-      <section>
-        <h2>2) Ausgaben</h2>
+      <section>        <h2>2) Ausgaben</h2>
         <div class="grid4">
           <div class="label">Steuern:</div>
-          <input id="input-expenses-taxes" type="number" readonly>
+          <input id="input-expenses-taxes" type="text" readonly>
           <div class="label">Eigenheim‑Hypothek:</div>
-          <input id="input-expenses-mortgage" type="number" readonly>
+          <input id="input-expenses-mortgage" type="text" readonly>
           <div class="label">BAföG Darlehenszahlung:</div>
-          <input id="input-expenses-bafog" type="number" readonly>
+          <input id="input-expenses-bafog" type="text" readonly>
           <div class="label">Autokredit‑Zahlung:</div>
-          <input id="input-expenses-autoloan" type="number" readonly>
+          <input id="input-expenses-autoloan" type="text" readonly>
           <div class="label">Kreditkarten‑Zahlung:</div>
-          <input id="input-expenses-cc" type="number" readonly>
+          <input id="input-expenses-cc" type="text" readonly>
           <div class="label">Bankkredit‑Zahlung:</div>
-          <input id="input-expenses-bank" type="number" readonly>
+          <input id="input-expenses-bank" type="text" readonly>
         </div>
       </section>
       <section>
         <h2>3) Vermögenswerte</h2>
-        <div class="grid3">
-          <div class="label">Edelmetalle etc.:</div>
+        <div class="grid3">          <div class="label">Edelmetalle etc.:</div>
           <div class="asset-control">
-            <input id="input-asset-metals" type="number" readonly class="full-span">
+            <input id="input-asset-metals" type="number" readonly class="full-span" placeholder="Goldmünzen">
             <button id="btn-buy-metals">Kaufen</button>
             <button id="btn-sell-metals" disabled>Verkaufen</button>
-          </div>          <div class="label">Aktien/Fonds/CDs:</div>          <div class="asset-control">
-            <input id="input-asset-stocks-name" type="text" readonly placeholder="Name">
-            <input id="input-asset-stocks-qty" type="number" readonly placeholder="Anzahl">
-            <input id="input-asset-stocks-cost" type="number" readonly placeholder="Kosten">
+          </div><div class="label">Aktien/Fonds/CDs:</div>
+          <div class="asset-control">
+            <!-- Asset-Liste wird hier dynamisch eingefügt -->
+            <div id="stocks-assets-list" class="asset-list"></div>
             <button id="btn-buy-stocks">Kaufen</button>
             <button id="btn-sell-stocks" disabled>Verkaufen</button>
-          </div>
-          <div class="label">Immobilien/Unternehmen:</div>
+          </div>          <div class="label">Immobilien:</div>
           <div class="asset-control">
-            <input id="input-asset-property-down" type="number" readonly>
-            <input id="input-asset-property-cost" type="number" readonly>
+            <div id="property-assets-list" class="asset-list"></div>
+            <input id="input-asset-property-down" type="number" readonly style="display: none;">
+            <input id="input-asset-property-cost" type="number" readonly style="display: none;">
             <button id="btn-buy-property">Kaufen</button>
             <button id="btn-sell-property" disabled>Verkaufen</button>
           </div>
+          <div class="label">Unternehmen:</div>
+          <div class="asset-control">
+            <div id="business-assets-list" class="asset-list"></div>
+            <button id="btn-buy-business">Kaufen</button>
+            <button id="btn-sell-business" disabled>Verkaufen</button>
+          </div>
         </div>
       </section>
-      <section>
-        <h2>4) Verbindlichkeiten</h2>
+      <section>        <h2>4) Verbindlichkeiten</h2>
         <div class="grid4">
           <div class="label">Eigenheim‑Hypothek:</div>
           <div class="liability-control">
-            <input id="input-liability-mortgage" type="number" readonly>
+            <input id="input-liability-mortgage" type="text" readonly>
             <button id="btn-pay-mortgage">Abzahlen</button>
           </div>
           <div class="label">BAföG Darlehen:</div>
           <div class="liability-control">
-            <input id="input-liability-bafog" type="number" readonly>
+            <input id="input-liability-bafog" type="text" readonly>
             <button id="btn-pay-bafog">Abzahlen</button>
           </div>
           <div class="label">Autokredit:</div>
           <div class="liability-control">
-            <input id="input-liability-autoloan" type="number" readonly>
+            <input id="input-liability-autoloan" type="text" readonly>
             <button id="btn-pay-autoloan">Abzahlen</button>
           </div>
           <div class="label">Kreditkartenschulden:</div>
           <div class="liability-control">
-            <input id="input-liability-cc" type="number" readonly>
+            <input id="input-liability-cc" type="text" readonly>
             <button id="btn-pay-cc">Abzahlen</button>
           </div>
           <div class="label">Bankkredit:</div>
           <div class="liability-control bank-loan-control">
-            <input id="input-liability-bank" type="number" readonly>
+            <input id="input-liability-bank" type="text" readonly>
             <div class="bank-controls">
               <button id="btn-pay-bank-1000">-1000</button>
               <button id="btn-take-bank-1000">+1000</button>
@@ -242,15 +392,16 @@
         <label>Gesamte Ausgaben:<span id="sum-total-expenses">0 €</span></label>
         <label>Cashflow:<span id="sum-cashflow">0 €</span></label>
       </div>
-      <div class="balance">Aktueller Kontostand: <span id="current-balance">0,00</span> €</div>
+      <div class="balance">Aktueller Kontostand: <span id="current-balance">0</span> €</div>
       <ul id="entries"></ul>
-    </div>
-  </div>  <!-- Load JavaScript modules -->
+    </div>  </div>  <!-- Load JavaScript modules -->
   <script src="js/core.js"></script>
   <script src="js/bankloan.js"></script>
   <script src="js/metals.js"></script>
   <script src="js/metals-init.js"></script>
   <script src="js/stocks.js"></script>
+  <script src="js/business.js"></script>
+  <script src="js/property.js"></script>
   <script src="js/ui-utils.js"></script>
 </body>
 

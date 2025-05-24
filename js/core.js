@@ -46,15 +46,15 @@ function renderBaseEntries() {
   runningBalance = initialBalance;
   
   // Schleife beginnt bei Index 1, um den ersten Wert zu überspringen
-  for (let i = 1; i < arr.length; i++) {
+  // Umgekehrte Reihenfolge - neueste Einträge oben
+  for (let i = arr.length - 1; i >= 1; i--) {
     const num = arr[i];
     const li = document.createElement('li');
     const inp = document.createElement('input');
     // Input als Text statt als Zahl anzeigen, um das Vorzeichen hinzuzufügen
     inp.type = 'text';
-    inp.readOnly = true;
-    // Vorzeichen für den Wert hinzufügen (+ oder -)
-    inp.value = (num >= 0 ? '+' : '-') + Math.abs(num);
+    inp.readOnly = true;    // Vorzeichen für den Wert hinzufügen (+ oder -) mit Tausendertrennzeichen
+    inp.value = window.formatNumberWithSign(num);
 
     // Rote Farbe für negative Werte
     if (num < 0) {
@@ -83,7 +83,6 @@ function addEntry() {
     }
   });
   li.append(inp); 
-  ul.append(li); 
   inp.focus();
 }
 
@@ -92,7 +91,7 @@ function finalizeEntry(inp) {
   runningBalance += val;
   inp.readOnly = true;
   inp.type = 'text';
-  inp.value = (val >= 0 ? '+' : '') + Math.abs(val);
+  inp.value = window.formatNumberWithSign(val);
 
   // Nach manueller Eingabe setzen wir eine globale Flag, damit updateBankEntryInList weiß,
   // dass es einen neuen Eintrag erstellen soll
@@ -101,9 +100,8 @@ function finalizeEntry(inp) {
   const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;
-  // Vorzeichen für Kontostand hinzufügen
-  sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance);
+  sumInp.readOnly = true;  // Vorzeichen für Kontostand hinzufügen mit Tausendertrennzeichen
+  sumInp.value = window.formatNumberWithSign(runningBalance);
   sumInp.style.background = '#eee';
 
   // Rote Farbe für negative Kontostände
@@ -120,11 +118,9 @@ function finalizeEntry(inp) {
 
 function updateDisplayBalance() {
   // Vorzeichen für aktuellen Kontostand immer anzeigen
-  const prefix = runningBalance >= 0 ? '+' : '-';
   const currentBalanceEl = document.getElementById('current-balance');
-
-  // Text mit Vorzeichen setzen
-  currentBalanceEl.textContent = prefix + Math.abs(runningBalance).toFixed(2).replace('.', ',');
+  // Text mit Vorzeichen und Tausendertrennzeichen setzen
+  currentBalanceEl.textContent = window.formatNumberWithSign(runningBalance);
   
   // Farbe anpassen - rot bei negativen Werten
   currentBalanceEl.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit';
@@ -141,20 +137,20 @@ function updateDisplayBalance() {
 
 function updateSummary() {
   const salary = baseIncome;
-  const passive = (+document.getElementById('input-income-property').value || 0);
+  const passive = (parseFloat(document.getElementById('input-income-property').value) || 0) + 
+                  (parseFloat(document.getElementById('input-income-business').value) || 0);
   const totalInc = salary + passive;
   const totalExp =
-    (+document.getElementById('input-expenses-taxes').value || 0) +
-    (+document.getElementById('input-expenses-mortgage').value || 0) +
-    (+document.getElementById('input-expenses-bafog').value || 0) +
-    (+document.getElementById('input-expenses-autoloan').value || 0) +
-    (+document.getElementById('input-expenses-cc').value || 0) +
-    (+document.getElementById('input-expenses-bank').value || 0);
-  document.getElementById('sum-salary').textContent = salary + ' €';
-  document.getElementById('sum-passive').textContent = passive + ' €';
-  document.getElementById('sum-total-income').textContent = totalInc + ' €';
-  document.getElementById('sum-total-expenses').textContent = totalExp + ' €';
-  document.getElementById('sum-cashflow').textContent = (totalInc - totalExp) + ' €';
+    (parseFloat(document.getElementById('input-expenses-taxes').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-mortgage').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-bafog').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-autoloan').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-cc').value) || 0) +
+    (parseFloat(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
+  document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
+  document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
+  document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
+  document.getElementById('sum-cashflow').textContent = window.formatCurrency(totalInc - totalExp);
 }
 
 function setupPayButtons() {
@@ -166,9 +162,8 @@ function setupPayButtons() {
       const amount = parseFloat(liInput.value) || 0;
       if (runningBalance >= amount && amount > 0) {
         // Aktion bei ausreichendem Guthaben ausführen
-        runningBalance -= amount;
-        liInput.value = 0;
-        expInput.value = 0;
+        runningBalance -= amount;        liInput.value = window.formatCurrency(0);
+        expInput.value = window.formatCurrency(0);
         addLiabilityPaymentToEntries(type, amount);
         updateDisplayBalance();
         updateSummary();
@@ -180,22 +175,21 @@ function setupPayButtons() {
 function addLiabilityPaymentToEntries(type, amount) {
   const ul = document.getElementById('entries');
   const entriesChildren = Array.from(ul.children);
-  const lastEntryIndex = entriesChildren.length - 1;
+  
+  // Finde das erste leere Eingabefeld (für neue Einträge) - sollte jetzt oben sein
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
 
-  // Finden des letzten leeren Eingabefelds (für neue Einträge)
-  const isLastEntryEmpty = lastEntryIndex >= 0 &&
-    entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
-
-  const insertBeforeElement = isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null;
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
 
   // Erstellen eines Eintrags für die Verbindlichkeitsrückzahlung
   const li = document.createElement('li');
   const inp = document.createElement('input');
   inp.type = 'text';
   inp.readOnly = true;
-
-  // Negativer Betrag (Geld wird ausgegeben)
-  inp.value = '-' + Math.abs(amount);
+  // Negativer Betrag (Geld wird ausgegeben) mit Tausendertrennzeichen
+  inp.value = '-' + window.formatNumber(Math.abs(amount));
   inp.style.color = 'var(--danger)';
 
   // Typ der Verbindlichkeit als Beschreibung im Datensatz speichern
@@ -213,12 +207,12 @@ function addLiabilityPaymentToEntries(type, amount) {
 
   li.append(inp);
 
-  if (insertBeforeElement) {
-    // Einfügen vor dem leeren Eingabefeld
-    ul.insertBefore(li, insertBeforeElement);
+  if (insertAfterElement) {
+    // Einfügen nach dem leeren Eingabefeld
+    insertAfterElement.after(li);
   } else {
-    // Anfügen am Ende, wenn kein leeres Eingabefeld vorhanden ist
-    ul.appendChild(li);
+    // Am Anfang einfügen, wenn kein leeres Eingabefeld vorhanden ist
+    ul.prepend(li);
   }
 
   // Aktualisiere den Kontostand-Eintrag
@@ -226,7 +220,7 @@ function addLiabilityPaymentToEntries(type, amount) {
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
-  sumInp.value = (runningBalance >= 0 ? '+' : '-') + Math.abs(runningBalance);
+  sumInp.value = window.formatNumberWithSign(runningBalance);
   sumInp.style.background = '#eee';
 
   if (runningBalance < 0) {
@@ -235,13 +229,8 @@ function addLiabilityPaymentToEntries(type, amount) {
 
   sumLi.append(sumInp);
 
-  if (insertBeforeElement) {
-    // Einfügen nach dem Verbindlichkeits-Eintrag und vor dem leeren Eingabefeld
-    ul.insertBefore(sumLi, insertBeforeElement);
-  } else {
-    // Anfügen am Ende
-    ul.appendChild(sumLi);
-  }
+  // Kontostand-Eintrag nach dem Verbindlichkeits-Eintrag einfügen
+  li.after(sumLi);
 
   // Nach Bezahlung einer Verbindlichkeit Flag setzen, damit updateBankEntryInList weiß,
   // dass es einen neuen Eintrag erstellen soll für den nächsten Bankkredit
@@ -287,30 +276,29 @@ function loadData(profile) {
   balanceArray = data.bal;
   baseIncome = data.inc; 
   baseExpenses = data.exp;
-  obligations = data.ob;
-  document.getElementById('input-income-salary').value = baseIncome;
-  document.getElementById('input-income-property').value = 0;
-  document.getElementById('input-expenses-taxes').value = data.taxes;
-  document.getElementById('input-expenses-mortgage').value = obligations[0][1];
-  document.getElementById('input-expenses-bafog').value = obligations[1][1];
-  document.getElementById('input-expenses-autoloan').value = obligations[2][1];
-  document.getElementById('input-expenses-cc').value = obligations[3][1];
+  obligations = data.ob;  document.getElementById('input-income-salary').value = window.formatCurrency(baseIncome);
+  document.getElementById('input-income-property').value = window.formatCurrency(0);
+  document.getElementById('input-income-business').value = window.formatCurrency(0);
+  document.getElementById('input-expenses-taxes').value = window.formatCurrency(data.taxes);
+  document.getElementById('input-expenses-mortgage').value = window.formatCurrency(obligations[0][1]);
+  document.getElementById('input-expenses-bafog').value = window.formatCurrency(obligations[1][1]);
+  document.getElementById('input-expenses-autoloan').value = window.formatCurrency(obligations[2][1]);
+  document.getElementById('input-expenses-cc').value = window.formatCurrency(obligations[3][1]);
 
   // Bankkredit-Zinszahlung (10% der Schulden)
   const bankLoanAmount = obligations[4][0];
-  const bankLoanPayment = Math.round(bankLoanAmount * 0.1);
-  document.getElementById('input-expenses-bank').value = bankLoanPayment;
+  const bankLoanPayment = Math.round(bankLoanAmount * 0.1);  document.getElementById('input-expenses-bank').value = window.formatCurrency(bankLoanPayment);
 
   // Verbindlichkeiten ausfüllen (erster Wert aus jedem ob-Tupel)
-  document.getElementById('input-liability-mortgage').value = obligations[0][0];
-  document.getElementById('input-liability-bafog').value = obligations[1][0];
-  document.getElementById('input-liability-autoloan').value = obligations[2][0];
-  document.getElementById('input-liability-cc').value = obligations[3][0]; 
-  document.getElementById('input-liability-bank').value = bankLoanAmount;
-
+  document.getElementById('input-liability-mortgage').value = window.formatCurrency(obligations[0][0]);
+  document.getElementById('input-liability-bafog').value = window.formatCurrency(obligations[1][0]);
+  document.getElementById('input-liability-autoloan').value = window.formatCurrency(obligations[2][0]);
+  document.getElementById('input-liability-cc').value = window.formatCurrency(obligations[3][0]); 
+  document.getElementById('input-liability-bank').value = window.formatCurrency(bankLoanAmount);
   const sel = document.getElementById('profile-selector');
   document.getElementById('job-display').textContent = sel.options[sel.selectedIndex].text;
-  document.getElementById('input-income-property').addEventListener('input', updateSummary);      
+  document.getElementById('input-income-property').addEventListener('input', updateSummary);
+  document.getElementById('input-income-business').addEventListener('input', updateSummary);
   updateSummary();
   renderBaseEntries();
   updatePayButtonStates();

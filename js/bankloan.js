@@ -4,7 +4,6 @@ function setupBankLoanButtons() {
   // Tracking-Variable für die aktuelle Sequenz von Bankkrediten
   let currentBankEntryAmount = 0;
   let currentBankEntryElement = null;
-
   // Knopf zum Abbezahlen von 1000 Euro
   document.getElementById('btn-pay-bank-1000').addEventListener('click', () => {
     const loanInput = document.getElementById('input-liability-bank');
@@ -12,15 +11,14 @@ function setupBankLoanButtons() {
 
     if (loanAmount >= 1000 && window.CashflowCore.runningBalance() >= 1000) {
       // Kredit um 1000 reduzieren
-      const newLoanAmount = loanAmount - 1000;
-      loanInput.value = newLoanAmount;
+      const newLoanAmount = loanAmount - 1000;      loanInput.value = window.formatCurrency(newLoanAmount);
 
       // Kontostand anpassen
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - 1000);
 
       // Zinszahlung anpassen (10% des neuen Betrags)
       const newPayment = Math.round(newLoanAmount * 0.1);
-      document.getElementById('input-expenses-bank').value = newPayment;
+      document.getElementById('input-expenses-bank').value = window.formatCurrency(newPayment);
 
       // Kontostandanzeige im Bargeldkonto aktualisieren
       updateBankEntryInList(-1000);
@@ -36,18 +34,15 @@ function setupBankLoanButtons() {
   // Knopf zum Aufnehmen von 1000 Euro
   document.getElementById('btn-take-bank-1000').addEventListener('click', () => {
     const loanInput = document.getElementById('input-liability-bank');
-    const loanAmount = parseFloat(loanInput.value) || 0;
-
-    // Kredit um 1000 erhöhen
-    const newLoanAmount = loanAmount + 1000;
-    loanInput.value = newLoanAmount;
+    const loanAmount = parseFloat(loanInput.value) || 0;    // Kredit um 1000 erhöhen
+    const newLoanAmount = loanAmount + 1000;    loanInput.value = window.formatCurrency(newLoanAmount);
 
     // Kontostand anpassen
     window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() + 1000);
 
     // Zinszahlung anpassen (10% des neuen Betrags)
     const newPayment = Math.round(newLoanAmount * 0.1);
-    document.getElementById('input-expenses-bank').value = newPayment;
+    document.getElementById('input-expenses-bank').value = window.formatCurrency(newPayment);
 
     // Kontostandanzeige im Bargeldkonto aktualisieren
     updateBankEntryInList(1000);
@@ -59,34 +54,32 @@ function setupBankLoanButtons() {
     window.CashflowCore.updateDisplayBalance();
     window.CashflowCore.updateSummary();
   });
-  
-  // Funktion zum Aktualisieren des Bankkredit-Eintrags in der Liste
+    // Funktion zum Aktualisieren des Bankkredit-Eintrags in der Liste
   function updateBankEntryInList(amount) {
     const ul = document.getElementById('entries');
     const entriesChildren = Array.from(ul.children);
-    const lastEntryIndex = entriesChildren.length - 1;
 
-    // Zuerst check, ob wir ein leeres Eingabefeld am Ende haben
-    const isLastEntryEmpty = lastEntryIndex >= 0 &&
-      entriesChildren[lastEntryIndex].querySelector('input').type === 'number';
+    // Zuerst check, ob wir ein leeres Eingabefeld am Anfang haben
+    const isFirstEntryEmpty = entriesChildren.length > 0 &&
+      entriesChildren[0].querySelector('input').type === 'number';
 
     // Wenn die letzte Aktion eine manuelle Eingabe war, erstellen wir immer einen neuen Eintrag
     if (window.lastActionWasManualEntry) {
       // Neuen Eintrag für die Bankkredit-Änderung erstellen
       currentBankEntryAmount = amount;
-      createNewBankEntry(amount, isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null);
+      createNewBankEntry(amount, isFirstEntryEmpty ? entriesChildren[0] : null);
       return;
     }
 
-    // Prüfen, ob ein bestehender Bankkredit-Eintrag existiert (überprüfen der letzten Einträge)
-    // Wir suchen in umgekehrter Reihenfolge, beginnend mit dem letzten nicht-leeren Eintrag
+    // Prüfen, ob ein bestehender Bankkredit-Eintrag existiert (überprüfen der ersten Einträge)
+    // Wir suchen vom Anfang, beginnend mit dem ersten oder zweiten Element (je nach leerem Feld am Anfang)
     let bankCreditEntryIndex = -1;
 
-    // Wir starten die Suche beim vorletzten oder letzten Element (je nach leerem Feld am Ende)
-    const startIndex = isLastEntryEmpty ? lastEntryIndex - 1 : lastEntryIndex;
+    // Wir starten die Suche beim ersten oder zweiten Element (je nach leerem Feld am Anfang)
+    const startIndex = isFirstEntryEmpty ? 1 : 0;
 
-    // Suche nach dem letzten Bankkredit-Eintrag
-    for (let i = startIndex; i >= 0; i--) {
+    // Suche nach dem ersten Bankkredit-Eintrag
+    for (let i = startIndex; i < entriesChildren.length; i++) {
       const input = entriesChildren[i].querySelector('input');
       if (input && input.dataset.bankCredit === 'true') {
         bankCreditEntryIndex = i;
@@ -96,13 +89,11 @@ function setupBankLoanButtons() {
 
     // Fall 1: Es gibt einen existierenden Bankkredit-Eintrag
     if (bankCreditEntryIndex >= 0) {
-      const bankCreditEntry = entriesChildren[bankCreditEntryIndex].querySelector('input');
-
-      // Aktualisiere den Wert des bestehenden Eintrags
-      currentBankEntryAmount = parseInt(bankCreditEntry.value.replace(/[+\-]/g, '')) * (bankCreditEntry.value.startsWith('-') ? -1 : 1);
+      const bankCreditEntry = entriesChildren[bankCreditEntryIndex].querySelector('input');      // Aktualisiere den Wert des bestehenden Eintrags
+      currentBankEntryAmount = window.parseFormattedNumber(bankCreditEntry.value);
       currentBankEntryAmount += amount;
 
-      bankCreditEntry.value = (currentBankEntryAmount >= 0 ? '+' : '-') + Math.abs(currentBankEntryAmount);
+      bankCreditEntry.value = window.formatNumberWithSign(currentBankEntryAmount);
 
       if (currentBankEntryAmount < 0) {
         bankCreditEntry.style.color = 'var(--danger)';
@@ -113,8 +104,8 @@ function setupBankLoanButtons() {
       // Finde den zugehörigen Kontostand-Eintrag (sollte direkt danach kommen)
       if (bankCreditEntryIndex + 1 < entriesChildren.length) {
         const balanceEntry = entriesChildren[bankCreditEntryIndex + 1].querySelector('input');
-        if (balanceEntry && balanceEntry.style.background === '#eee') {
-          balanceEntry.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance());
+        if (balanceEntry && balanceEntry.style.background === 'rgb(238, 238, 238)') {
+          balanceEntry.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
 
           if (window.CashflowCore.runningBalance() < 0) {
             balanceEntry.style.color = 'var(--danger)';
@@ -129,11 +120,10 @@ function setupBankLoanButtons() {
 
     // Fall 2: Es gibt keinen existierenden Bankkredit-Eintrag, also erstellen wir einen neuen
     currentBankEntryAmount = amount;
-    createNewBankEntry(amount, isLastEntryEmpty ? entriesChildren[lastEntryIndex] : null);
+    createNewBankEntry(amount, isFirstEntryEmpty ? entriesChildren[0] : null);
   }
-
   // Hilfsfunktion zum Erstellen eines neuen Bankkredit-Eintrags
-  function createNewBankEntry(amount, insertBeforeElement) {
+  function createNewBankEntry(amount, insertAfterElement) {
     const ul = document.getElementById('entries');
 
     // Neuen Eintrag für die Bankkredit-Änderung erstellen
@@ -141,7 +131,7 @@ function setupBankLoanButtons() {
     const inp = document.createElement('input');
     inp.type = 'text';
     inp.readOnly = true;
-    inp.value = (amount >= 0 ? '+' : '-') + Math.abs(amount);
+    inp.value = window.formatNumberWithSign(amount);
     inp.dataset.bankCredit = 'true'; // Markiere als Bankkredit-Eintrag
 
     if (amount < 0) {
@@ -150,12 +140,12 @@ function setupBankLoanButtons() {
 
     li.append(inp);
 
-    if (insertBeforeElement) {
-      // Einfügen vor dem leeren Eingabefeld
-      ul.insertBefore(li, insertBeforeElement);
+    if (insertAfterElement) {
+      // Einfügen nach dem leeren Eingabefeld
+      insertAfterElement.after(li);
     } else {
-      // Anfügen am Ende, wenn kein leeres Eingabefeld vorhanden ist
-      ul.appendChild(li);
+      // Am Anfang einfügen, wenn kein leeres Eingabefeld vorhanden ist
+      ul.prepend(li);
     }
 
     // Aktualisiere den Kontostand-Eintrag
@@ -163,7 +153,7 @@ function setupBankLoanButtons() {
     const sumInp = document.createElement('input');
     sumInp.type = 'text';
     sumInp.readOnly = true;
-    sumInp.value = (window.CashflowCore.runningBalance() >= 0 ? '+' : '-') + Math.abs(window.CashflowCore.runningBalance());
+    sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
     sumInp.style.background = '#eee';
 
     if (window.CashflowCore.runningBalance() < 0) {
@@ -172,13 +162,8 @@ function setupBankLoanButtons() {
 
     sumLi.append(sumInp);
 
-    if (insertBeforeElement) {
-      // Einfügen nach dem Bankkredit-Eintrag und vor dem leeren Eingabefeld
-      ul.insertBefore(sumLi, insertBeforeElement);
-    } else {
-      // Anfügen am Ende
-      ul.appendChild(sumLi);
-    }
+    // Kontostand-Eintrag nach dem Bankkredit-Eintrag einfügen
+    li.after(sumLi);
 
     // Aktuelle Elemente für spätere Aktualisierungen speichern
     currentBankEntryElement = inp;
