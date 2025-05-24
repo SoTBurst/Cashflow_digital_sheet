@@ -11,28 +11,71 @@ let stocksAssets = {};
 function updateStocksAssetsList() {
   const container = document.getElementById('stocks-assets-list');
   container.innerHTML = '';
-  Object.entries(stocksAssets).forEach(([name, asset]) => {
-    const row = document.createElement('div');
-    row.classList.add('asset-item');
-    // Name
-    const nameInput = document.createElement('input');
-    nameInput.type = 'text';
-    nameInput.readOnly = true;
-    nameInput.value = name;
-    // Anzahl
-    const qtyInput = document.createElement('input');
-    qtyInput.type = 'number';
-    qtyInput.readOnly = true;
-    qtyInput.value = asset.qty;
-    // Kosten
-    const costInput = document.createElement('input');
-    costInput.type = 'number';
-    costInput.readOnly = true;
-    costInput.value = asset.cost.toFixed(2);
-    // Zeile zusammenbauen
-    row.append(nameInput, qtyInput, costInput);
-    container.appendChild(row);
-  });
+  
+  const stockEntries = Object.entries(stocksAssets);
+  
+  if (stockEntries.length === 0) {
+    // Zeige Dummy-Kästchen wenn keine Aktien vorhanden sind
+    createDummyStockRow(container);
+  } else {
+    // Zeige echte Aktien-Daten
+    stockEntries.forEach(([name, asset]) => {
+      const row = document.createElement('div');
+      row.classList.add('asset-item');
+      // Name
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.readOnly = true;
+      nameInput.value = name;
+      // Anzahl
+      const qtyInput = document.createElement('input');
+      qtyInput.type = 'number';
+      qtyInput.readOnly = true;
+      qtyInput.value = asset.qty;
+      // Kosten
+      const costInput = document.createElement('input');
+      costInput.type = 'number';
+      costInput.readOnly = true;
+      costInput.value = asset.cost.toFixed(2);
+      // Zeile zusammenbauen
+      row.append(nameInput, qtyInput, costInput);
+      container.appendChild(row);
+    });
+  }
+}
+
+// Hilfsfunktion zum Erstellen von Dummy-Kästchen
+function createDummyStockRow(container) {
+  const row = document.createElement('div');
+  row.classList.add('asset-item', 'dummy-stock-row');
+  
+  // Dummy Name-Feld
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.readOnly = true;
+  nameInput.value = '';
+  nameInput.placeholder = 'Name';
+  nameInput.style.opacity = '0.5';
+  
+  // Dummy Anzahl-Feld
+  const qtyInput = document.createElement('input');
+  qtyInput.type = 'number';
+  qtyInput.readOnly = true;
+  qtyInput.value = '';
+  qtyInput.placeholder = '0';
+  qtyInput.style.opacity = '0.5';
+  
+  // Dummy Kosten-Feld
+  const costInput = document.createElement('input');
+  costInput.type = 'number';
+  costInput.readOnly = true;
+  costInput.value = '';
+  costInput.placeholder = '0.00';
+  costInput.style.opacity = '0.5';
+  
+  // Zeile zusammenbauen
+  row.append(nameInput, qtyInput, costInput);
+  container.appendChild(row);
 }
 
 // Initialize functionality when DOM is ready
@@ -57,6 +100,9 @@ document.addEventListener('DOMContentLoaded', function () {
   // Setup popups
   setupStocksBuyPopup();
   setupStocksSellPopup();
+  
+  // Initialize with dummy boxes (will show placeholder when no stocks owned)
+  updateStocksAssetsList();
 });
 
 function setupStocksBuyPopup() {

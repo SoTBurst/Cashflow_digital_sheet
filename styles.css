@@ -353,6 +353,14 @@ button.btn-disabled {
   background: #f9f9f9;
 }
 
+/* Styling für Dummy-Aktienzeilen */
+.dummy-stock-row input {
+  background: #f5f5f5;
+  border: 1px dashed #ccc;
+  color: #999;
+  font-style: italic;
+}
+
 /* Stocks asset list spans full grid row */
 .asset-control .asset-list {
   grid-column: 1 / -1;
