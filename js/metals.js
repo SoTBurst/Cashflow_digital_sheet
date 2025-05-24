@@ -216,11 +216,10 @@ function updateSellButtonStates() {
   } else {
     btnSellStocks.classList.remove('btn-disabled');
     btnSellStocks.title = 'Aktien verkaufen';
-  }
-    // Immobilien
-  const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
+  }    // Immobilien - use the actual propertyAssets object
+  const hasProperties = window.propertyAssets ? Object.keys(window.propertyAssets).length > 0 : false;
   const btnSellProperty = document.getElementById('btn-sell-property');
-  btnSellProperty.disabled = propertyDown <= 0;
+  btnSellProperty.disabled = !hasProperties;
   if (btnSellProperty.disabled) {
     btnSellProperty.classList.add('btn-disabled');
     btnSellProperty.title = 'Keine Immobilien zum Verkaufen vorhanden';
@@ -260,12 +259,16 @@ function setupSellButtons() {
     } else {
       alert('Sie haben keine Aktien zum Verkaufen.');
     }
-  });
-    document.getElementById('btn-sell-property').addEventListener('click', () => {
-    const propertyDown = parseInt(document.getElementById('input-asset-property-down').value) || 0;
-    if (propertyDown > 0) {
-      // Funktion für den Verkauf (kann später implementiert werden)
-      alert('Verkauf-Funktion für Immobilien wird noch implementiert.');
+  });    document.getElementById('btn-sell-property').addEventListener('click', () => {
+    const hasProperties = window.propertyAssets ? Object.keys(window.propertyAssets).length > 0 : false;
+    if (hasProperties) {
+      if (typeof window.showPropertySellPopup === 'function') {
+        window.showPropertySellPopup();
+      } else {
+        console.error('showPropertySellPopup function not found');
+      }
+    } else {
+      alert('Sie haben keine Immobilien zum Verkaufen.');
     }
   });
     document.getElementById('btn-sell-business').addEventListener('click', () => {

@@ -167,8 +167,7 @@
       </div>
     </div>
   </div>
-  
-  <!-- Popup für Unternehmen Verkauf -->
+    <!-- Popup für Unternehmen Verkauf -->
   <div id="business-sell-popup" class="popup-overlay">
     <div class="popup-content">
       <h3>Unternehmen verkaufen</h3>
@@ -188,6 +187,72 @@
       <div class="popup-buttons">
         <button id="business-sell-confirm">Verkaufen</button>
         <button id="business-sell-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Popup für Immobilien Kauf -->
+  <div id="property-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Immobilie kaufen</h3>
+      <div class="popup-grid">
+        <label>Typ:</label>
+        <select id="property-type">
+          <option value="efh">Einfamilienhaus (EFH)</option>
+          <option value="dp">Doppelhaus (DP)</option>
+          <option value="mfh">Mehrfamilienhaus (MFH)</option>
+          <option value="etw">Eigentumswohnung (ETW)</option>
+          <option value="ah">Appartmenthaus (AH)</option>
+        </select>
+        
+        <div id="property-units-container" style="display: none">
+          <label>Anzahl Wohneinheiten:</label>
+          <input id="property-units" type="number" min="1" value="1">
+        </div>
+        
+        <label>Eigenanteil:</label>
+        <input id="property-down" type="number" min="0" value="0">
+        
+        <label>Kaufpreis:</label>
+        <input id="property-price" type="number" min="0" value="0">
+        
+        <label>Monatlicher Cashflow:</label>
+        <input id="property-cashflow" type="number" value="0">
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="property-buy-confirm">Kaufen</button>
+        <button id="property-buy-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Popup für Immobilien Verkauf -->
+  <div id="property-sell-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Immobilie verkaufen</h3>
+      <div class="popup-grid">
+        <label>Immobilie:</label>
+        <select id="property-sell-name">
+          <!-- Options will be populated dynamically -->
+        </select>
+        
+        <label>Verkaufspreis:</label>
+        <input id="property-sell-price" type="number" min="0" value="0">
+        
+        <label>Eigenanteil:</label>
+        <span id="property-current-down">0 €</span>
+        
+        <label>Kaufpreis:</label>
+        <span id="property-current-price">0 €</span>
+        
+        <label>Monatlicher Cashflow:</label>
+        <span id="property-current-cashflow">0 €</span>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="property-sell-confirm">Verkaufen</button>
+        <button id="property-sell-cancel">Abbrechen</button>
       </div>
     </div>
   </div>
@@ -236,8 +301,9 @@
             <button id="btn-sell-stocks" disabled>Verkaufen</button>
           </div>          <div class="label">Immobilien:</div>
           <div class="asset-control">
-            <input id="input-asset-property-down" type="number" readonly>
-            <input id="input-asset-property-cost" type="number" readonly>
+            <div id="property-assets-list" class="asset-list"></div>
+            <input id="input-asset-property-down" type="number" readonly style="display: none;">
+            <input id="input-asset-property-cost" type="number" readonly style="display: none;">
             <button id="btn-buy-property">Kaufen</button>
             <button id="btn-sell-property" disabled>Verkaufen</button>
           </div>
@@ -301,6 +367,7 @@
   <script src="js/metals-init.js"></script>
   <script src="js/stocks.js"></script>
   <script src="js/business.js"></script>
+  <script src="js/property.js"></script>
   <script src="js/ui-utils.js"></script>
 </body>
 
