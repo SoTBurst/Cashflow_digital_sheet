@@ -149,11 +149,10 @@ function showPropertyBuyPopup() {
   document.getElementById('property-price').value = '';
   document.getElementById('property-cashflow').value = '';
   document.getElementById('property-units').value = '1';
-  
-  // Handle units field visibility
+    // Handle units field visibility
   handlePropertyTypeChange();
   
-  popup.style.display = 'block';
+  popup.style.display = 'flex';
 }
 
 // Popup für Immobilien-Verkauf anzeigen
@@ -177,10 +176,9 @@ function showPropertySellPopup() {
   
   if (selectElement.options.length > 0) {
     selectElement.selectedIndex = 0;
-    handlePropertySellSelectionChange();
-  }
+    handlePropertySellSelectionChange();  }
   
-  popup.style.display = 'block';
+  popup.style.display = 'flex';
 }
 
 // Handle property type change (show/hide units field)
@@ -193,7 +191,7 @@ function handlePropertyTypeChange() {
   
   if (selectedType === 'mfh' || selectedType === 'ah') {
     unitsContainer.style.display = 'contents';
-    unitsInput.value = selectedType === 'mfh' ? '4' : '8'; // Default values
+    unitsInput.value = selectedType === 'mfh' ? '4' : '24'; // Default values
   } else {
     unitsContainer.style.display = 'none';
     unitsInput.value = propertyTypes[selectedType]?.units || 1;
