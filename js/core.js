@@ -108,9 +108,8 @@ function finalizeEntry(inp) {
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
   }
-
   sumLi.append(sumInp);
-  inp.parentNode.after(sumLi);
+  inp.parentNode.before(sumLi);
 
   updateDisplayBalance();
   addEntry();
@@ -225,11 +224,10 @@ function addLiabilityPaymentToEntries(type, amount) {
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
   }
-
   sumLi.append(sumInp);
 
-  // Kontostand-Eintrag nach dem Verbindlichkeits-Eintrag einfügen
-  li.after(sumLi);
+  // Kontostand-Eintrag vor dem Verbindlichkeits-Eintrag einfügen
+  li.before(sumLi);
 
   // Nach Bezahlung einer Verbindlichkeit Flag setzen, damit updateBankEntryInList weiß,
   // dass es einen neuen Eintrag erstellen soll für den nächsten Bankkredit

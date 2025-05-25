@@ -489,11 +489,10 @@ function addPropertyPurchaseToEntries(type, down, price) {
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
   }
+    sumLi.append(sumInp);
   
-  sumLi.append(sumInp);
-  
-  // Kontostand-Eintrag nach dem Kauf-Eintrag einfügen
-  li.after(sumLi);
+  // Kontostand-Eintrag vor dem Kauf-Eintrag einfügen
+  li.before(sumLi);
   
   // Globale Flag setzen
   window.lastActionWasManualEntry = true;
@@ -544,11 +543,10 @@ function addPropertySaleToEntries(type, sellPrice, downPayment, originalPrice) {
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
   }
+    sumLi.append(sumInp);
   
-  sumLi.append(sumInp);
-  
-  // Kontostand-Eintrag nach dem Kosten-Eintrag einfügen
-  costLi.after(sumLi);
+  // Kontostand-Eintrag vor dem Kosten-Eintrag einfügen
+  costLi.before(sumLi);
   
   // Globale Flag setzen
   window.lastActionWasManualEntry = true;
