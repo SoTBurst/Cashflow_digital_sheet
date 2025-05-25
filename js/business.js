@@ -374,9 +374,8 @@ function addBusinessPurchaseToEntries(businessName, price) {
     sumInp.style.color = 'var(--danger)';
   }
   sumLi.append(sumInp);
-
-  // Insert balance entry before the business purchase entry
-  li.before(sumLi);
+  // Insert balance entry after the business purchase entry
+  li.after(sumLi);
 
   // Set global flag (for bank logic)
   window.lastActionWasManualEntry = true;
@@ -418,9 +417,8 @@ function addBusinessSaleToEntries(businessName, price) {
     sumInp.style.color = 'var(--danger)';
   }
   sumLi.append(sumInp);
-
-  // Insert balance entry before the business sale entry
-  li.before(sumLi);
+  // Insert balance entry after the business sale entry
+  li.after(sumLi);
 
   // Set global flag (for bank logic)
   window.lastActionWasManualEntry = true;

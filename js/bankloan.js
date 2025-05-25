@@ -156,10 +156,8 @@ function setupBankLoanButtons() {
 
     if (window.CashflowCore.runningBalance() < 0) {
       sumInp.style.color = 'var(--danger)';
-    }    sumLi.append(sumInp);
-
-    // Kontostand-Eintrag vor dem Bankkredit-Eintrag einfügen
-    li.before(sumLi);
+    }    sumLi.append(sumInp);    // Kontostand-Eintrag nach dem Bankkredit-Eintrag einfügen
+    li.after(sumLi);
 
     // Aktuelle Elemente für spätere Aktualisierungen speichern
     currentBankEntryElement = inp;

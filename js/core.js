@@ -82,7 +82,9 @@ function addEntry() {
       finalizeEntry(inp); 
     }
   });
-  li.append(inp); 
+  li.append(inp);
+  // Neues Eingabefeld immer am Anfang der Liste einfügen
+  ul.prepend(li);
   inp.focus();
 }
 
@@ -109,7 +111,9 @@ function finalizeEntry(inp) {
     sumInp.style.color = 'var(--danger)';
   }
   sumLi.append(sumInp);
-  inp.parentNode.before(sumLi);
+  
+  // Kontostand-Eintrag nach dem aktuellen Eintrag einfügen
+  inp.parentNode.after(sumLi);
 
   updateDisplayBalance();
   addEntry();
@@ -225,9 +229,8 @@ function addLiabilityPaymentToEntries(type, amount) {
     sumInp.style.color = 'var(--danger)';
   }
   sumLi.append(sumInp);
-
-  // Kontostand-Eintrag vor dem Verbindlichkeits-Eintrag einfügen
-  li.before(sumLi);
+  // Kontostand-Eintrag nach dem Verbindlichkeits-Eintrag einfügen
+  li.after(sumLi);
 
   // Nach Bezahlung einer Verbindlichkeit Flag setzen, damit updateBankEntryInList weiß,
   // dass es einen neuen Eintrag erstellen soll für den nächsten Bankkredit
