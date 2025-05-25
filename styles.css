@@ -181,6 +181,28 @@ label {
   font-size: 0.8rem;
 }
 
+.dream-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.5rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.dream-container label {
+  font-weight: bold;
+  color: var(--secondary);
+  min-width: fit-content;
+}
+
+.dream-container input {
+  flex: 1;
+  margin: 0;
+}
+
 .summary {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #ffffff;
