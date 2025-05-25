@@ -427,10 +427,38 @@
       </div>
       <div class="balance-container">
         <div class="balance">Aktueller Kontostand: <span id="current-balance">0</span> €</div>
-        <button id="btn-add-cashflow" class="add-cashflow-btn">Add Cashflow</button>
-      </div>
+        <button id="btn-add-cashflow" class="add-cashflow-btn">Add Cashflow</button>      </div>
       <ul id="entries"></ul>
-    </div>  </div>  <!-- Load JavaScript modules -->
+    </div>  </div>
+
+  <!-- Congratulations Popup -->
+  <div id="congratulations-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h2 class="congratulations-title">🎉 Herzlichen Glückwunsch! 🎉</h2>
+      <p class="congratulations-message">
+        Du hast finanzielle Freiheit erreicht! Dein passives Einkommen übersteigt deine Gesamtausgaben.
+      </p>
+      <div class="achievement-stats">
+        <div class="stat-row">
+          <span>Passives Einkommen:</span>
+          <span class="stat-value" id="congrats-passive-income">0 €</span>
+        </div>
+        <div class="stat-row">
+          <span>Gesamte Ausgaben:</span>
+          <span class="stat-value" id="congrats-total-expenses">0 €</span>
+        </div>
+        <div class="stat-row">
+          <span>Überschuss:</span>
+          <span class="stat-value" id="congrats-surplus">0 €</span>
+        </div>
+      </div>
+      <p class="congratulations-message">
+        Du kannst jetzt von deinen passiven Einkünften leben, ohne arbeiten zu müssen!
+      </p>
+      <button id="congratulations-close">Schließen</button>
+    </div>
+  </div>
+  <!-- Load JavaScript modules -->
   <script src="js/core.js"></script>
   <script src="js/bankloan.js"></script>
   <script src="js/metals.js"></script>
@@ -439,6 +467,7 @@
   <script src="js/business.js"></script>
   <script src="js/property.js"></script>
   <script src="js/ui-utils.js"></script>
+  <script src="js/congratulations.js"></script>
 </body>
 
 </html>

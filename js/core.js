@@ -148,11 +148,16 @@ function updateSummary() {
     (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
     (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
     (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
-    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
+    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
   document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
   document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
   document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
   document.getElementById('sum-cashflow').textContent = window.formatCurrency(totalInc - totalExp);
+  
+  // Check for financial freedom achievement
+  if (typeof window.CongratulationsPopup !== 'undefined') {
+    window.CongratulationsPopup.checkFinancialFreedom(passive, totalExp);
+  }
 }
 
 function setupPayButtons() {
