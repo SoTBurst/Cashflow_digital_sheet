@@ -193,10 +193,9 @@ function addMetalsPurchaseToEntries(coins, price) {
   
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-    sumLi.append(sumInp);
-    // Kontostand-Eintrag nach dem Kauf-Eintrag einfügen
-  li.after(sumLi);
+  }    sumLi.append(sumInp);
+    // Kontostand-Eintrag vor dem Kauf-Eintrag einfügen
+  li.before(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;
@@ -455,9 +454,8 @@ function addMetalsSaleToEntries(coins, price) {
   
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-    sumLi.append(sumInp);    // Kontostand-Eintrag nach dem Verkauf-Eintrag einfügen
-  li.after(sumLi);
+  }    sumLi.append(sumInp);    // Kontostand-Eintrag vor dem Verkauf-Eintrag einfügen
+  li.before(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;

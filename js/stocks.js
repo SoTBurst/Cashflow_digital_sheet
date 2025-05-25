@@ -221,10 +221,9 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
 
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-  sumLi.append(sumInp);
-  // Insert balance entry after the stock purchase entry
-  li.after(sumLi);
+  }  sumLi.append(sumInp);
+  // Insert balance entry before the stock purchase entry
+  li.before(sumLi);
 
   // Set global flag (for bank logic)
   window.lastActionWasManualEntry = true;
@@ -428,10 +427,9 @@ function addStocksSaleToEntries(shares, price, stockName) {
 
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-  sumLi.append(sumInp);
-  // Insert balance entry after the stock sale entry
-  li.after(sumLi);
+  }  sumLi.append(sumInp);
+  // Insert balance entry before the stock sale entry
+  li.before(sumLi);
 
   // Set global flag (for bank logic)
   window.lastActionWasManualEntry = true;
