@@ -21,7 +21,22 @@ function setupBuyButtons() {
       console.error('showStocksPopup function not found');
     }
   });
-    // Immobilien Kauf-Button (noch ohne Funktion)
+  
+  // Aktien Event-Button
+  document.getElementById('btn-stocks-event').addEventListener('click', () => {
+    const hasStocks = window.stocksAssets ? Object.values(window.stocksAssets).some(asset => asset.qty > 0) : false;
+    if (hasStocks) {
+      if (typeof window.showStocksEventPopup === 'function') {
+        window.showStocksEventPopup();
+      } else {
+        console.error('showStocksEventPopup function not found');
+      }
+    } else {
+      alert('Sie haben keine Aktien für Events verfügbar.');
+    }
+  });
+  
+  // Immobilien Kauf-Button (noch ohne Funktion)
   document.getElementById('btn-buy-property').addEventListener('click', () => {
     // Functionality to be implemented
   });
@@ -203,8 +218,7 @@ function updateSellButtonStates() {
     btnSellMetals.classList.remove('btn-disabled');
     btnSellMetals.title = 'Edelmetalle verkaufen';
   }
-  
-  // Aktien - use the actual stocksAssets object instead of non-existent input field
+    // Aktien - use the actual stocksAssets object instead of non-existent input field
   const stocksQty = window.stocksAssets ? Object.values(window.stocksAssets).reduce((sum, asset) => sum + asset.qty, 0) : 0;
   const btnSellStocks = document.getElementById('btn-sell-stocks');
   btnSellStocks.disabled = stocksQty <= 0;
@@ -214,7 +228,18 @@ function updateSellButtonStates() {
   } else {
     btnSellStocks.classList.remove('btn-disabled');
     btnSellStocks.title = 'Aktien verkaufen';
-  }    // Immobilien - use the actual propertyAssets object
+  }
+  
+  // Aktien Event-Button
+  const btnStocksEvent = document.getElementById('btn-stocks-event');
+  btnStocksEvent.disabled = stocksQty <= 0;
+  if (btnStocksEvent.disabled) {
+    btnStocksEvent.classList.add('btn-disabled');
+    btnStocksEvent.title = 'Keine Aktien für Events vorhanden';
+  } else {
+    btnStocksEvent.classList.remove('btn-disabled');
+    btnStocksEvent.title = 'Aktien Event (Split/Rückwärtssplit)';
+  }// Immobilien - use the actual propertyAssets object
   const hasProperties = window.propertyAssets ? Object.keys(window.propertyAssets).length > 0 : false;
   const btnSellProperty = document.getElementById('btn-sell-property');
   btnSellProperty.disabled = !hasProperties;

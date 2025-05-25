@@ -94,10 +94,10 @@ document.addEventListener('DOMContentLoaded', function () {
   } else {
     console.error('Could not find stocks sell button!');
   }
-
   // Setup popups
   setupStocksBuyPopup();
   setupStocksSellPopup();
+  setupStocksEventPopup();
   
   // Initialize with dummy boxes (will show placeholder when no stocks owned)
   updateStocksAssetsList();
@@ -202,8 +202,7 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
   inp.style.color = 'var(--danger)';
   
   // Include stock name in title if provided
-  const nameInfo = stockName ? ` (${stockName})` : '';
-  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''}${nameInfo} gekauft`;
+  const nameInfo = stockName ? ` (${stockName})` : '';  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''}${nameInfo} gekauft`;
 
   li.append(inp);
 
@@ -212,7 +211,9 @@ function addStocksPurchaseToEntries(shares, price, stockName) {
   } else {
     ul.prepend(li);
   }
-  // Updated account balance display  const sumLi = document.createElement('li');
+  
+  // Updated account balance display
+  const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
   sumInp.readOnly = true;
@@ -411,8 +412,7 @@ function addStocksSaleToEntries(shares, price, stockName) {
   inp.style.color = ''; // Positive amounts in standard color
   
   // Include stock name in title if provided
-  const nameInfo = stockName ? ` (${stockName})` : '';
-  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''}${nameInfo} verkauft`;
+  const nameInfo = stockName ? ` (${stockName})` : '';  inp.title = `${shares} Aktie${shares > 1 ? 'n' : ''}${nameInfo} verkauft`;
 
   li.append(inp);
 
@@ -422,10 +422,12 @@ function addStocksSaleToEntries(shares, price, stockName) {
     ul.prepend(li);
   }
 
-  // Updated account balance display  const sumLi = document.createElement('li');
+  // Updated account balance display
+  const sumLi = document.createElement('li');
   const sumInp = document.createElement('input');
   sumInp.type = 'text';
-  sumInp.readOnly = true;  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(window.CashflowCore.runningBalance());
   sumInp.style.background = '#eee';
 
   if (window.CashflowCore.runningBalance() < 0) {
@@ -446,4 +448,176 @@ window.showStocksPopup = showStocksPopup;
 window.hideStocksPopup = hideStocksPopup;
 window.showStocksSellPopup = showStocksSellPopup;
 window.hideStocksSellPopup = hideStocksSellPopup;
+window.showStocksEventPopup = showStocksEventPopup;
+window.hideStocksEventPopup = hideStocksEventPopup;
 window.stocksAssets = stocksAssets;
+
+// Stock Event functionality (Split/Reverse Split)
+function setupStocksEventPopup() {
+  const popup = document.getElementById('stocks-event-popup');
+  const stockNameSelect = document.getElementById('stocks-event-name');
+  const eventTypeSelect = document.getElementById('stocks-event-type');
+  const currentSpan = document.getElementById('stocks-event-current');
+  const newSpan = document.getElementById('stocks-event-new');
+  const confirmBtn = document.getElementById('stocks-event-confirm');
+  const cancelBtn = document.getElementById('stocks-event-cancel');
+  
+  // Event type change listener
+  eventTypeSelect.addEventListener('change', updateStocksEventCalculation);
+  
+  // Stock selection change listener
+  stockNameSelect.addEventListener('change', updateStocksEventCalculation);
+  
+  // Confirm button
+  confirmBtn.addEventListener('click', function() {
+    const stockName = stockNameSelect.value;
+    const eventType = eventTypeSelect.value;
+    
+    if (!stockName) {
+      alert('Bitte wählen Sie eine Aktie aus!');
+      return;
+    }
+    
+    const asset = stocksAssets[stockName];
+    if (!asset || asset.qty <= 0) {
+      alert('Ungültige Aktie ausgewählt!');
+      return;
+    }
+    
+    let newQty;
+    if (eventType === 'split') {
+      // Split: Anzahl verdoppeln
+      newQty = asset.qty * 2;
+    } else {
+      // Reverse split: Anzahl halbieren, aufrunden
+      newQty = Math.ceil(asset.qty / 2);
+    }
+    
+    // Update the asset
+    const oldQty = asset.qty;
+    asset.qty = newQty;
+    stocksAssets[stockName] = asset;
+    
+    // Update display
+    updateStocksAssetsList();
+    
+    // Add entry to transaction log
+    addStocksEventToEntries(stockName, eventType, oldQty, newQty);
+    
+    // Update button states
+    if (typeof window.updateSellButtonStates === 'function') {
+      window.updateSellButtonStates();
+    }
+    
+    hideStocksEventPopup();
+  });
+  
+  cancelBtn.addEventListener('click', hideStocksEventPopup);
+  
+  // Click outside popup closes it
+  popup.addEventListener('click', function(e) {
+    if (e.target === popup) {
+      hideStocksEventPopup();
+    }
+  });
+}
+
+function updateStocksEventCalculation() {
+  const stockNameSelect = document.getElementById('stocks-event-name');
+  const eventTypeSelect = document.getElementById('stocks-event-type');
+  const currentSpan = document.getElementById('stocks-event-current');
+  const newSpan = document.getElementById('stocks-event-new');
+  
+  const stockName = stockNameSelect.value;
+  const eventType = eventTypeSelect.value;
+  
+  if (stockName && stocksAssets[stockName]) {
+    const currentQty = stocksAssets[stockName].qty;
+    currentSpan.textContent = currentQty;
+    
+    let newQty;
+    if (eventType === 'split') {
+      newQty = currentQty * 2;
+    } else {
+      newQty = Math.ceil(currentQty / 2);
+    }
+    newSpan.textContent = newQty;
+  } else {
+    currentSpan.textContent = '0';
+    newSpan.textContent = '0';
+  }
+}
+
+function showStocksEventPopup() {
+  // Get the select element and populate it with available stocks
+  const stockNameSelect = document.getElementById('stocks-event-name');
+  stockNameSelect.innerHTML = '';
+  
+  // Get all stocks with quantity > 0
+  const availableStocks = Object.keys(stocksAssets).filter(name => stocksAssets[name].qty > 0);
+  
+  if (availableStocks.length === 0) {
+    alert('Sie haben keine Aktien für Events verfügbar.');
+    return;
+  }
+  
+  // Add placeholder option
+  const placeholderOption = document.createElement('option');
+  placeholderOption.value = '';
+  placeholderOption.textContent = 'Bitte wählen...';
+  stockNameSelect.appendChild(placeholderOption);
+  
+  // Add available stocks to dropdown
+  availableStocks.forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = `${name} (${stocksAssets[name].qty} Stück)`;
+    stockNameSelect.appendChild(option);
+  });
+  
+  // Reset form values
+  document.getElementById('stocks-event-type').value = 'split';
+  document.getElementById('stocks-event-current').textContent = '0';
+  document.getElementById('stocks-event-new').textContent = '0';
+  
+  // Show popup
+  const popup = document.getElementById('stocks-event-popup');
+  popup.style.display = 'flex';
+}
+
+function hideStocksEventPopup() {
+  document.getElementById('stocks-event-popup').style.display = 'none';
+}
+
+function addStocksEventToEntries(stockName, eventType, oldQty, newQty) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  
+  // Check if the first element is an empty input field
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[0].querySelector('input').type === 'number';
+  
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[0] : null;
+  
+  // Create entry for stock event
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = window.formatNumberWithSign(0); // Events don't affect balance
+  inp.style.color = 'var(--primary)'; // Blue/teal color for events
+  
+  const eventText = eventType === 'split' ? 'Split' : 'Rückwärtssplit';
+  inp.title = `${stockName}: ${eventText} (${oldQty} → ${newQty} Aktien)`;
+  
+  li.append(inp);
+  
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
+  } else {
+    ul.prepend(li);
+  }
+  
+  // Set global flag (for bank logic)
+  window.lastActionWasManualEntry = true;
+}

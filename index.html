@@ -138,10 +138,39 @@
         <label>Verfügbare Aktien:</label>
         <span id="stocks-available">0</span>
       </div>
-      
-      <div class="popup-buttons">
+        <div class="popup-buttons">
         <button id="stocks-sell-confirm">Verkaufen</button>
         <button id="stocks-sell-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Popup für Aktien Event (Split/Rückwärtssplit) -->
+  <div id="stocks-event-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Aktien Event</h3>
+      <div class="popup-grid">
+        <label>Aktie:</label>
+        <select id="stocks-event-name">
+          <!-- Options will be populated dynamically -->
+        </select>
+        
+        <label>Event-Art:</label>
+        <select id="stocks-event-type">
+          <option value="split">Split (x2)</option>
+          <option value="reverse-split">Rückwärtssplit (÷2)</option>
+        </select>
+        
+        <label>Aktuelle Anzahl:</label>
+        <span id="stocks-event-current">0</span>
+        
+        <label>Neue Anzahl:</label>
+        <span id="stocks-event-new">0</span>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="stocks-event-confirm">Durchführen</button>
+        <button id="stocks-event-cancel">Abbrechen</button>
       </div>
     </div>
   </div>
@@ -328,13 +357,14 @@
             <input id="input-asset-metals" type="number" readonly class="full-span" placeholder="Goldmünzen">
             <button id="btn-buy-metals">Kaufen</button>
             <button id="btn-sell-metals" disabled>Verkaufen</button>
-          </div><div class="label">Aktien/Fonds/CDs:</div>
+          </div>          <div class="label">Aktien/Fonds/CDs:</div>
           <div class="asset-control">
             <!-- Asset-Liste wird hier dynamisch eingefügt -->
             <div id="stocks-assets-list" class="asset-list"></div>
             <button id="btn-buy-stocks">Kaufen</button>
             <button id="btn-sell-stocks" disabled>Verkaufen</button>
-          </div>          <div class="label">Immobilien:</div>
+            <button id="btn-stocks-event" disabled>Event</button>
+          </div><div class="label">Immobilien:</div>
           <div class="asset-control">
             <div id="property-assets-list" class="asset-list"></div>
             <input id="input-asset-property-down" type="number" readonly style="display: none;">
