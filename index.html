@@ -138,10 +138,39 @@
         <label>Verfügbare Aktien:</label>
         <span id="stocks-available">0</span>
       </div>
-      
-      <div class="popup-buttons">
+        <div class="popup-buttons">
         <button id="stocks-sell-confirm">Verkaufen</button>
         <button id="stocks-sell-cancel">Abbrechen</button>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Popup für Aktien Event (Split/Rückwärtssplit) -->
+  <div id="stocks-event-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h3>Aktien Event</h3>
+      <div class="popup-grid">
+        <label>Aktie:</label>
+        <select id="stocks-event-name">
+          <!-- Options will be populated dynamically -->
+        </select>
+        
+        <label>Event-Art:</label>
+        <select id="stocks-event-type">
+          <option value="split">Split (x2)</option>
+          <option value="reverse-split">Rückwärtssplit (÷2)</option>
+        </select>
+        
+        <label>Aktuelle Anzahl:</label>
+        <span id="stocks-event-current">0</span>
+        
+        <label>Neue Anzahl:</label>
+        <span id="stocks-event-new">0</span>
+      </div>
+      
+      <div class="popup-buttons">
+        <button id="stocks-event-confirm">Durchführen</button>
+        <button id="stocks-event-cancel">Abbrechen</button>
       </div>
     </div>
   </div>
@@ -328,13 +357,14 @@
             <input id="input-asset-metals" type="number" readonly class="full-span" placeholder="Goldmünzen">
             <button id="btn-buy-metals">Kaufen</button>
             <button id="btn-sell-metals" disabled>Verkaufen</button>
-          </div><div class="label">Aktien/Fonds/CDs:</div>
+          </div>          <div class="label">Aktien/Fonds/CDs:</div>
           <div class="asset-control">
             <!-- Asset-Liste wird hier dynamisch eingefügt -->
             <div id="stocks-assets-list" class="asset-list"></div>
             <button id="btn-buy-stocks">Kaufen</button>
             <button id="btn-sell-stocks" disabled>Verkaufen</button>
-          </div>          <div class="label">Immobilien:</div>
+            <button id="btn-stocks-event" disabled>Event</button>
+          </div><div class="label">Immobilien:</div>
           <div class="asset-control">
             <div id="property-assets-list" class="asset-list"></div>
             <input id="input-asset-property-down" type="number" readonly style="display: none;">
@@ -382,9 +412,12 @@
           </div>
         </div>
       </section>
-    </div>
-    <div class="sheet bargeldkonto">
+    </div>    <div class="sheet bargeldkonto">
       <h2>Bargeldkonto – <span id="job-display"></span></h2>
+      <div class="dream-container">
+        <label for="dream-input">Traum:</label>
+        <input id="dream-input" type="text" placeholder="Beschreibe deinen Traum...">
+      </div>
       <div class="summary">
         <label>Gehalt:<span id="sum-salary">0 €</span></label>
         <label>Passives Einkommen:<span id="sum-passive">0 €</span></label>
@@ -392,9 +425,40 @@
         <label>Gesamte Ausgaben:<span id="sum-total-expenses">0 €</span></label>
         <label>Cashflow:<span id="sum-cashflow">0 €</span></label>
       </div>
-      <div class="balance">Aktueller Kontostand: <span id="current-balance">0</span> €</div>
+      <div class="balance-container">
+        <div class="balance">Aktueller Kontostand: <span id="current-balance">0</span> €</div>
+        <button id="btn-add-cashflow" class="add-cashflow-btn">Add Cashflow</button>      </div>
       <ul id="entries"></ul>
-    </div>  </div>  <!-- Load JavaScript modules -->
+    </div>  </div>
+
+  <!-- Congratulations Popup -->
+  <div id="congratulations-popup" class="popup-overlay">
+    <div class="popup-content">
+      <h2 class="congratulations-title">🎉 Herzlichen Glückwunsch! 🎉</h2>
+      <p class="congratulations-message">
+        Du hast finanzielle Freiheit erreicht! Dein passives Einkommen übersteigt deine Gesamtausgaben.
+      </p>
+      <div class="achievement-stats">
+        <div class="stat-row">
+          <span>Passives Einkommen:</span>
+          <span class="stat-value" id="congrats-passive-income">0 €</span>
+        </div>
+        <div class="stat-row">
+          <span>Gesamte Ausgaben:</span>
+          <span class="stat-value" id="congrats-total-expenses">0 €</span>
+        </div>
+        <div class="stat-row">
+          <span>Überschuss:</span>
+          <span class="stat-value" id="congrats-surplus">0 €</span>
+        </div>
+      </div>
+      <p class="congratulations-message">
+        Du kannst jetzt von deinen passiven Einkünften leben, ohne arbeiten zu müssen!
+      </p>
+      <button id="congratulations-close">Schließen</button>
+    </div>
+  </div>
+  <!-- Load JavaScript modules -->
   <script src="js/core.js"></script>
   <script src="js/bankloan.js"></script>
   <script src="js/metals.js"></script>
@@ -403,6 +467,7 @@
   <script src="js/business.js"></script>
   <script src="js/property.js"></script>
   <script src="js/ui-utils.js"></script>
+  <script src="js/congratulations.js"></script>
 </body>
 
 </html>

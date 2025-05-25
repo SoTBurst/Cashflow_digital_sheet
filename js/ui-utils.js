@@ -34,8 +34,11 @@ function parseFormattedNumber(str) {
     return parseFloat(str) || 0;
   }
   
-  // Entferne alle Formatierungszeichen außer Komma und Minus
-  const cleaned = str.replace(/[+€\s\.]/g, '').replace(',', '.');
+  // Deutsche Zahlenformatierung: Punkte sind Tausendertrennzeichen, Kommas sind Dezimaltrennzeichen
+  // Entferne Tausendertrennzeichen (Punkte) und andere Formatierungszeichen
+  let cleaned = str.replace(/[+€\s]/g, ''); // Entferne Plus, Euro und Leerzeichen
+  cleaned = cleaned.replace(/\./g, ''); // Entferne Tausendertrennzeichen (Punkte)
+  cleaned = cleaned.replace(',', '.'); // Ersetze Dezimalkomma durch Punkt für parseFloat
   return parseFloat(cleaned) || 0;
 }
 

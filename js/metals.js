@@ -21,7 +21,22 @@ function setupBuyButtons() {
       console.error('showStocksPopup function not found');
     }
   });
-    // Immobilien Kauf-Button (noch ohne Funktion)
+  
+  // Aktien Event-Button
+  document.getElementById('btn-stocks-event').addEventListener('click', () => {
+    const hasStocks = window.stocksAssets ? Object.values(window.stocksAssets).some(asset => asset.qty > 0) : false;
+    if (hasStocks) {
+      if (typeof window.showStocksEventPopup === 'function') {
+        window.showStocksEventPopup();
+      } else {
+        console.error('showStocksEventPopup function not found');
+      }
+    } else {
+      alert('Sie haben keine Aktien für Events verfügbar.');
+    }
+  });
+  
+  // Immobilien Kauf-Button (noch ohne Funktion)
   document.getElementById('btn-buy-property').addEventListener('click', () => {
     // Functionality to be implemented
   });
@@ -66,11 +81,10 @@ function setupMetalsPopup() {
   newConfirmBtn.addEventListener('click', () => {
     const coins = parseInt(coinsInput.value) || 0;
     let price;
-    
-    if (buyTypeSelect.value === 'total') {
-      price = parseFloat(priceInput.value) || 0;
+      if (buyTypeSelect.value === 'total') {
+      price = window.parseFormattedNumber(priceInput.value) || 0;
     } else {
-      price = (parseFloat(priceInput.value) || 0) * coins;
+      price = (window.parseFormattedNumber(priceInput.value) || 0) * coins;
     }
     
     if (coins > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
@@ -115,7 +129,7 @@ function updateMetalsPriceCalculation() {
   const totalPrice = document.getElementById('metals-total-price');
   
   const coins = parseInt(coinsInput.value) || 0;
-  const inputPrice = parseFloat(priceInput.value) || 0;
+  const inputPrice = window.parseFormattedNumber(priceInput.value) || 0;
     if (buyTypeSelect.value === 'total') {
     // Gesamtpreis ausgewählt
     priceInput.placeholder = 'Gesamtpreis';
@@ -179,12 +193,9 @@ function addMetalsPurchaseToEntries(coins, price) {
   
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-  
-  sumLi.append(sumInp);
-  
-  // Kontostand-Eintrag nach dem Kauf-Eintrag einfügen
-  li.after(sumLi);
+  }    sumLi.append(sumInp);
+    // Kontostand-Eintrag vor dem Kauf-Eintrag einfügen
+  li.before(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;
@@ -203,8 +214,7 @@ function updateSellButtonStates() {
     btnSellMetals.classList.remove('btn-disabled');
     btnSellMetals.title = 'Edelmetalle verkaufen';
   }
-  
-  // Aktien - use the actual stocksAssets object instead of non-existent input field
+    // Aktien - use the actual stocksAssets object instead of non-existent input field
   const stocksQty = window.stocksAssets ? Object.values(window.stocksAssets).reduce((sum, asset) => sum + asset.qty, 0) : 0;
   const btnSellStocks = document.getElementById('btn-sell-stocks');
   btnSellStocks.disabled = stocksQty <= 0;
@@ -214,7 +224,18 @@ function updateSellButtonStates() {
   } else {
     btnSellStocks.classList.remove('btn-disabled');
     btnSellStocks.title = 'Aktien verkaufen';
-  }    // Immobilien - use the actual propertyAssets object
+  }
+  
+  // Aktien Event-Button
+  const btnStocksEvent = document.getElementById('btn-stocks-event');
+  btnStocksEvent.disabled = stocksQty <= 0;
+  if (btnStocksEvent.disabled) {
+    btnStocksEvent.classList.add('btn-disabled');
+    btnStocksEvent.title = 'Keine Aktien für Events vorhanden';
+  } else {
+    btnStocksEvent.classList.remove('btn-disabled');
+    btnStocksEvent.title = 'Aktien Event (Split/Rückwärtssplit)';
+  }// Immobilien - use the actual propertyAssets object
   const hasProperties = window.propertyAssets ? Object.keys(window.propertyAssets).length > 0 : false;
   const btnSellProperty = document.getElementById('btn-sell-property');
   btnSellProperty.disabled = !hasProperties;
@@ -314,11 +335,10 @@ function setupMetalsSellPopup() {
     const totalMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
     const coinsToSell = parseInt(coinsInput.value) || 0;
     let price;
-    
-    if (sellTypeSelect.value === 'total') {
-      price = parseFloat(priceInput.value) || 0;
+      if (sellTypeSelect.value === 'total') {
+      price = window.parseFormattedNumber(priceInput.value) || 0;
     } else {
-      price = (parseFloat(priceInput.value) || 0) * coinsToSell;
+      price = (window.parseFormattedNumber(priceInput.value) || 0) * coinsToSell;
     }
     
     // Prüfen, ob genügend Münzen vorhanden sind und der Preis gültig ist
@@ -364,7 +384,7 @@ function updateMetalsSellPriceCalculation() {
   const totalPrice = document.getElementById('metals-sell-total-price');
   
   const coins = parseInt(coinsInput.value) || 0;
-  const inputPrice = parseFloat(priceInput.value) || 0;
+  const inputPrice = window.parseFormattedNumber(priceInput.value) || 0;
   
   if (sellTypeSelect.value === 'total') {
     // Gesamtpreis ausgewählt
@@ -434,11 +454,8 @@ function addMetalsSaleToEntries(coins, price) {
   
   if (window.CashflowCore.runningBalance() < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-  
-  sumLi.append(sumInp);
-    // Kontostand-Eintrag nach dem Verkauf-Eintrag einfügen
-  li.after(sumLi);
+  }    sumLi.append(sumInp);    // Kontostand-Eintrag vor dem Verkauf-Eintrag einfügen
+  li.before(sumLi);
   
   // Globale Flag setzen (für die Bank-Logik)
   window.lastActionWasManualEntry = true;

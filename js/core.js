@@ -82,12 +82,14 @@ function addEntry() {
       finalizeEntry(inp); 
     }
   });
-  li.append(inp); 
+  li.append(inp);
+  // Neues Eingabefeld immer am Anfang der Liste einfügen
+  ul.prepend(li);
   inp.focus();
 }
 
 function finalizeEntry(inp) {
-  const val = parseFloat(inp.value) || 0;
+  const val = window.parseFormattedNumber(inp.value) || 0;
   runningBalance += val;
   inp.readOnly = true;
   inp.type = 'text';
@@ -107,10 +109,10 @@ function finalizeEntry(inp) {
   // Rote Farbe für negative Kontostände
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-
-  sumLi.append(sumInp);
-  inp.parentNode.after(sumLi);
+  }  sumLi.append(sumInp);
+  
+  // Kontostand-Eintrag vor dem aktuellen Eintrag einfügen
+  inp.parentNode.before(sumLi);
 
   updateDisplayBalance();
   addEntry();
@@ -137,29 +139,33 @@ function updateDisplayBalance() {
 
 function updateSummary() {
   const salary = baseIncome;
-  const passive = (parseFloat(document.getElementById('input-income-property').value) || 0) + 
-                  (parseFloat(document.getElementById('input-income-business').value) || 0);
+  const passive = (window.parseFormattedNumber(document.getElementById('input-income-property').value) || 0) + 
+                  (window.parseFormattedNumber(document.getElementById('input-income-business').value) || 0);
   const totalInc = salary + passive;
   const totalExp =
-    (parseFloat(document.getElementById('input-expenses-taxes').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-mortgage').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-bafog').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-autoloan').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-cc').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
+    (window.parseFormattedNumber(document.getElementById('input-expenses-taxes').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-mortgage').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
   document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
   document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
   document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
   document.getElementById('sum-cashflow').textContent = window.formatCurrency(totalInc - totalExp);
+  
+  // Check for financial freedom achievement
+  if (typeof window.CongratulationsPopup !== 'undefined') {
+    window.CongratulationsPopup.checkFinancialFreedom(passive, totalExp);
+  }
 }
 
 function setupPayButtons() {
   ['mortgage', 'bafog', 'autoloan', 'cc'].forEach(type => {
     const btn = document.getElementById(`btn-pay-${type}`);
-    btn.addEventListener('click', () => {
-      const liInput = document.getElementById(`input-liability-${type}`);
-      const expInput = document.getElementById(`input-expenses-${type}`);
-      const amount = parseFloat(liInput.value) || 0;
+    btn.addEventListener('click', () => {    const liInput = document.getElementById(`input-liability-${type}`);
+    const expInput = document.getElementById(`input-expenses-${type}`);
+      const amount = window.parseFormattedNumber(liInput.value) || 0;
       if (runningBalance >= amount && amount > 0) {
         // Aktion bei ausreichendem Guthaben ausführen
         runningBalance -= amount;        liInput.value = window.formatCurrency(0);
@@ -170,6 +176,52 @@ function setupPayButtons() {
       }
     });
   });
+}
+
+function setupAddCashflowButton() {
+  const btn = document.getElementById('btn-add-cashflow');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      // Calculate current cashflow
+      const salary = baseIncome;
+      const passive = (window.parseFormattedNumber(document.getElementById('input-income-property').value) || 0) + 
+                      (window.parseFormattedNumber(document.getElementById('input-income-business').value) || 0);
+      const totalInc = salary + passive;
+      const totalExp =
+        (window.parseFormattedNumber(document.getElementById('input-expenses-taxes').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-mortgage').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);
+      
+      const cashflow = totalInc - totalExp;
+      
+      if (cashflow > 0) {
+        // Add cashflow to running balance
+        runningBalance += cashflow;
+        
+        // Add entry to the list
+        addCashflowToEntries(cashflow);
+        
+        // Update display
+        updateDisplayBalance();
+        
+        // Set flag for bank entry logic
+        window.lastActionWasManualEntry = true;
+      } else if (cashflow < 0) {
+        // Negative cashflow - ask for confirmation
+        if (confirm(`Ihr Cashflow ist negativ (${window.formatNumberWithSign(cashflow)} €). Möchten Sie diesen trotzdem hinzufügen?`)) {
+          runningBalance += cashflow;
+          addCashflowToEntries(cashflow);
+          updateDisplayBalance();
+          window.lastActionWasManualEntry = true;
+        }
+      } else {
+        alert('Ihr Cashflow ist 0 €. Es gibt nichts hinzuzufügen.');
+      }
+    });
+  }
 }
 
 function addLiabilityPaymentToEntries(type, amount) {
@@ -225,23 +277,75 @@ function addLiabilityPaymentToEntries(type, amount) {
 
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
-  }
-
-  sumLi.append(sumInp);
-
-  // Kontostand-Eintrag nach dem Verbindlichkeits-Eintrag einfügen
-  li.after(sumLi);
+  }  sumLi.append(sumInp);
+  // Kontostand-Eintrag vor dem Verbindlichkeits-Eintrag einfügen
+  li.before(sumLi);
 
   // Nach Bezahlung einer Verbindlichkeit Flag setzen, damit updateBankEntryInList weiß,
   // dass es einen neuen Eintrag erstellen soll für den nächsten Bankkredit
   window.lastActionWasManualEntry = true;
 }
 
+function addCashflowToEntries(cashflow) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  
+  // Finde das erste leere Eingabefeld (für neue Einträge) - sollte jetzt oben sein
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
+
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
+
+  // Erstellen eines Eintrags für den Cashflow
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = window.formatNumberWithSign(cashflow);
+
+  // Farbe je nach Vorzeichen
+  if (cashflow < 0) {
+    inp.style.color = 'var(--danger)';
+  } else if (cashflow > 0) {
+    inp.style.color = 'var(--primary)';
+  }
+
+  inp.title = 'Monatlicher Cashflow hinzugefügt';
+  inp.dataset.cashflowEntry = 'true';
+
+  li.append(inp);
+
+  if (insertAfterElement) {
+    // Einfügen nach dem leeren Eingabefeld
+    insertAfterElement.after(li);
+  } else {
+    // Am Anfang einfügen, wenn kein leeres Eingabefeld vorhanden ist
+    ul.prepend(li);
+  }
+
+  // Aktualisiere den Kontostand-Eintrag
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(runningBalance);
+  sumInp.style.background = '#eee';
+
+  if (runningBalance < 0) {
+    sumInp.style.color = 'var(--danger)';
+  }
+
+  sumLi.append(sumInp);
+  // Kontostand-Eintrag vor dem Cashflow-Eintrag einfügen
+  li.before(sumLi);
+}
+
 function updatePayButtonStates() {
   ['mortgage', 'bafog', 'autoloan', 'cc'].forEach(type => {
     const btn = document.getElementById(`btn-pay-${type}`);
     const liInput = document.getElementById(`input-liability-${type}`);
-    const amount = parseFloat(liInput.value) || 0;
+    const amount = window.parseFormattedNumber(liInput.value) || 0;
 
     // Deaktiviere Knopf wenn Verbindlichkeit 0 ist oder nicht genug Guthaben vorhanden
     btn.disabled = amount <= 0 || runningBalance < amount;
@@ -255,11 +359,10 @@ function updatePayButtonStates() {
       btn.title = 'Verbindlichkeit vollständig abzahlen';
     }
   });
-
   // Bankkredit-Knopf zum Abbezahlen
   const btnPayBank = document.getElementById('btn-pay-bank-1000');
   const bankInput = document.getElementById('input-liability-bank');
-  const bankAmount = parseFloat(bankInput.value) || 0;
+  const bankAmount = window.parseFormattedNumber(bankInput.value) || 0;
 
   btnPayBank.disabled = bankAmount < 1000 || runningBalance < 1000;
   if (btnPayBank.disabled) {
@@ -314,6 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
   sel.addEventListener('change', () => loadData(sel.value));
   loadData(sel.value);
   setupPayButtons();
+  setupAddCashflowButton();
   
   // Call setup functions from other modules if they exist
   if (typeof setupBankLoanButtons === 'function') {

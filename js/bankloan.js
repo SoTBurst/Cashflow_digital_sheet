@@ -3,11 +3,10 @@
 function setupBankLoanButtons() {
   // Tracking-Variable für die aktuelle Sequenz von Bankkrediten
   let currentBankEntryAmount = 0;
-  let currentBankEntryElement = null;
-  // Knopf zum Abbezahlen von 1000 Euro
+  let currentBankEntryElement = null;  // Knopf zum Abbezahlen von 1000 Euro
   document.getElementById('btn-pay-bank-1000').addEventListener('click', () => {
     const loanInput = document.getElementById('input-liability-bank');
-    const loanAmount = parseFloat(loanInput.value) || 0;
+    const loanAmount = window.parseFormattedNumber(loanInput.value) || 0;
 
     if (loanAmount >= 1000 && window.CashflowCore.runningBalance() >= 1000) {
       // Kredit um 1000 reduzieren
@@ -30,11 +29,10 @@ function setupBankLoanButtons() {
       window.CashflowCore.updatePayButtonStates();
     }
   });
-
   // Knopf zum Aufnehmen von 1000 Euro
   document.getElementById('btn-take-bank-1000').addEventListener('click', () => {
     const loanInput = document.getElementById('input-liability-bank');
-    const loanAmount = parseFloat(loanInput.value) || 0;    // Kredit um 1000 erhöhen
+    const loanAmount = window.parseFormattedNumber(loanInput.value) || 0;    // Kredit um 1000 erhöhen
     const newLoanAmount = loanAmount + 1000;    loanInput.value = window.formatCurrency(newLoanAmount);
 
     // Kontostand anpassen
@@ -158,12 +156,10 @@ function setupBankLoanButtons() {
 
     if (window.CashflowCore.runningBalance() < 0) {
       sumInp.style.color = 'var(--danger)';
-    }
+    }    sumLi.append(sumInp);
 
-    sumLi.append(sumInp);
-
-    // Kontostand-Eintrag nach dem Bankkredit-Eintrag einfügen
-    li.after(sumLi);
+    // Kontostand-Eintrag vor dem Bankkredit-Eintrag einfügen
+    li.before(sumLi);
 
     // Aktuelle Elemente für spätere Aktualisierungen speichern
     currentBankEntryElement = inp;
