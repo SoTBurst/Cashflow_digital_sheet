@@ -87,7 +87,7 @@ function addEntry() {
 }
 
 function finalizeEntry(inp) {
-  const val = parseFloat(inp.value) || 0;
+  const val = window.parseFormattedNumber(inp.value) || 0;
   runningBalance += val;
   inp.readOnly = true;
   inp.type = 'text';
@@ -137,16 +137,16 @@ function updateDisplayBalance() {
 
 function updateSummary() {
   const salary = baseIncome;
-  const passive = (parseFloat(document.getElementById('input-income-property').value) || 0) + 
-                  (parseFloat(document.getElementById('input-income-business').value) || 0);
+  const passive = (window.parseFormattedNumber(document.getElementById('input-income-property').value) || 0) + 
+                  (window.parseFormattedNumber(document.getElementById('input-income-business').value) || 0);
   const totalInc = salary + passive;
   const totalExp =
-    (parseFloat(document.getElementById('input-expenses-taxes').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-mortgage').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-bafog').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-autoloan').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-cc').value) || 0) +
-    (parseFloat(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
+    (window.parseFormattedNumber(document.getElementById('input-expenses-taxes').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-mortgage').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
   document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
   document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
   document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
@@ -156,10 +156,9 @@ function updateSummary() {
 function setupPayButtons() {
   ['mortgage', 'bafog', 'autoloan', 'cc'].forEach(type => {
     const btn = document.getElementById(`btn-pay-${type}`);
-    btn.addEventListener('click', () => {
-      const liInput = document.getElementById(`input-liability-${type}`);
-      const expInput = document.getElementById(`input-expenses-${type}`);
-      const amount = parseFloat(liInput.value) || 0;
+    btn.addEventListener('click', () => {    const liInput = document.getElementById(`input-liability-${type}`);
+    const expInput = document.getElementById(`input-expenses-${type}`);
+      const amount = window.parseFormattedNumber(liInput.value) || 0;
       if (runningBalance >= amount && amount > 0) {
         // Aktion bei ausreichendem Guthaben ausführen
         runningBalance -= amount;        liInput.value = window.formatCurrency(0);
@@ -241,7 +240,7 @@ function updatePayButtonStates() {
   ['mortgage', 'bafog', 'autoloan', 'cc'].forEach(type => {
     const btn = document.getElementById(`btn-pay-${type}`);
     const liInput = document.getElementById(`input-liability-${type}`);
-    const amount = parseFloat(liInput.value) || 0;
+    const amount = window.parseFormattedNumber(liInput.value) || 0;
 
     // Deaktiviere Knopf wenn Verbindlichkeit 0 ist oder nicht genug Guthaben vorhanden
     btn.disabled = amount <= 0 || runningBalance < amount;
@@ -255,11 +254,10 @@ function updatePayButtonStates() {
       btn.title = 'Verbindlichkeit vollständig abzahlen';
     }
   });
-
   // Bankkredit-Knopf zum Abbezahlen
   const btnPayBank = document.getElementById('btn-pay-bank-1000');
   const bankInput = document.getElementById('input-liability-bank');
-  const bankAmount = parseFloat(bankInput.value) || 0;
+  const bankAmount = window.parseFormattedNumber(bankInput.value) || 0;
 
   btnPayBank.disabled = bankAmount < 1000 || runningBalance < 1000;
   if (btnPayBank.disabled) {

@@ -122,10 +122,9 @@ function setupStocksBuyPopup() {
     const shares = parseInt(sharesInput.value) || 0;
     const stockName = document.getElementById('stocks-name').value.trim();
     if (!stockName) {
-      alert('Bitte geben Sie einen Aktiennamen ein!');
-      return;
+      alert('Bitte geben Sie einen Aktiennamen ein!');    return;
     }
-    let price = (parseFloat(priceInput.value) || 0) * shares;
+    let price = (window.parseFormattedNumber(priceInput.value) || 0) * shares;
 
     if (shares > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
       window.CashflowCore.setRunningBalance(window.CashflowCore.runningBalance() - price);
@@ -160,7 +159,7 @@ function updateStocksPriceCalculation() {
   const totalPrice = document.getElementById('stocks-total-price');
 
   const shares = parseInt(sharesInput.value) || 0;
-  const inputPrice = parseFloat(priceInput.value) || 0;
+  const inputPrice = window.parseFormattedNumber(priceInput.value) || 0;
 
   priceInput.placeholder = 'Preis pro Aktie';
   totalContainer.style.display = 'contents';
@@ -263,10 +262,9 @@ function setupStocksSellPopup() {
       return;
     }
     
-    const asset = stocksAssets[stockName] || { qty: 0, cost: 0 };
-    const totalShares = asset.qty;
+    const asset = stocksAssets[stockName] || { qty: 0, cost: 0 };    const totalShares = asset.qty;
     const sharesToSell = parseInt(sharesInput.value) || 0;
-    let price = (parseFloat(priceInput.value) || 0) * sharesToSell;
+    let price = (window.parseFormattedNumber(priceInput.value) || 0) * sharesToSell;
 
     if (sharesToSell > 0 && price > 0 && sharesToSell <= totalShares) {
       // Update asset
@@ -314,7 +312,7 @@ function updateStocksSellPriceCalculation() {
   const totalPrice = document.getElementById('stocks-sell-total-price');
 
   const shares = parseInt(sharesInput.value) || 0;
-  const inputPrice = parseFloat(priceInput.value) || 0;
+  const inputPrice = window.parseFormattedNumber(priceInput.value) || 0;
   priceInput.placeholder = 'Preis pro Aktie';
   totalContainer.style.display = 'contents';
   totalPrice.textContent = window.formatCurrency(inputPrice * shares);

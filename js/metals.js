@@ -81,11 +81,10 @@ function setupMetalsPopup() {
   newConfirmBtn.addEventListener('click', () => {
     const coins = parseInt(coinsInput.value) || 0;
     let price;
-    
-    if (buyTypeSelect.value === 'total') {
-      price = parseFloat(priceInput.value) || 0;
+      if (buyTypeSelect.value === 'total') {
+      price = window.parseFormattedNumber(priceInput.value) || 0;
     } else {
-      price = (parseFloat(priceInput.value) || 0) * coins;
+      price = (window.parseFormattedNumber(priceInput.value) || 0) * coins;
     }
     
     if (coins > 0 && price > 0 && window.CashflowCore.runningBalance() >= price) {
@@ -130,7 +129,7 @@ function updateMetalsPriceCalculation() {
   const totalPrice = document.getElementById('metals-total-price');
   
   const coins = parseInt(coinsInput.value) || 0;
-  const inputPrice = parseFloat(priceInput.value) || 0;
+  const inputPrice = window.parseFormattedNumber(priceInput.value) || 0;
     if (buyTypeSelect.value === 'total') {
     // Gesamtpreis ausgewählt
     priceInput.placeholder = 'Gesamtpreis';
@@ -339,11 +338,10 @@ function setupMetalsSellPopup() {
     const totalMetals = parseInt(document.getElementById('input-asset-metals').value) || 0;
     const coinsToSell = parseInt(coinsInput.value) || 0;
     let price;
-    
-    if (sellTypeSelect.value === 'total') {
-      price = parseFloat(priceInput.value) || 0;
+      if (sellTypeSelect.value === 'total') {
+      price = window.parseFormattedNumber(priceInput.value) || 0;
     } else {
-      price = (parseFloat(priceInput.value) || 0) * coinsToSell;
+      price = (window.parseFormattedNumber(priceInput.value) || 0) * coinsToSell;
     }
     
     // Prüfen, ob genügend Münzen vorhanden sind und der Preis gültig ist
@@ -389,7 +387,7 @@ function updateMetalsSellPriceCalculation() {
   const totalPrice = document.getElementById('metals-sell-total-price');
   
   const coins = parseInt(coinsInput.value) || 0;
-  const inputPrice = parseFloat(priceInput.value) || 0;
+  const inputPrice = window.parseFormattedNumber(priceInput.value) || 0;
   
   if (sellTypeSelect.value === 'total') {
     // Gesamtpreis ausgewählt

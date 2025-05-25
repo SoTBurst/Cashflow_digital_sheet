@@ -122,10 +122,9 @@ function setupBusinessBuyPopup() {
   const confirmBtn = document.getElementById('business-buy-confirm');
   const cancelBtn = document.getElementById('business-buy-cancel');
   // Confirm button
-  confirmBtn.addEventListener('click', function () {
-    const businessName = nameInput.value.trim();
-    const price = parseFloat(priceInput.value) || 0;
-    const cashflow = parseFloat(cashflowInput.value) || 0;
+  confirmBtn.addEventListener('click', function () {    const businessName = nameInput.value.trim();
+    const price = window.parseFormattedNumber(priceInput.value) || 0;
+    const cashflow = window.parseFormattedNumber(cashflowInput.value) || 0;
 
     if (!businessName) {
       alert('Bitte geben Sie einen Unternehmensnamen ein!');
@@ -178,11 +177,10 @@ function setupBusinessSellPopup() {
   const nameSelect = document.getElementById('business-sell-name');
   const priceInput = document.getElementById('business-sell-price');
   const confirmBtn = document.getElementById('business-sell-confirm');
-  const cancelBtn = document.getElementById('business-sell-cancel');
-  // Confirm button
+  const cancelBtn = document.getElementById('business-sell-cancel');  // Confirm button
   confirmBtn.addEventListener('click', function () {
     const businessName = nameSelect.value;
-    const sellPrice = parseFloat(priceInput.value) || 0;
+    const sellPrice = window.parseFormattedNumber(priceInput.value) || 0;
 
     if (!businessName) {
       alert('Bitte wählen Sie ein Unternehmen zum Verkaufen aus!');
@@ -224,11 +222,10 @@ function setupBusinessCashflowEditPopup() {
   const cashflowInput = document.getElementById('business-edit-cashflow');
   const confirmBtn = document.getElementById('business-edit-confirm');
   const cancelBtn = document.getElementById('business-edit-cancel');
-  
-  // Confirm button
+    // Confirm button
   confirmBtn.addEventListener('click', function () {
     const businessName = document.getElementById('business-edit-name').textContent;
-    const newCashflow = parseFloat(cashflowInput.value) || 0;
+    const newCashflow = window.parseFormattedNumber(cashflowInput.value) || 0;
 
     if (businessAssets[businessName]) {
       // Update cashflow
