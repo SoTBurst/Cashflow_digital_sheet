@@ -212,15 +212,15 @@ label {
 }
 
 .add-cashflow-btn {
-  background-color:#4fd9c9;
-  color: var(--secondary);
+  background-color: var(--primary);
+  color: var(--surface);
   padding: 0.3rem 0.6rem;
   font-size: 0.85rem;
   white-space: nowrap;
 }
 
 .add-cashflow-btn:hover:not(:disabled) {
-  background-color: #3db9ab;
+  background-color: #238a7e;
 }
 
 .add-cashflow-btn:disabled {
