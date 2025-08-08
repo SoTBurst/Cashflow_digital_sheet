@@ -188,6 +188,16 @@ function setupAddCashflowButton() {
   const btn = document.getElementById('btn-add-cashflow');
   const donateBtn = document.getElementById('btn-donate');
   const jobLossBtn = document.getElementById('btn-job-loss');
+  const multiLvlBtn = document.getElementById('btn-multi-lvl');
+  if (multiLvlBtn) {
+    multiLvlBtn.addEventListener('click', () => {
+      const gain = 500; // Flat Bonus
+      runningBalance += gain;
+      addMultiLvlEntry(gain);
+      updateDisplayBalance();
+      window.lastActionWasManualEntry = true;
+    });
+  }
   if (jobLossBtn) {
     jobLossBtn.addEventListener('click', () => {
       // Gesamtausgaben ermitteln (wie in updateSummary) ohne erneute Formatierung
@@ -448,6 +458,41 @@ function addJobLossEntry(amount) {
   inp.style.color = 'var(--danger)';
   inp.title = 'Einmaliger Verlust: Gesamtausgaben bei Jobverlust';
   inp.dataset.jobLoss = 'true';
+  li.append(inp);
+
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
+  } else {
+    ul.prepend(li);
+  }
+
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(runningBalance);
+  sumInp.style.background = '#eee';
+  if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
+  sumLi.append(sumInp);
+  li.before(sumLi);
+}
+
+function addMultiLvlEntry(amount) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
+
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '+' + window.formatNumber(amount);
+  inp.style.color = 'var(--primary)';
+  inp.title = 'Multi Lvl Bonus';
+  inp.dataset.multiLvl = 'true';
   li.append(inp);
 
   if (insertAfterElement) {

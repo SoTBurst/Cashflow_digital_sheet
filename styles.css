@@ -281,6 +281,23 @@ label {
   background-color: #781611;
 }
 
+.multi-lvl-btn {
+  background-color: #374151;
+  color: var(--surface);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  border: 1px solid #1f2937;
+}
+
+.multi-lvl-btn:hover:not(:disabled) {
+  background-color: #1f2937;
+}
+
+.multi-lvl-btn:active {
+  background-color: #111827;
+}
+
 #entries li {
   display: flex;
   margin-bottom: 0.4rem;
