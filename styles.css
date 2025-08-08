@@ -53,8 +53,37 @@ input, select {
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 0.5rem;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.35s ease, color 0.35s ease;
   width: 100%;
+  background: var(--surface);
+  color: var(--text);
+}
+
+input[readonly] {
+  background: rgba(0,0,0,0.03);
+}
+
+.dark-theme input[readonly] {
+  background: rgba(255,255,255,0.04);
+}
+
+.dark-theme input, .dark-theme select {
+  background: #232b31;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Placeholder colors */
+input::placeholder { color: #888; opacity: 0.85; }
+.dark-theme input::placeholder { color: #9aa4ab; }
+
+/* Entries list inputs inherit themed background */
+#entries input {
+  background: var(--surface);
+}
+.dark-theme #entries input {
+  background: #1f272d;
+  color: var(--text);
 }
 
 input:focus, select:focus {
