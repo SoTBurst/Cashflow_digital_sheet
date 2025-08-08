@@ -186,6 +186,30 @@ function setupPayButtons() {
 
 function setupAddCashflowButton() {
   const btn = document.getElementById('btn-add-cashflow');
+  const donateBtn = document.getElementById('btn-donate');
+  if (donateBtn) {
+    donateBtn.addEventListener('click', () => {
+      // Gesamteinkommen holen (Gehalt + passives Einkommen)
+      const salary = baseIncome;
+      const passive = (window.parseFormattedNumber(document.getElementById('input-income-property').value) || 0) +
+                      (window.parseFormattedNumber(document.getElementById('input-income-business').value) || 0);
+      const totalIncome = salary + passive;
+      if (totalIncome <= 0) {
+        alert('Kein Einkommen verfügbar zum Spenden.');
+        return;
+      }
+      const donation = Math.round(totalIncome * 0.10);
+      if (runningBalance < donation) {
+        if (!confirm(`Nicht genug Kontostand (${window.formatCurrency(runningBalance)}). Trotzdem ${window.formatCurrency(donation)} spenden (Kontostand wird negativ)?`)) {
+          return;
+        }
+      }
+      runningBalance -= donation;
+      addDonationEntry(donation);
+      updateDisplayBalance();
+      window.lastActionWasManualEntry = true;
+    });
+  }
   if (btn) {
     btn.addEventListener('click', () => {
       // Calculate current cashflow
@@ -345,6 +369,41 @@ function addCashflowToEntries(cashflow) {
 
   sumLi.append(sumInp);
   // Kontostand-Eintrag vor dem Cashflow-Eintrag einfügen
+  li.before(sumLi);
+}
+
+function addDonationEntry(amount) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
+
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '-' + window.formatNumber(amount);
+  inp.style.color = 'var(--danger)';
+  inp.title = `Spende (10% des Gesamteinkommens)`;
+  inp.dataset.donation = 'true';
+  li.append(inp);
+
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
+  } else {
+    ul.prepend(li);
+  }
+
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(runningBalance);
+  sumInp.style.background = '#eee';
+  if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
+  sumLi.append(sumInp);
   li.before(sumLi);
 }
 
