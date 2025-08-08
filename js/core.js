@@ -155,7 +155,10 @@ function updateSummary() {
   document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
   document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
   document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
-  document.getElementById('sum-cashflow').textContent = window.formatCurrency(totalInc - totalExp);
+  const cashflowVal = totalInc - totalExp;
+  const cashflowEl = document.getElementById('sum-cashflow');
+  cashflowEl.textContent = window.formatCurrencyWithSign(cashflowVal);
+  cashflowEl.style.color = cashflowVal < 0 ? 'var(--danger)' : (cashflowVal > 0 ? 'var(--primary)' : 'inherit');
   
   // Check for financial freedom achievement
   if (typeof window.CongratulationsPopup !== 'undefined') {
