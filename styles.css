@@ -264,6 +264,23 @@ label {
   color: #888888;
 }
 
+.job-loss-btn {
+  background-color: #b3261e;
+  color: var(--surface);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  border: 1px solid #901d17;
+}
+
+.job-loss-btn:hover:not(:disabled) {
+  background-color: #901d17;
+}
+
+.job-loss-btn:active {
+  background-color: #781611;
+}
+
 #entries li {
   display: flex;
   margin-bottom: 0.4rem;

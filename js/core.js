@@ -187,6 +187,31 @@ function setupPayButtons() {
 function setupAddCashflowButton() {
   const btn = document.getElementById('btn-add-cashflow');
   const donateBtn = document.getElementById('btn-donate');
+  const jobLossBtn = document.getElementById('btn-job-loss');
+  if (jobLossBtn) {
+    jobLossBtn.addEventListener('click', () => {
+      // Gesamtausgaben ermitteln (wie in updateSummary) ohne erneute Formatierung
+      const totalExp =
+        (window.parseFormattedNumber(document.getElementById('input-expenses-taxes').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-mortgage').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-children').value) || 0);
+      if (totalExp <= 0) {
+        alert('Keine Ausgaben vorhanden.');
+        return;
+      }
+      if (!confirm(`Einmaliger Verlust in Höhe Ihrer Gesamtausgaben ${window.formatCurrency(totalExp)} hinzufügen?`)) {
+        return;
+      }
+      runningBalance -= totalExp;
+      addJobLossEntry(totalExp);
+      updateDisplayBalance();
+      window.lastActionWasManualEntry = true;
+    });
+  }
   if (donateBtn) {
     donateBtn.addEventListener('click', () => {
       // Gesamteinkommen holen (Gehalt + passives Einkommen)
@@ -388,6 +413,41 @@ function addDonationEntry(amount) {
   inp.style.color = 'var(--danger)';
   inp.title = `Spende (10% des Gesamteinkommens)`;
   inp.dataset.donation = 'true';
+  li.append(inp);
+
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
+  } else {
+    ul.prepend(li);
+  }
+
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(runningBalance);
+  sumInp.style.background = '#eee';
+  if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
+  sumLi.append(sumInp);
+  li.before(sumLi);
+}
+
+function addJobLossEntry(amount) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
+
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '-' + window.formatNumber(amount);
+  inp.style.color = 'var(--danger)';
+  inp.title = 'Einmaliger Verlust: Gesamtausgaben bei Jobverlust';
+  inp.dataset.jobLoss = 'true';
   li.append(inp);
 
   if (insertAfterElement) {
