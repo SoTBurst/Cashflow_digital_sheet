@@ -476,6 +476,7 @@ button.btn-disabled {
 #input-expenses-bafog::after,
 #input-expenses-autoloan::after,
 #input-expenses-cc::after,
+#input-expenses-children::after,
 #input-expenses-bank::after,
 #input-liability-mortgage::after,
 #input-liability-bafog::after,
