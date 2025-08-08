@@ -196,7 +196,8 @@ function setupAddCashflowButton() {
         (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
         (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
         (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
-        (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-children').value) || 0);
       
       const cashflow = totalInc - totalExp;
       
