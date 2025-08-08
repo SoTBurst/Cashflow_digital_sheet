@@ -359,6 +359,19 @@ label {
   font-size: 0.95rem;
 }
 
+/* Balance snapshot rows */
+input.balance-snapshot {
+  background: rgba(0,0,0,0.05);
+  font-weight: 600;
+}
+.dark-theme input.balance-snapshot {
+  background: #253037;
+  color: var(--text);
+}
+
+/* Dream label readable in dark */
+.dark-theme .dream-container label { color: var(--accent); }
+
 button {
   background-color: var(--primary);
   color: white;

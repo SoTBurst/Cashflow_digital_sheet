@@ -104,7 +104,7 @@ function finalizeEntry(inp) {
   sumInp.type = 'text';
   sumInp.readOnly = true;  // Vorzeichen für Kontostand hinzufügen mit Tausendertrennzeichen
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
 
   // Rote Farbe für negative Kontostände
   if (runningBalance < 0) {
@@ -353,7 +353,7 @@ function addLiabilityPaymentToEntries(type, amount) {
   sumInp.type = 'text';
   sumInp.readOnly = true;
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
 
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
@@ -410,7 +410,7 @@ function addCashflowToEntries(cashflow) {
   sumInp.type = 'text';
   sumInp.readOnly = true;
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
 
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
@@ -450,7 +450,7 @@ function addDonationEntry(amount) {
   sumInp.type = 'text';
   sumInp.readOnly = true;
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
   if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
   sumLi.append(sumInp);
   li.before(sumLi);
@@ -485,7 +485,7 @@ function addJobLossEntry(amount) {
   sumInp.type = 'text';
   sumInp.readOnly = true;
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
   if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
   sumLi.append(sumInp);
   li.before(sumLi);
@@ -520,7 +520,7 @@ function addMultiLvlEntry(amount) {
   sumInp.type = 'text';
   sumInp.readOnly = true;
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
   if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
   sumLi.append(sumInp);
   li.before(sumLi);
