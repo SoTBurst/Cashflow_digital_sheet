@@ -159,6 +159,20 @@ function updateSummary() {
   const cashflowEl = document.getElementById('sum-cashflow');
   cashflowEl.textContent = window.formatCurrencyWithSign(cashflowVal);
   cashflowEl.style.color = cashflowVal < 0 ? 'var(--danger)' : (cashflowVal > 0 ? 'var(--primary)' : 'inherit');
+
+  // Update financial freedom progress UI
+  const bar = document.getElementById('freedom-bar');
+  const percentEl = document.getElementById('freedom-percent');
+  const passiveEl = document.getElementById('freedom-passive');
+  const expEl = document.getElementById('freedom-expenses');
+  if (bar && percentEl) {
+    const ratio = totalExp > 0 ? Math.min(1, passive / totalExp) : (passive > 0 ? 1 : 0);
+    const pct = Math.round(ratio * 100);
+    bar.style.width = pct + '%';
+    percentEl.textContent = pct + '%';
+    if (passiveEl) passiveEl.textContent = window.formatCurrency(passive);
+    if (expEl) expEl.textContent = window.formatCurrency(totalExp);
+  }
   
   // Check for financial freedom achievement
   if (typeof window.CongratulationsPopup !== 'undefined') {
@@ -603,6 +617,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadData(sel.value);
   setupPayButtons();
   setupAddCashflowButton();
+  setupThemeToggle();
+  window.showToast = showToast;
   
   // Call setup functions from other modules if they exist
   if (typeof setupBankLoanButtons === 'function') {
@@ -649,4 +665,32 @@ function updateChildrenCost() {
   // Kleines UX-Extra: Tooltip mit Rate
   costEl.title = `Kosten je Kind: ${window.formatCurrency(currentChildCostRate)} × ${n}`;
   updateSummary();
+}
+
+// THEME TOGGLE
+function setupThemeToggle() {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const saved = localStorage.getItem('cashflow-theme');
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark-theme');
+    btn.textContent = '☀️';
+  }
+  btn.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark-theme');
+    btn.textContent = dark ? '☀️' : '🌙';
+    localStorage.setItem('cashflow-theme', dark ? 'dark' : 'light');
+    showToast(dark ? 'Dark Mode aktiviert' : 'Light Mode aktiviert', 'success');
+  });
+}
+
+// TOASTS
+function showToast(message, type = '') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => { el.style.pointerEvents = 'none'; el.remove(); }, 5000);
 }

@@ -28,6 +28,7 @@
         <option value="polizist">👮 Polizist</option>
         <option value="sekretaer">🗂️ Sekretär</option>
       </select>
+  <button id="theme-toggle" class="theme-toggle" aria-label="Theme umschalten" title="Hell/Dunkel umschalten">🌙</button>
     </div>
   </div>  
   
@@ -430,6 +431,19 @@
         <label>Gesamte Ausgaben:<span id="sum-total-expenses">0 €</span></label>
         <label>Cashflow:<span id="sum-cashflow">0 €</span></label>
       </div>
+      <div class="freedom-progress" aria-label="Fortschritt finanzielle Freiheit">
+        <div class="freedom-header">
+          <span>Finanzielle Freiheit</span>
+          <span id="freedom-percent">0%</span>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="freedom-bar"></div>
+        </div>
+        <div class="freedom-stats">
+          <span>Passiv: <strong id="freedom-passive">0 €</strong></span>
+          <span>Ausgaben: <strong id="freedom-expenses">0 €</strong></span>
+        </div>
+      </div>
       <div class="balance-container">
   <button id="btn-job-loss" class="job-loss-btn" title="Einmal alle aktuellen Ausgaben verlieren">Job verloren</button>
   <button id="btn-donate" class="add-cashflow-btn" title="10% vom Gesamteinkommen spenden">Spenden</button>
@@ -477,6 +491,7 @@
   <script src="js/property.js"></script>
   <script src="js/ui-utils.js"></script>
   <script src="js/congratulations.js"></script>
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 </body>
 
 </html>
