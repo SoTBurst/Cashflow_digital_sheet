@@ -152,6 +152,20 @@ label {
   align-items: center;
 }
 
+/* Combined children count + cost row */
+.children-control {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.children-control #input-children-count {
+  width: 70px;
+  flex: 0 0 auto;
+}
+.children-control #input-expenses-children {
+  flex: 1;
+}
+
 .asset-control {
   display: flex;
   gap: 0.3rem;

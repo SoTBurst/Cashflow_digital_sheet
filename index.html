@@ -346,12 +346,12 @@
           <input id="input-expenses-autoloan" type="text" readonly>
           <div class="label">Kreditkarten‑Zahlung:</div>
           <input id="input-expenses-cc" type="text" readonly>
-          <!-- Kinder -->
-          <div class="label">Kinder (Anzahl):</div>
-          <input id="input-children-count" type="number" min="0" value="0">
-
-          <div class="label">Kinder-Kosten:</div>
-          <input id="input-expenses-children" type="text" readonly>
+          <!-- Kinder (zusammengefasst) -->
+          <div class="label">Kinder:</div>
+          <div class="children-control">
+            <input id="input-children-count" type="number" min="0" value="0" aria-label="Kinder Anzahl">
+            <input id="input-expenses-children" type="text" readonly aria-label="Kinder Kosten">
+          </div>
           <div class="label">Bankkredit‑Zahlung:</div>
           <input id="input-expenses-bank" type="text" readonly>
         </div>
