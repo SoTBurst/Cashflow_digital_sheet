@@ -148,7 +148,10 @@ function updateSummary() {
     (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
     (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
     (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
-    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
+    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-children').value) || 0);  
+    
+  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
   document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
   document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
   document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
@@ -376,10 +379,11 @@ function updatePayButtonStates() {
 
 function loadData(profile) {
   const data = profilesData[profile] || profilesData['anwalt'];
-  balanceArray = data.bal;
-  baseIncome = data.inc; 
-  baseExpenses = data.exp;
-  obligations = data.ob;  document.getElementById('input-income-salary').value = window.formatCurrency(baseIncome);
+  balanceArray = data.bal || [];
+  baseIncome = data.inc || 0; 
+  baseExpenses = data.exp || 0;
+  obligations = data.ob || [];
+  document.getElementById('input-income-salary').value = window.formatCurrency(baseIncome);
   document.getElementById('input-income-property').value = window.formatCurrency(0);
   document.getElementById('input-income-business').value = window.formatCurrency(0);
   document.getElementById('input-expenses-taxes').value = window.formatCurrency(data.taxes);
@@ -387,6 +391,19 @@ function loadData(profile) {
   document.getElementById('input-expenses-bafog').value = window.formatCurrency(obligations[1][1]);
   document.getElementById('input-expenses-autoloan').value = window.formatCurrency(obligations[2][1]);
   document.getElementById('input-expenses-cc').value = window.formatCurrency(obligations[3][1]);
+
+  currentChildCostRate = data.childCost || 0;
+  const childCountEl = document.getElementById('input-children-count');
+  const childCostEl  = document.getElementById('input-expenses-children');
+
+  if (childCountEl && childCostEl) {
+    // zurücksetzen + einmal berechnen
+    childCountEl.value = '0';
+    updateChildrenCost();
+
+    // Doppel-Listener vermeiden (optional vorher removeEventListener, hier simpel):
+    childCountEl.addEventListener('input', updateChildrenCost);
+  }
 
   // Bankkredit-Zinszahlung (10% der Schulden)
   const bankLoanAmount = obligations[4][0];
@@ -449,3 +466,19 @@ window.CashflowCore = {
   initialBalance: () => initialBalance,
   updatePayButtonStates
 };
+
+let currentChildCostRate = 0;
+
+function updateChildrenCost() {
+  const countEl = document.getElementById('input-children-count');
+  const costEl  = document.getElementById('input-expenses-children');
+  if (!countEl || !costEl) return;
+
+  const n = parseInt(countEl.value, 10) || 0;
+  const total = n * (currentChildCostRate || 0);
+
+  costEl.value = window.formatCurrency(total);
+  // Kleines UX-Extra: Tooltip mit Rate
+  costEl.title = `Kosten je Kind: ${window.formatCurrency(currentChildCostRate)} × ${n}`;
+  updateSummary();
+}
