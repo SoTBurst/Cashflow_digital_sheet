@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<title>Finanzielle Freiheit – Bargeldkonto</title>
+	<link rel="stylesheet" href="styles.css">
+	<style>
+		body { padding: 1rem; }
+		.freedom-mode-badge { background: var(--primary); color:#fff; padding:4px 8px; border-radius:4px; font-size:.8rem; margin-left:.5rem; }
+		.container { max-width: 780px; margin: 0 auto; }
+		.sheet { flex: 1 1 100%; }
+		.info-box { background: var(--bg-accent, rgba(0,0,0,.05)); padding: .75rem 1rem; border-radius: 8px; margin-bottom: 1rem; line-height:1.4; }
+		.balance-container { gap:.5rem; flex-wrap: wrap; }
+		#entries { max-height: 65vh; overflow-y:auto; }
+		.return-btn { background: var(--secondary); }
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="sheet bargeldkonto">
+			<h2>Bargeldkonto <span class="freedom-mode-badge">Freiheit Modus</span></h2>
+			<div class="info-box">
+				Glückwunsch! Du bist jetzt finanziell frei. Dieser vereinfachte Modus zeigt nur dein Bargeldkonto. 
+				Füge nach Belieben weitere Cashflow‑Einträge hinzu oder simuliere Ausgaben/Einnahmen. Der Kontostand startet hier bei 0 € neu.
+			</div>
+			<div class="balance-container">
+				<button id="btn-add" class="add-cashflow-btn">Eintrag hinzufügen</button>
+				<button id="btn-reset" class="add-cashflow-btn" title="Kontostand & Liste zurücksetzen">Reset</button>
+				<button id="btn-return" class="return-btn add-cashflow-btn" title="Zur Hauptseite zurückkehren">Zurück zur Übersicht</button>
+				<div class="balance">Aktueller Kontostand: <span id="current-balance">+0</span> €</div>
+			</div>
+			<ul id="entries"></ul>
+		</div>
+	</div>
+
+	<script src="js/ui-utils.js"></script>
+	<script src="js/core-freedom.js"></script>
+</body>
+</html>
+

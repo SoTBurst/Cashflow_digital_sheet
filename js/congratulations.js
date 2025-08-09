@@ -170,6 +170,16 @@ function showCongratulationsPopup(passiveIncome, totalExpenses) {
   
   // Play celebration sound
   playCelebrationSound();
+
+  // Optional auto-forward after some seconds (user can still click manually sooner)
+  if (!popup.dataset.autoForwardSet) {
+    popup.dataset.autoForwardSet = 'true';
+    setTimeout(() => {
+      if (popup.style.display === 'flex') {
+        goToFreedomMode();
+      }
+    }, 6000);
+  }
 }
 
 // Function to hide congratulations popup
@@ -189,10 +199,17 @@ function resetCongratulationsFlag() {
 // Setup event listeners for congratulations popup
 function setupCongratulationsPopup() {
   const closeBtn = document.getElementById('congratulations-close');
+  const continueBtn = document.getElementById('congratulations-continue');
   const popup = document.getElementById('congratulations-popup');
   
   if (closeBtn) {
     closeBtn.addEventListener('click', hideCongratulationsPopup);
+  }
+  if (continueBtn) {
+    continueBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      goToFreedomMode();
+    });
   }
   
   // Allow clicking outside popup to close it
@@ -212,6 +229,13 @@ function setupCongratulationsPopup() {
   });
 }
 
+function goToFreedomMode() {
+  // Ensure popup hidden first
+  hideCongratulationsPopup();
+  // Redirect to simplified freedom mode page
+  window.location.href = 'freedom.html';
+}
+
 // Initialize congratulations functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   setupCongratulationsPopup();
@@ -223,4 +247,5 @@ window.CongratulationsPopup = {
   showCongratulationsPopup,
   hideCongratulationsPopup,
   resetCongratulationsFlag
+  , goToFreedomMode
 };
