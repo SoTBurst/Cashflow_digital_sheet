@@ -86,13 +86,17 @@
       });
       // Clean characters on input (allow digits, minus)
       manual.addEventListener('input', () => {
-        let v = manual.value;
-        // Allow leading - then digits and dots/spaces removed
-        const neg = v.startsWith('-');
-        v = v.replace(/[^0-9]/g,'');
-        if(v === '') { manual.value = neg ? '-' : ''; return; }
-        // Don't format while typing to avoid cursor jumps; only show raw digits (with minus) until blur
-        manual.value = (neg?'-':'') + v;
+  const prevPos = manual.selectionStart;
+  let v = manual.value;
+  const neg = v.startsWith('-');
+  // Strip all non digits
+  v = v.replace(/[^0-9]/g, '');
+  if(v === '') { manual.value = neg ? '-' : ''; return; }
+  // Format with thousand separators (German locale) using available util if present
+  const formattedCore = window.formatNumber ? window.formatNumber(parseInt(v,10)) : parseInt(v,10).toLocaleString('de-DE');
+  manual.value = (neg?'-':'') + formattedCore;
+  // Set caret at end (simple approach). Advanced caret keeping not required per current UX.
+  requestAnimationFrame(()=>{ manual.selectionStart = manual.selectionEnd = manual.value.length; });
       });
       manual.addEventListener('keydown', e => {
         if(e.key === 'Enter') {
