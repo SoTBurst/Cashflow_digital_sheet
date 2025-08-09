@@ -74,12 +74,38 @@
     document.getElementById('btn-return')?.addEventListener('click', () => { window.location.href='index.html'; });
     const manual = document.getElementById('manual-entry');
     if(manual){
+      // Reformat on blur
+      manual.addEventListener('blur', () => {
+        const raw = manual.value.trim();
+        if(raw === '') return;
+        const negative = raw.startsWith('-');
+        const numeric = window.parseFormattedNumber ? (window.parseFormattedNumber(raw) || 0) : parseInt(raw.replace(/[^0-9]/g,''),10) || 0;
+        if(numeric === 0){ manual.value=''; return; }
+        const formatted = (negative?'-':'') + (window.formatNumber ? window.formatNumber(numeric) : numeric.toLocaleString('de-DE'));
+        manual.value = formatted;
+      });
+      // Clean characters on input (allow digits, minus)
+      manual.addEventListener('input', () => {
+        let v = manual.value;
+        // Allow leading - then digits and dots/spaces removed
+        const neg = v.startsWith('-');
+        v = v.replace(/[^0-9]/g,'');
+        if(v === '') { manual.value = neg ? '-' : ''; return; }
+        // Don't format while typing to avoid cursor jumps; only show raw digits (with minus) until blur
+        manual.value = (neg?'-':'') + v;
+      });
       manual.addEventListener('keydown', e => {
         if(e.key === 'Enter') {
           const raw = manual.value.trim();
             if(raw === '') return;
           const val = window.parseFormattedNumber ? (window.parseFormattedNumber(raw) || 0) : (parseFloat(raw)||0);
           if(val === 0) { manual.value=''; return; }
+          // Warning if amount not ending with 0000 (absolute value)
+          const absVal = Math.abs(val);
+          if(absVal % 10000 !== 0){
+            const proceed = window.confirm('Der Betrag endet nicht mit 0000. Vermutlich Tippfehler. Trotzdem verbuchen?');
+            if(!proceed) return; 
+          }
           addLog(val, 'Manueller Eintrag');
           manual.value='';
         }
