@@ -52,7 +52,6 @@
   }
 
   function init(){
-    document.getElementById('btn-add')?.addEventListener('click', addEntryField);
     document.getElementById('btn-reset')?.addEventListener('click', resetAll);
     document.getElementById('btn-return')?.addEventListener('click', () => { window.location.href='index.html'; });
     resetAll();
