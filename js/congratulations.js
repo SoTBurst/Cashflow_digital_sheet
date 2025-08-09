@@ -233,6 +233,18 @@ function goToFreedomMode() {
   // Ensure popup hidden first
   hideCongratulationsPopup();
   // Redirect to simplified freedom mode page
+  try {
+    // Cashflow auf Index-Seite auslesen (Anzeige enthält Vorzeichen + Währung)
+    const cfEl = document.getElementById('sum-cashflow');
+    if (cfEl) {
+      const raw = cfEl.textContent || '0';
+      const numeric = window.parseFormattedNumber ? (window.parseFormattedNumber(raw) || 0) : parseFloat(raw.replace(/[^0-9+-]/g,'')) || 0;
+      // Auf nächsten 1000er aufrunden und *100
+      let base = Math.ceil(Math.max(numeric,0) / 1000) * 1000;
+      base = base * 100; // Skalierung wie gefordert
+      sessionStorage.setItem('freedomBaseCashflow', String(base));
+    }
+  } catch(e) { /* ignore */ }
   window.location.href = 'freedom.html';
 }
 

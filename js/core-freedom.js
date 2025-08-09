@@ -1,46 +1,52 @@
 // Simplified cash account logic for freedom mode
 (function(){
   let runningBalance = 0;
+  let baseMonthlyCashflow = 0;
 
-  function format(val){ return window.formatNumberWithSign ? window.formatNumberWithSign(val) : (val>=0?"+":"")+val; }
+  function formatSigned(val){ return window.formatNumberWithSign ? window.formatNumberWithSign(val) : (val>=0?'+':'') + val; }
+  function formatCurrency(val){ return window.formatCurrency ? window.formatCurrency(val) : (val.toLocaleString('de-DE') + ' €'); }
 
   function updateDisplay(){
-    const el = document.getElementById('current-balance');
-    if(el){ el.textContent = format(runningBalance); el.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit'; }
+    const balEl = document.getElementById('current-balance');
+    if(balEl){ balEl.textContent = formatSigned(runningBalance); balEl.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit'; }
+    const cfEl = document.getElementById('freedom-mode-cashflow');
+    if(cfEl){ cfEl.textContent = formatCurrency(baseMonthlyCashflow); }
   }
 
-  function addEntryField(){
+  function addLog(amount, label){
+    runningBalance += amount;
     const ul = document.getElementById('entries');
     if(!ul) return;
-    const li = document.createElement('li');
-    const inp = document.createElement('input');
-    inp.type='number';
-    inp.placeholder='€';
-    inp.addEventListener('keydown', e => {
-      if(e.key==='Enter'){ finalize(inp); }
-    });
-    li.append(inp);
-    ul.prepend(li);
-    inp.focus();
+    const liEntry = document.createElement('li');
+    const inpEntry = document.createElement('input');
+    inpEntry.type='text'; inpEntry.readOnly = true; inpEntry.value = formatSigned(amount);
+    if(amount < 0) inpEntry.style.color='var(--danger)'; else if(amount>0) inpEntry.style.color='var(--primary)';
+    if(label) inpEntry.title = label;
+    liEntry.append(inpEntry);
+
+    const liSum = document.createElement('li');
+    const inpSum = document.createElement('input');
+    inpSum.type='text'; inpSum.readOnly = true; inpSum.classList.add('balance-snapshot');
+    inpSum.value = formatSigned(runningBalance);
+    if(runningBalance < 0) inpSum.style.color='var(--danger)';
+    liSum.append(inpSum);
+
+    // Neueinträge oben: zuerst Entry, dann Summe davor
+    ul.prepend(liEntry);
+    liEntry.before(liSum);
+    updateDisplay();
   }
 
-  function finalize(inp){
-    const raw = inp.value.trim();
-    const val = window.parseFormattedNumber ? (window.parseFormattedNumber(raw) || 0) : (parseFloat(raw)||0);
-    runningBalance += val;
-    inp.readOnly = true;
-    inp.type='text';
-    inp.value = format(val);
-    if(val<0) inp.style.color='var(--danger)'; else if(val>0) inp.style.color='var(--primary)';
-    const sumLi = document.createElement('li');
-    const sumInp = document.createElement('input');
-    sumInp.type='text'; sumInp.readOnly=true; sumInp.classList.add('balance-snapshot');
-    sumInp.value = format(runningBalance);
-    if(runningBalance<0) sumInp.style.color='var(--danger)';
-    sumLi.append(sumInp);
-    inp.parentNode.before(sumLi);
-    updateDisplay();
-    addEntryField();
+  function applyMonthlyCashflow(){
+    if(baseMonthlyCashflow === 0) return;
+    addLog(baseMonthlyCashflow, 'Monatlicher Cashflow verbucht');
+  }
+
+  function donate(){
+    if(baseMonthlyCashflow === 0) return;
+    const donation = Math.round(baseMonthlyCashflow * 0.1);
+    if(donation <= 0) return;
+    addLog(-donation, 'Spende 10% des Cashflows');
   }
 
   function resetAll(){
@@ -48,13 +54,21 @@
     const ul = document.getElementById('entries');
     if(ul) ul.innerHTML='';
     updateDisplay();
-    addEntryField();
+  }
+
+  function readBaseCashflow(){
+    const stored = sessionStorage.getItem('freedomBaseCashflow');
+    const val = stored ? parseInt(stored,10) : 0;
+    baseMonthlyCashflow = isNaN(val) ? 0 : val;
   }
 
   function init(){
+    readBaseCashflow();
+    updateDisplay();
+    document.getElementById('btn-add-cashflow')?.addEventListener('click', applyMonthlyCashflow);
+    document.getElementById('btn-donate')?.addEventListener('click', donate);
     document.getElementById('btn-reset')?.addEventListener('click', resetAll);
     document.getElementById('btn-return')?.addEventListener('click', () => { window.location.href='index.html'; });
-    resetAll();
   }
 
   document.addEventListener('DOMContentLoaded', init);
