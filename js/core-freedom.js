@@ -54,6 +54,9 @@
     const ul = document.getElementById('entries');
     if(ul) ul.innerHTML='';
     updateDisplay();
+  // Manuelles Eingabefeld leeren
+  const manual = document.getElementById('manual-entry');
+  if(manual){ manual.value=''; }
   }
 
   function readBaseCashflow(){
@@ -69,6 +72,19 @@
     document.getElementById('btn-donate')?.addEventListener('click', donate);
     document.getElementById('btn-reset')?.addEventListener('click', resetAll);
     document.getElementById('btn-return')?.addEventListener('click', () => { window.location.href='index.html'; });
+    const manual = document.getElementById('manual-entry');
+    if(manual){
+      manual.addEventListener('keydown', e => {
+        if(e.key === 'Enter') {
+          const raw = manual.value.trim();
+            if(raw === '') return;
+          const val = window.parseFormattedNumber ? (window.parseFormattedNumber(raw) || 0) : (parseFloat(raw)||0);
+          if(val === 0) { manual.value=''; return; }
+          addLog(val, 'Manueller Eintrag');
+          manual.value='';
+        }
+      });
+    }
   }
 
   document.addEventListener('DOMContentLoaded', init);
