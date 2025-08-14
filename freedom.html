@@ -157,10 +157,27 @@
 			const cashflow = cashflowEl.value.trim() === '' ? NaN : (window.parseFormattedNumber ? window.parseFormattedNumber(cashflowEl.value) : (parseFloat(cashflowEl.value)||0));
 
 			if(!name){ nameEl.focus(); return; }
+			// Warnings similar to manual entry: price should end with 0000, cashflow with 000
+			const absPrice = Math.abs(price||0);
+			const absCash = Math.abs(cashflow||0);
+			if(absPrice && absPrice % 10000 !== 0){
+				const proceed = window.confirm('Der Preis endet nicht mit 0000. Vermutlich Tippfehler. Trotzdem hinzufügen?');
+				if(!proceed) return;
+			}
+			if(absCash && absCash % 1000 !== 0){
+				const proceed = window.confirm('Der Cashflow endet nicht mit 000. Vermutlich Tippfehler. Trotzdem hinzufügen?');
+				if(!proceed) return;
+			}
 			const arr = getData();
 			arr.push({ name, price: isNaN(price)?0:Math.max(0, price), cashflow: isNaN(cashflow)?0:cashflow });
 			save(arr);
 			render(arr);
+
+			// Apply financial effects in freedom mode: deduct price from balance, add cashflow to monthly base
+			if(window.FreedomAPI){
+				if(!isNaN(price) && price > 0){ window.FreedomAPI.addLog(-Math.round(price), `Kauf ${name}`); }
+				if(!isNaN(cashflow) && cashflow !== 0){ window.FreedomAPI.adjustMonthlyCashflow(cashflow); }
+			}
 			// reset inputs
 			nameEl.value=''; priceEl.value=''; cashflowEl.value='';
 			nameEl.focus();

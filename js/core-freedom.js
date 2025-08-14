@@ -118,4 +118,19 @@
   }
 
   document.addEventListener('DOMContentLoaded', init);
+
+  // Expose minimal API for other modules (e.g., investments on freedom.html)
+  window.FreedomAPI = {
+    // Deduct or add an amount and log it
+    addLog: function(amount, label){
+      addLog(amount, label);
+    },
+    // Adjust the base monthly cashflow and persist; positive increases, negative decreases
+    adjustMonthlyCashflow: function(delta){
+      if(!Number.isFinite(delta) || delta === 0) return;
+      baseMonthlyCashflow += Math.round(delta);
+      try { sessionStorage.setItem('freedomBaseCashflow', String(baseMonthlyCashflow)); } catch(e) {}
+      updateDisplay();
+    }
+  };
 })();
