@@ -2,6 +2,9 @@
 (function(){
   let runningBalance = 0;
   let baseMonthlyCashflow = 0;
+  let startMonthlyCashflow = 0;
+  let goalTarget = 0;
+  let goalShown = false;
 
   function formatSigned(val){ return window.formatNumberWithSign ? window.formatNumberWithSign(val) : (val>=0?'+':'') + val; }
   function formatCurrency(val){ return window.formatCurrency ? window.formatCurrency(val) : (val.toLocaleString('de-DE') + ' €'); }
@@ -11,6 +14,8 @@
     if(balEl){ balEl.textContent = formatSigned(runningBalance); balEl.style.color = runningBalance < 0 ? 'var(--danger)' : 'inherit'; }
     const cfEl = document.getElementById('freedom-mode-cashflow');
     if(cfEl){ cfEl.textContent = formatCurrency(baseMonthlyCashflow); }
+  const goalEl = document.getElementById('freedom-goal-target');
+  if(goalEl){ goalEl.textContent = formatCurrency(goalTarget); }
   }
 
   function addLog(amount, label){
@@ -69,6 +74,8 @@
     const stored = sessionStorage.getItem('freedomBaseCashflow');
     const val = stored ? parseInt(stored,10) : 0;
     baseMonthlyCashflow = isNaN(val) ? 0 : val;
+  startMonthlyCashflow = baseMonthlyCashflow;
+  goalTarget = startMonthlyCashflow + 50000;
   }
 
   function init(){
@@ -124,6 +131,11 @@
         }
       });
     }
+
+  // Setup goal popup close
+  const goalPopup = document.getElementById('goal-congrats-popup');
+  const goalClose = document.getElementById('goal-congrats-close');
+  goalClose?.addEventListener('click', () => { if(goalPopup) goalPopup.style.display = 'none'; });
   }
 
   document.addEventListener('DOMContentLoaded', init);
@@ -142,6 +154,20 @@
       baseMonthlyCashflow += Math.round(delta);
       try { sessionStorage.setItem('freedomBaseCashflow', String(baseMonthlyCashflow)); } catch(e) {}
       updateDisplay();
+      // Check goal
+      if(!goalShown && baseMonthlyCashflow >= goalTarget){
+        try {
+          const gp = document.getElementById('goal-congrats-popup');
+          const s = document.getElementById('goal-start-cf');
+          const t = document.getElementById('goal-target-cf');
+          const c = document.getElementById('goal-current-cf');
+          if(s) s.textContent = formatCurrency(startMonthlyCashflow);
+          if(t) t.textContent = formatCurrency(goalTarget);
+          if(c) c.textContent = formatCurrency(baseMonthlyCashflow);
+          if(gp) gp.style.display = 'flex';
+        } catch(e) {}
+        goalShown = true;
+      }
     }
   };
 })();

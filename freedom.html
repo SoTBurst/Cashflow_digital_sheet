@@ -50,6 +50,7 @@
 				Füge nach Belieben weitere Cashflow‑Einträge hinzu oder simuliere Ausgaben/Einnahmen. Der Kontostand startet hier bei 0 € neu.
 			</div>
 			<p class="cashflow-line">Monatlicher Cashflow im Freiheit Modus: <strong id="freedom-mode-cashflow">0 €</strong></p>
+			<p class="cashflow-line">Ziel: Start‑Cashflow + 50.000 → <strong id="freedom-goal-target">0 €</strong></p>
 			<div class="balance-container">
 				<button id="btn-add-cashflow" class="add-cashflow-btn" title="Einen Monat Cashflow verbuchen">Add Cashflow</button>
 				<button id="btn-donate" class="add-cashflow-btn" title="10% vom monatlichen Cashflow spenden">Spenden (10%)</button>
@@ -88,6 +89,20 @@
 					</tr>
 				</tbody>
 			</table>
+		</div>
+	</div>
+
+	<!-- Goal Reached Popup (Freedom Mode) -->
+	<div id="goal-congrats-popup" class="popup-overlay" style="display:none;">
+		<div class="popup-content" role="dialog" aria-modal="true" aria-labelledby="goal-congrats-title">
+			<h2 id="goal-congrats-title" class="congratulations-title">🏁 Ziel erreicht!</h2>
+			<p class="congratulations-message">Du hast deinen Cashflow im Freiheit‑Modus um 50.000 € erhöht.</p>
+			<div class="achievement-stats">
+				<div class="stat-row"><span>Start‑Cashflow:</span> <span class="stat-value" id="goal-start-cf">0 €</span></div>
+				<div class="stat-row"><span>Ziel:</span> <span class="stat-value" id="goal-target-cf">0 €</span></div>
+				<div class="stat-row"><span>Aktuell:</span> <span class="stat-value" id="goal-current-cf">0 €</span></div>
+			</div>
+			<button id="goal-congrats-close">Schließen</button>
 		</div>
 	</div>
 
