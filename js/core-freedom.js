@@ -46,6 +46,12 @@
     if(baseMonthlyCashflow === 0) return;
     const donation = Math.round(baseMonthlyCashflow * 0.1);
     if(donation <= 0) return;
+    // Warn if this would make balance negative (threshold crossing)
+    const wouldBe = runningBalance - donation;
+    if(runningBalance >= 0 && wouldBe < 0){
+      const proceed = window.confirm('Die Spende würde deinen Kontostand negativ machen. Trotzdem spenden?');
+      if(!proceed) return;
+    }
     addLog(-donation, 'Spende 10% des Cashflows');
   }
 
@@ -125,6 +131,8 @@
     addLog: function(amount, label){
       addLog(amount, label);
     },
+  // Read current balance
+  getBalance: function(){ return runningBalance; },
     // Adjust the base monthly cashflow and persist; positive increases, negative decreases
     adjustMonthlyCashflow: function(delta){
       if(!Number.isFinite(delta) || delta === 0) return;

@@ -175,7 +175,15 @@
 
 			// Apply financial effects in freedom mode: deduct price from balance, add cashflow to monthly base
 			if(window.FreedomAPI){
-				if(!isNaN(price) && price > 0){ window.FreedomAPI.addLog(-Math.round(price), `Kauf ${name}`); }
+				if(!isNaN(price) && price > 0){
+					const bal = window.FreedomAPI.getBalance ? window.FreedomAPI.getBalance() : 0;
+					const wouldBe = bal - Math.round(price);
+					if(bal >= 0 && wouldBe < 0){
+						const proceed = window.confirm('Dieser Kauf würde deinen Kontostand negativ machen. Trotzdem kaufen?');
+						if(!proceed) return; // abort entire add
+					}
+					window.FreedomAPI.addLog(-Math.round(price), `Kauf ${name}`);
+				}
 				if(!isNaN(cashflow) && cashflow !== 0){ window.FreedomAPI.adjustMonthlyCashflow(cashflow); }
 			}
 			// reset inputs
