@@ -69,8 +69,8 @@
 			</div>
 			<div class="investment-add-row" aria-label="Neue Investition hinzufügen">
 				<input id="inv-name" type="text" placeholder="Name der Investition">
-				<input id="inv-price" type="number" step="0.01" min="0" placeholder="Preis (€)">
-				<input id="inv-cashflow" type="number" step="0.01" placeholder="Cashflow/Monat (€)">
+				<input id="inv-price" type="text" inputmode="numeric" placeholder="Preis (€)">
+				<input id="inv-cashflow" type="text" inputmode="numeric" placeholder="Cashflow/Monat (€)">
 				<button id="inv-add-btn" class="add-cashflow-btn" title="Eintrag hinzufügen">Hinzufügen</button>
 			</div>
 			<table class="investments-table" aria-label="Investitionsübersicht">
@@ -101,7 +101,7 @@
 		const addBtn = document.getElementById('inv-add-btn');
 		const tbody = document.getElementById('investments-body');
 
-		const euroFmt = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' });
+		// use util formatters if available
 
 		function load(){
 			try {
@@ -141,26 +141,70 @@
 		function makeRow(name, price, cashflow){
 			const tr = document.createElement('tr');
 			const tdN = document.createElement('td'); tdN.textContent = name;
-			const tdP = document.createElement('td'); tdP.textContent = Number.isFinite(price) ? euroFmt.format(price) : '—';
-			const tdC = document.createElement('td'); tdC.textContent = Number.isFinite(cashflow) ? euroFmt.format(cashflow) : '—';
+			const tdP = document.createElement('td'); tdP.textContent = Number.isFinite(price)
+				? (window.formatCurrency ? window.formatCurrency(price) : (price.toLocaleString('de-DE') + ' €'))
+				: '—';
+			const tdC = document.createElement('td'); tdC.textContent = Number.isFinite(cashflow)
+				? (window.formatCurrency ? window.formatCurrency(cashflow) : (cashflow.toLocaleString('de-DE') + ' €'))
+				: '—';
 			tr.append(tdN, tdP, tdC);
 			return tr;
 		}
 
 		function add(){
 			const name = (nameEl.value || '').trim();
-			const price = priceEl.value === '' ? NaN : parseFloat(priceEl.value);
-			const cashflow = cashflowEl.value === '' ? NaN : parseFloat(cashflowEl.value);
+			const price = priceEl.value.trim() === '' ? NaN : (window.parseFormattedNumber ? window.parseFormattedNumber(priceEl.value) : (parseFloat(priceEl.value)||0));
+			const cashflow = cashflowEl.value.trim() === '' ? NaN : (window.parseFormattedNumber ? window.parseFormattedNumber(cashflowEl.value) : (parseFloat(cashflowEl.value)||0));
 
 			if(!name){ nameEl.focus(); return; }
 			const arr = getData();
-			arr.push({ name, price: isNaN(price)?0:price, cashflow: isNaN(cashflow)?0:cashflow });
+			arr.push({ name, price: isNaN(price)?0:Math.max(0, price), cashflow: isNaN(cashflow)?0:cashflow });
 			save(arr);
 			render(arr);
 			// reset inputs
 			nameEl.value=''; priceEl.value=''; cashflowEl.value='';
 			nameEl.focus();
 		}
+
+		// Input formatting (thousand separators) like manual entries
+		function formatDigitsToThousand(v){
+			const n = parseInt(v, 10);
+			return isNaN(n) ? '' : (window.formatNumber ? window.formatNumber(n) : n.toLocaleString('de-DE'));
+		}
+
+		priceEl?.addEventListener('input', () => {
+			const prev = priceEl.selectionStart;
+			let v = priceEl.value;
+			v = v.replace(/[^0-9]/g, '');
+			if(v === '') { priceEl.value = ''; return; }
+			priceEl.value = formatDigitsToThousand(v);
+			requestAnimationFrame(()=>{ priceEl.selectionStart = priceEl.selectionEnd = priceEl.value.length; });
+		});
+		priceEl?.addEventListener('blur', () => {
+			const raw = priceEl.value.trim(); if(raw === '') return;
+			const numeric = window.parseFormattedNumber ? window.parseFormattedNumber(raw) : (parseFloat(raw)||0);
+			if(!numeric){ priceEl.value = ''; return; }
+			priceEl.value = formatDigitsToThousand(String(numeric));
+		});
+
+		cashflowEl?.addEventListener('input', () => {
+			const prev = cashflowEl.selectionStart;
+			let v = cashflowEl.value;
+			const neg = v.startsWith('-');
+			v = v.replace(/[^0-9]/g, '');
+			if(v === '') { cashflowEl.value = neg ? '-' : ''; return; }
+			const core = formatDigitsToThousand(v);
+			cashflowEl.value = (neg?'-':'') + core;
+			requestAnimationFrame(()=>{ cashflowEl.selectionStart = cashflowEl.selectionEnd = cashflowEl.value.length; });
+		});
+		cashflowEl?.addEventListener('blur', () => {
+			const raw = cashflowEl.value.trim(); if(raw === '') return;
+			const neg = raw.startsWith('-');
+			const numeric = window.parseFormattedNumber ? window.parseFormattedNumber(raw) : (parseFloat(raw)||0);
+			if(!numeric){ cashflowEl.value = ''; return; }
+			const core = formatDigitsToThousand(String(Math.abs(numeric)));
+			cashflowEl.value = (neg?'-':'') + core;
+		});
 
 		addBtn?.addEventListener('click', add);
 		[nameEl, priceEl, cashflowEl].forEach(el => el?.addEventListener('keydown', (e)=>{
