@@ -85,6 +85,19 @@
   if(manual){ manual.value=''; }
   }
 
+  function loseHalf(){
+    const current = runningBalance;
+    if(current === 0) return;
+    const loss = -Math.floor(Math.abs(current) * 0.5) * Math.sign(current);
+    // Only meaningful if there is positive cash to lose; for negative balances, treat as no-op
+    if(current > 0){
+      const lossAbs = Math.abs(loss);
+      const proceed = window.confirm(`Du verlierst 50% deines aktuellen Bargelds (${formatCurrency(lossAbs)}). Fortfahren?`);
+      if(!proceed) return;
+      addLog(-lossAbs, '50% Bargeldverlust');
+    }
+  }
+
   function readBaseCashflow(){
     const stored = sessionStorage.getItem('freedomBaseCashflow');
     const val = stored ? parseInt(stored,10) : 0;
@@ -98,7 +111,7 @@
     updateDisplay();
     document.getElementById('btn-add-cashflow')?.addEventListener('click', applyMonthlyCashflow);
     document.getElementById('btn-donate')?.addEventListener('click', donate);
-    document.getElementById('btn-reset')?.addEventListener('click', resetAll);
+  document.getElementById('btn-lose-half')?.addEventListener('click', loseHalf);
     document.getElementById('btn-return')?.addEventListener('click', () => {
       try { localStorage.removeItem('freedomInvestments'); } catch(e) {}
       window.location.href='index.html';
