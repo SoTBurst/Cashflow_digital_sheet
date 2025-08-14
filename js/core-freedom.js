@@ -16,6 +16,21 @@
     if(cfEl){ cfEl.textContent = formatCurrency(baseMonthlyCashflow); }
   const goalEl = document.getElementById('freedom-goal-target');
   if(goalEl){ goalEl.textContent = formatCurrency(goalTarget); }
+    updateGoalProgressUI();
+  }
+
+  function updateGoalProgressUI(){
+    const startEl = document.getElementById('goal-start-label');
+    const targetEl = document.getElementById('goal-target-label');
+    const pctEl = document.getElementById('goal-progress-percent');
+    const fill = document.getElementById('goal-progress-fill');
+    if(startEl) startEl.textContent = formatCurrency(startMonthlyCashflow);
+    if(targetEl) targetEl.textContent = formatCurrency(goalTarget);
+    const span = Math.max(1, goalTarget - startMonthlyCashflow);
+    const progress = Math.max(0, Math.min(1, (baseMonthlyCashflow - startMonthlyCashflow) / span));
+    const pct = Math.round(progress * 100);
+    if(pctEl) pctEl.textContent = pct + '%';
+    if(fill){ fill.style.width = pct + '%'; fill.parentElement?.setAttribute('aria-valuenow', String(pct)); }
   }
 
   function addLog(amount, label){
@@ -164,7 +179,11 @@
           if(s) s.textContent = formatCurrency(startMonthlyCashflow);
           if(t) t.textContent = formatCurrency(goalTarget);
           if(c) c.textContent = formatCurrency(baseMonthlyCashflow);
-          if(gp) gp.style.display = 'flex';
+          if(gp){
+            gp.style.display = 'flex';
+            // Simple fireworks: reuse CSS animations by toggling class if present
+            gp.classList.add('show-fireworks');
+          }
         } catch(e) {}
         goalShown = true;
       }
