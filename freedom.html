@@ -79,11 +79,12 @@
 						<th>Investition</th>
 						<th>Preis</th>
 						<th>Cashflow</th>
+						<th>Aktion</th>
 					</tr>
 				</thead>
 				<tbody id="investments-body">
 					<tr class="dummy-row">
-						<td colspan="3" style="opacity:.7; text-align:center; padding: .9rem;">Noch keine Einträge</td>
+						<td colspan="4" style="opacity:.7; text-align:center; padding: .9rem;">Noch keine Einträge</td>
 					</tr>
 				</tbody>
 			</table>
@@ -135,10 +136,10 @@
 				tbody.appendChild(tr);
 				return;
 			}
-			arr.forEach(({name, price, cashflow}) => tbody.appendChild(makeRow(name, price, cashflow)));
+			arr.forEach(({name, price, cashflow}, index) => tbody.appendChild(makeRow(name, price, cashflow, index)));
 		}
 
-		function makeRow(name, price, cashflow){
+		function makeRow(name, price, cashflow, index){
 			const tr = document.createElement('tr');
 			const tdN = document.createElement('td'); tdN.textContent = name;
 			const tdP = document.createElement('td'); tdP.textContent = Number.isFinite(price)
@@ -147,7 +148,25 @@
 			const tdC = document.createElement('td'); tdC.textContent = Number.isFinite(cashflow)
 				? (window.formatCurrency ? window.formatCurrency(cashflow) : (cashflow.toLocaleString('de-DE') + ' €'))
 				: '—';
-			tr.append(tdN, tdP, tdC);
+			const tdA = document.createElement('td');
+			const loseBtn = document.createElement('button');
+			loseBtn.textContent = 'Verlieren';
+			loseBtn.className = 'job-loss-btn';
+			loseBtn.title = 'Investition verlieren (Cashflow reduziert)';
+			loseBtn.addEventListener('click', () => {
+				const arr = getData();
+				const item = arr[index];
+				if(!item) return;
+				const cf = Number(item.cashflow)||0;
+				const proceed = window.confirm(`Diese Investition verlieren? Der Cashflow reduziert sich um ${window.formatCurrency ? window.formatCurrency(cf) : (cf.toLocaleString('de-DE') + ' €')}`);
+				if(!proceed) return;
+				if(window.FreedomAPI && cf){ window.FreedomAPI.adjustMonthlyCashflow(-cf); }
+				arr.splice(index,1);
+				save(arr);
+				render(arr);
+			});
+			tdA.appendChild(loseBtn);
+			tr.append(tdN, tdP, tdC, tdA);
 			return tr;
 		}
 

@@ -77,7 +77,10 @@
     document.getElementById('btn-add-cashflow')?.addEventListener('click', applyMonthlyCashflow);
     document.getElementById('btn-donate')?.addEventListener('click', donate);
     document.getElementById('btn-reset')?.addEventListener('click', resetAll);
-    document.getElementById('btn-return')?.addEventListener('click', () => { window.location.href='index.html'; });
+    document.getElementById('btn-return')?.addEventListener('click', () => {
+      try { localStorage.removeItem('freedomInvestments'); } catch(e) {}
+      window.location.href='index.html';
+    });
     const manual = document.getElementById('manual-entry');
     if(manual){
       // Reformat on blur
