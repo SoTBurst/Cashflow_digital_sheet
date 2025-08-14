@@ -170,6 +170,16 @@ function showCongratulationsPopup(passiveIncome, totalExpenses) {
   
   // Play celebration sound
   playCelebrationSound();
+
+  // Optional auto-forward after some seconds (user can still click manually sooner)
+  if (!popup.dataset.autoForwardSet) {
+    popup.dataset.autoForwardSet = 'true';
+    setTimeout(() => {
+      if (popup.style.display === 'flex') {
+        goToFreedomMode();
+      }
+    }, 6000);
+  }
 }
 
 // Function to hide congratulations popup
@@ -189,10 +199,17 @@ function resetCongratulationsFlag() {
 // Setup event listeners for congratulations popup
 function setupCongratulationsPopup() {
   const closeBtn = document.getElementById('congratulations-close');
+  const continueBtn = document.getElementById('congratulations-continue');
   const popup = document.getElementById('congratulations-popup');
   
   if (closeBtn) {
     closeBtn.addEventListener('click', hideCongratulationsPopup);
+  }
+  if (continueBtn) {
+    continueBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      goToFreedomMode();
+    });
   }
   
   // Allow clicking outside popup to close it
@@ -212,6 +229,25 @@ function setupCongratulationsPopup() {
   });
 }
 
+function goToFreedomMode() {
+  // Ensure popup hidden first
+  hideCongratulationsPopup();
+  // Redirect to simplified freedom mode page
+  try {
+    // Passives Einkommen auf Index-Seite auslesen (Anzeige enthält Währung)
+    const passiveEl = document.getElementById('sum-passive');
+    if (passiveEl) {
+      const raw = passiveEl.textContent || '0';
+      const passive = window.parseFormattedNumber ? (window.parseFormattedNumber(raw) || 0) : parseFloat(raw.replace(/[^0-9]/g,'')) || 0;
+      // Auf nächsten 1000er aufrunden und *100
+      let base = Math.ceil(Math.max(passive, 0) / 1000) * 1000;
+      base = base * 100; // Skalierung wie gefordert
+      sessionStorage.setItem('freedomBaseCashflow', String(base));
+    }
+  } catch(e) { /* ignore */ }
+  window.location.href = 'freedom.html';
+}
+
 // Initialize congratulations functionality when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   setupCongratulationsPopup();
@@ -223,4 +259,5 @@ window.CongratulationsPopup = {
   showCongratulationsPopup,
   hideCongratulationsPopup,
   resetCongratulationsFlag
+  , goToFreedomMode
 };

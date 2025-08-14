@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<title>Finanzielle Freiheit – Bargeldkonto</title>
+	<link rel="stylesheet" href="styles.css">
+	<style>
+		body { padding: 1rem; }
+		.freedom-mode-badge { background: var(--primary); color:#fff; padding:4px 8px; border-radius:4px; font-size:.8rem; margin-left:.5rem; }
+		.container { max-width: 1200px; margin: 0 auto; }
+		/* Two-column layout on larger screens, stack on small */
+		.sheet { flex: 1 1 48%; min-width: 320px; }
+		.sheet-header { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+		.sheet-header h2 { margin:0; display:flex; align-items:center; gap:.5rem; }
+		#btn-return { margin-left:auto; }
+		.cashflow-line { font-size:.9rem; margin:.25rem 0 1rem; }
+		.cashflow-line strong { color: var(--primary); }
+		.info-box { background: var(--bg-accent, rgba(0,0,0,.05)); padding: .75rem 1rem; border-radius: 8px; margin-bottom: 1rem; line-height:1.4; }
+		.balance-container { gap:.5rem; flex-wrap: wrap; }
+		#entries { max-height: 65vh; overflow-y:auto; }
+		.return-btn { background: var(--secondary); }
+
+		/* Investments table styles */
+		.investments-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+		.investments-table th, .investments-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); font-size: .9rem; }
+		.investments-table thead th { background: var(--secondary); color: var(--surface); text-align: left; }
+		.investments-table tbody tr:last-child td { border-bottom: none; }
+		.investments-table td:nth-child(2), .investments-table td:nth-child(3) { text-align: right; white-space: nowrap; }
+
+		/* Add-entry row */
+		.investment-add-row { display: grid; grid-template-columns: 1fr 140px 160px auto; gap: .5rem; margin: 0 0 .75rem; align-items: center; }
+		.investment-add-row input { width: 100%; }
+
+		/* Goal progress bar styling */
+		.progress-bar #goal-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--primary)); transition: width 0.6s ease; }
+
+		@media (max-width: 900px) {
+			.sheet { flex: 1 1 100%; }
+			.investment-add-row { grid-template-columns: 1fr; }
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="sheet bargeldkonto">
+					<div class="sheet-header">
+						<h2>Bargeldkonto <span class="freedom-mode-badge">Freiheit Modus</span></h2>
+						<button id="btn-return" class="return-btn add-cashflow-btn" title="Zur Hauptseite zurückkehren">Zurück zur Übersicht</button>
+					</div>
+			<div class="cashflow-line" aria-live="polite">
+				Monatlicher Cashflow: <strong id="freedom-mode-cashflow">0 €</strong>
+			</div>
+			<div class="info-box">
+				Glückwunsch! Du bist jetzt finanziell frei. Dieser vereinfachte Modus zeigt nur dein Bargeldkonto. 
+				Füge nach Belieben weitere Cashflow‑Einträge hinzu oder simuliere Ausgaben/Einnahmen. Der Kontostand startet hier bei 0 € neu.
+			</div>
+			<div class="freedom-progress" aria-label="Ziel-Fortschritt">
+				<div class="freedom-header">
+					<span>Cashflow‑Ziel</span>
+					<span id="goal-progress-percent">0%</span>
+				</div>
+				<div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+					<div id="goal-progress-fill"></div>
+				</div>
+				<div class="freedom-stats">
+					<span>Start: <strong id="goal-start-label">0 €</strong></span>
+					<span>Ziel: <strong id="goal-target-label">0 €</strong></span>
+				</div>
+			</div>
+			<div class="balance-container">
+				<button id="btn-add-cashflow" class="add-cashflow-btn" title="Einen Monat Cashflow verbuchen">Add Cashflow</button>
+				<button id="btn-donate" class="add-cashflow-btn" title="10% vom monatlichen Cashflow spenden">Spenden (10%)</button>
+				<button id="btn-lose-half" class="add-cashflow-btn" title="50% des aktuellen Bargelds verlieren">50% verlieren</button>
+				<div class="balance">Aktueller Kontostand: <span id="current-balance">+0</span> €</div>
+			</div>
+			<div style="margin:.5rem 0 1rem;">
+				<label for="manual-entry" style="display:block; font-size:.8rem; opacity:.8;">Manueller Eintrag (Enter zum Verbuchen, negative Werte für Ausgaben):</label>
+				<input id="manual-entry" type="text" placeholder="€" style="max-width:220px;">
+			</div>
+			<ul id="entries"></ul>
+		</div>
+		<!-- Second column: Investments table -->
+		<div class="sheet investments">
+			<div class="sheet-header">
+				<h2>Investitionen</h2>
+			</div>
+			<div class="investment-add-row" aria-label="Neue Investition hinzufügen">
+				<input id="inv-name" type="text" placeholder="Name der Investition">
+				<input id="inv-price" type="text" inputmode="numeric" placeholder="Preis (€)">
+				<input id="inv-cashflow" type="text" inputmode="numeric" placeholder="Cashflow/Monat (€)">
+				<button id="inv-add-btn" class="add-cashflow-btn" title="Eintrag hinzufügen">Hinzufügen</button>
+			</div>
+			<table class="investments-table" aria-label="Investitionsübersicht">
+				<thead>
+					<tr>
+						<th>Investition</th>
+						<th>Preis</th>
+						<th>Cashflow</th>
+						<th>Aktion</th>
+					</tr>
+				</thead>
+				<tbody id="investments-body">
+					<tr class="dummy-row">
+						<td colspan="4" style="opacity:.7; text-align:center; padding: .9rem;">Noch keine Einträge</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Goal Reached Popup (Freedom Mode) -->
+	<div id="goal-congrats-popup" class="popup-overlay" style="display:none;">
+		<div class="popup-content" role="dialog" aria-modal="true" aria-labelledby="goal-congrats-title">
+			<h2 id="goal-congrats-title" class="congratulations-title">🏁 Ziel erreicht!</h2>
+			<p class="congratulations-message">Du hast deinen Cashflow im Freiheit‑Modus um 50.000 € erhöht.</p>
+			<div class="achievement-stats">
+				<div class="stat-row"><span>Start‑Cashflow:</span> <span class="stat-value" id="goal-start-cf">0 €</span></div>
+				<div class="stat-row"><span>Ziel:</span> <span class="stat-value" id="goal-target-cf">0 €</span></div>
+				<div class="stat-row"><span>Aktuell:</span> <span class="stat-value" id="goal-current-cf">0 €</span></div>
+			</div>
+			<button id="goal-congrats-close">Schließen</button>
+		</div>
+	</div>
+
+	<script src="js/ui-utils.js"></script>
+	<script src="js/core-freedom.js"></script>
+	<script>
+	(function(){
+		const LS_KEY = 'freedomInvestments';
+		const nameEl = document.getElementById('inv-name');
+		const priceEl = document.getElementById('inv-price');
+		const cashflowEl = document.getElementById('inv-cashflow');
+		const addBtn = document.getElementById('inv-add-btn');
+		const tbody = document.getElementById('investments-body');
+
+		// use util formatters if available
+
+		function load(){
+			try {
+				const raw = localStorage.getItem(LS_KEY);
+				const arr = raw ? JSON.parse(raw) : [];
+				render(arr);
+			} catch(e){ /* ignore */ }
+		}
+
+		function save(arr){
+			try { localStorage.setItem(LS_KEY, JSON.stringify(arr)); } catch(e){ /* ignore */ }
+		}
+
+		function getData(){
+			try {
+				const raw = localStorage.getItem(LS_KEY);
+				return raw ? JSON.parse(raw) : [];
+			} catch(e){ return []; }
+		}
+
+		function render(arr){
+			// clear
+			tbody.innerHTML = '';
+			if(!arr.length){
+				const tr = document.createElement('tr');
+				tr.className = 'dummy-row';
+				const td = document.createElement('td');
+				td.colSpan = 3; td.style.opacity = '.7'; td.style.textAlign = 'center'; td.style.padding = '.9rem';
+				td.textContent = 'Noch keine Einträge';
+				tr.appendChild(td);
+				tbody.appendChild(tr);
+				return;
+			}
+			arr.forEach(({name, price, cashflow}, index) => tbody.appendChild(makeRow(name, price, cashflow, index)));
+		}
+
+		function makeRow(name, price, cashflow, index){
+			const tr = document.createElement('tr');
+			const tdN = document.createElement('td'); tdN.textContent = name;
+			const tdP = document.createElement('td'); tdP.textContent = Number.isFinite(price)
+				? (window.formatCurrency ? window.formatCurrency(price) : (price.toLocaleString('de-DE') + ' €'))
+				: '—';
+			const tdC = document.createElement('td'); tdC.textContent = Number.isFinite(cashflow)
+				? (window.formatCurrency ? window.formatCurrency(cashflow) : (cashflow.toLocaleString('de-DE') + ' €'))
+				: '—';
+			const tdA = document.createElement('td');
+			const loseBtn = document.createElement('button');
+			loseBtn.textContent = 'Verlieren';
+			loseBtn.className = 'job-loss-btn';
+			loseBtn.title = 'Investition verlieren (Cashflow reduziert)';
+			loseBtn.addEventListener('click', () => {
+				const arr = getData();
+				const item = arr[index];
+				if(!item) return;
+				const cf = Number(item.cashflow)||0;
+				const proceed = window.confirm(`Diese Investition verlieren? Der Cashflow reduziert sich um ${window.formatCurrency ? window.formatCurrency(cf) : (cf.toLocaleString('de-DE') + ' €')}`);
+				if(!proceed) return;
+				if(window.FreedomAPI && cf){ window.FreedomAPI.adjustMonthlyCashflow(-cf); }
+				arr.splice(index,1);
+				save(arr);
+				render(arr);
+			});
+			tdA.appendChild(loseBtn);
+			tr.append(tdN, tdP, tdC, tdA);
+			return tr;
+		}
+
+		function add(){
+			const name = (nameEl.value || '').trim();
+			const price = priceEl.value.trim() === '' ? NaN : (window.parseFormattedNumber ? window.parseFormattedNumber(priceEl.value) : (parseFloat(priceEl.value)||0));
+			const cashflow = cashflowEl.value.trim() === '' ? NaN : (window.parseFormattedNumber ? window.parseFormattedNumber(cashflowEl.value) : (parseFloat(cashflowEl.value)||0));
+
+			if(!name){ nameEl.focus(); return; }
+			// Warnings similar to manual entry: price should end with 0000, cashflow with 000
+			const absPrice = Math.abs(price||0);
+			const absCash = Math.abs(cashflow||0);
+			if(absPrice && absPrice % 10000 !== 0){
+				const proceed = window.confirm('Der Preis endet nicht mit 0000. Vermutlich Tippfehler. Trotzdem hinzufügen?');
+				if(!proceed) return;
+			}
+			if(absCash && absCash % 1000 !== 0){
+				const proceed = window.confirm('Der Cashflow endet nicht mit 000. Vermutlich Tippfehler. Trotzdem hinzufügen?');
+				if(!proceed) return;
+			}
+			const arr = getData();
+			arr.push({ name, price: isNaN(price)?0:Math.max(0, price), cashflow: isNaN(cashflow)?0:cashflow });
+			save(arr);
+			render(arr);
+
+			// Apply financial effects in freedom mode: deduct price from balance, add cashflow to monthly base
+			if(window.FreedomAPI){
+				if(!isNaN(price) && price > 0){
+					const bal = window.FreedomAPI.getBalance ? window.FreedomAPI.getBalance() : 0;
+					const wouldBe = bal - Math.round(price);
+					if(bal >= 0 && wouldBe < 0){
+						const proceed = window.confirm('Dieser Kauf würde deinen Kontostand negativ machen. Trotzdem kaufen?');
+						if(!proceed) return; // abort entire add
+					}
+					window.FreedomAPI.addLog(-Math.round(price), `Kauf ${name}`);
+				}
+				if(!isNaN(cashflow) && cashflow !== 0){ window.FreedomAPI.adjustMonthlyCashflow(cashflow); }
+			}
+			// reset inputs
+			nameEl.value=''; priceEl.value=''; cashflowEl.value='';
+			nameEl.focus();
+		}
+
+		// Input formatting (thousand separators) like manual entries
+		function formatDigitsToThousand(v){
+			const n = parseInt(v, 10);
+			return isNaN(n) ? '' : (window.formatNumber ? window.formatNumber(n) : n.toLocaleString('de-DE'));
+		}
+
+		priceEl?.addEventListener('input', () => {
+			const prev = priceEl.selectionStart;
+			let v = priceEl.value;
+			v = v.replace(/[^0-9]/g, '');
+			if(v === '') { priceEl.value = ''; return; }
+			priceEl.value = formatDigitsToThousand(v);
+			requestAnimationFrame(()=>{ priceEl.selectionStart = priceEl.selectionEnd = priceEl.value.length; });
+		});
+		priceEl?.addEventListener('blur', () => {
+			const raw = priceEl.value.trim(); if(raw === '') return;
+			const numeric = window.parseFormattedNumber ? window.parseFormattedNumber(raw) : (parseFloat(raw)||0);
+			if(!numeric){ priceEl.value = ''; return; }
+			priceEl.value = formatDigitsToThousand(String(numeric));
+		});
+
+		cashflowEl?.addEventListener('input', () => {
+			const prev = cashflowEl.selectionStart;
+			let v = cashflowEl.value;
+			const neg = v.startsWith('-');
+			v = v.replace(/[^0-9]/g, '');
+			if(v === '') { cashflowEl.value = neg ? '-' : ''; return; }
+			const core = formatDigitsToThousand(v);
+			cashflowEl.value = (neg?'-':'') + core;
+			requestAnimationFrame(()=>{ cashflowEl.selectionStart = cashflowEl.selectionEnd = cashflowEl.value.length; });
+		});
+		cashflowEl?.addEventListener('blur', () => {
+			const raw = cashflowEl.value.trim(); if(raw === '') return;
+			const neg = raw.startsWith('-');
+			const numeric = window.parseFormattedNumber ? window.parseFormattedNumber(raw) : (parseFloat(raw)||0);
+			if(!numeric){ cashflowEl.value = ''; return; }
+			const core = formatDigitsToThousand(String(Math.abs(numeric)));
+			cashflowEl.value = (neg?'-':'') + core;
+		});
+
+		addBtn?.addEventListener('click', add);
+		[nameEl, priceEl, cashflowEl].forEach(el => el?.addEventListener('keydown', (e)=>{
+			if(e.key === 'Enter') { e.preventDefault(); add(); }
+		}));
+
+		// init
+		load();
+	})();
+	</script>
+</body>
+</html>
+

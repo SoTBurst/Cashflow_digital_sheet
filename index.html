@@ -28,6 +28,7 @@
         <option value="polizist">👮 Polizist</option>
         <option value="sekretaer">🗂️ Sekretär</option>
       </select>
+  <button id="theme-toggle" class="theme-toggle" aria-label="Theme umschalten" title="Hell/Dunkel umschalten">🌙</button>
     </div>
   </div>  
   
@@ -346,6 +347,11 @@
           <input id="input-expenses-autoloan" type="text" readonly>
           <div class="label">Kreditkarten‑Zahlung:</div>
           <input id="input-expenses-cc" type="text" readonly>
+          <div class="label">Kinder:</div>
+          <div class="children-control">
+            <input id="input-children-count" type="number" min="0" value="0" aria-label="Kinder Anzahl">
+            <input id="input-expenses-children" type="text" readonly aria-label="Kinder Kosten">
+          </div>
           <div class="label">Bankkredit‑Zahlung:</div>
           <input id="input-expenses-bank" type="text" readonly>
         </div>
@@ -425,9 +431,26 @@
         <label>Gesamte Ausgaben:<span id="sum-total-expenses">0 €</span></label>
         <label>Cashflow:<span id="sum-cashflow">0 €</span></label>
       </div>
+      <div class="freedom-progress" aria-label="Fortschritt finanzielle Freiheit">
+        <div class="freedom-header">
+          <span>Finanzielle Freiheit</span>
+          <span id="freedom-percent">0%</span>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div id="freedom-bar"></div>
+        </div>
+        <div class="freedom-stats">
+          <span>Passiv: <strong id="freedom-passive">0 €</strong></span>
+          <span>Ausgaben: <strong id="freedom-expenses">0 €</strong></span>
+        </div>
+      </div>
       <div class="balance-container">
-        <div class="balance">Aktueller Kontostand: <span id="current-balance">0</span> €</div>
-        <button id="btn-add-cashflow" class="add-cashflow-btn">Add Cashflow</button>      </div>
+  <button id="btn-job-loss" class="job-loss-btn" title="Einmal alle aktuellen Ausgaben verlieren">Job verloren</button>
+  <button id="btn-donate" class="add-cashflow-btn" title="10% vom Gesamteinkommen spenden">Spenden</button>
+  <div class="balance">Aktueller Kontostand: <span id="current-balance">0</span> €</div>
+  <button id="btn-add-cashflow" class="add-cashflow-btn">Add Cashflow</button>
+  <button id="btn-multi-lvl" class="multi-lvl-btn" title="+500 € Bonus erhalten">Multi Lvl</button>
+      </div>
       <ul id="entries"></ul>
     </div>  </div>
 
@@ -455,7 +478,10 @@
       <p class="congratulations-message">
         Du kannst jetzt von deinen passiven Einkünften leben, ohne arbeiten zu müssen!
       </p>
-      <button id="congratulations-close">Schließen</button>
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+        <button id="congratulations-close">Schließen</button>
+        <button id="congratulations-continue" class="add-cashflow-btn" title="Zum Freiheit Modus wechseln">Weiter ➜</button>
+      </div>
     </div>
   </div>
   <!-- Load JavaScript modules -->
@@ -468,6 +494,7 @@
   <script src="js/property.js"></script>
   <script src="js/ui-utils.js"></script>
   <script src="js/congratulations.js"></script>
+  <div id="toast-container" aria-live="polite" aria-atomic="true"></div>
 </body>
 
 </html>

@@ -1,18 +1,18 @@
 // Core functionality for Cashflow AI
 const profilesData = {
-  "debug-anwalt": { bal: [50000, 100000], inc: 7500, exp: 5100, ob: [[115000, 1100], [78000, 300], [11000, 200], [7000, 200], [0, 0]], taxes: 3300 },
-  anwalt: { bal: [2000, 2400], inc: 7500, exp: 5100, ob: [[115000, 1100], [78000, 300], [11000, 200], [7000, 200], [0, 0]], taxes: 3300 },
-  arzt: { bal: [3500, 4900], inc: 13200, exp: 8300, ob: [[202000, 1900], [150000, 700], [19000, 300], [10000, 200], [0, 0]], taxes: 5700 },
-  hausmeister: { bal: [600, 600], inc: 1600, exp: 1000, ob: [[20000, 200], [0, 0], [4000, 100], [3000, 100], [0, 0]], taxes: 600 },
-  ingenieur: { bal: [400, 1700], inc: 4900, exp: 3200, ob: [[75000, 700], [12000, 100], [7000, 200], [5000, 200], [0, 0]], taxes: 2000 },
-  krankenschwester: { bal: [500, 1100], inc: 3100, exp: 2000, ob: [[47000, 400], [6000, 100], [5000, 100], [4000, 200], [0, 0]], taxes: 1200 },
-  lehrer: { bal: [400, 1200], inc: 3300, exp: 2100, ob: [[50000, 500], [12000, 100], [5000, 100], [4000, 200], [0, 0]], taxes: 1200 },
-  "lkw-fahrer": { bal: [800, 800], inc: 2500, exp: 1700, ob: [[38000, 400], [0, 0], [4000, 100], [3000, 100], [0, 0]], taxes: 1100 },
-  manager: { bal: [400, 1600], inc: 4600, exp: 3000, ob: [[75000, 700], [12000, 100], [6000, 100], [4000, 200], [0, 0]], taxes: 1900 },
-  mechaniker: { bal: [700, 700], inc: 2000, exp: 1300, ob: [[31000, 300], [0, 0], [3000, 100], [3000, 100], [0, 0]], taxes: 900 },
-  pilot: { bal: [2500, 3500], inc: 9500, exp: 6000, ob: [[90000, 1000], [0, 0], [15000, 300], [22000, 700], [0, 0]], taxes: 4000 },
-  polizist: { bal: [500, 1100], inc: 3000, exp: 1900, ob: [[46000, 400], [0, 0], [5000, 100], [3000, 100], [0, 0]], taxes: 300 },
-  sekretaer: { bal: [700, 800], inc: 2500, exp: 1700, ob: [[38000, 400], [0, 0], [4000, 100], [3000, 100], [0, 0]], taxes: 100 }
+  "debug-anwalt": { bal: [50000, 100000], inc: 7500, exp: 5100, ob: [[115000, 1100], [78000, 300], [11000, 200], [7000, 200], [0, 0]], taxes: 3300, childCost:400},
+  anwalt: { bal: [2000, 2400], inc: 7500, exp: 5100, ob: [[115000, 1100], [78000, 300], [11000, 200], [7000, 200], [0, 0]], taxes: 3300, childCost:400},
+  arzt: { bal: [3500, 4900], inc: 13200, exp: 8300, ob: [[202000, 1900], [150000, 700], [19000, 300], [10000, 200], [0, 0]], taxes: 5700, childCost:700},
+  hausmeister: { bal: [600, 600], inc: 1600, exp: 1000, ob: [[20000, 200], [0, 0], [4000, 100], [3000, 100], [0, 0]], taxes: 600, childCost:100},
+  ingenieur: { bal: [400, 1700], inc: 4900, exp: 3200, ob: [[75000, 700], [12000, 100], [7000, 200], [5000, 200], [0, 0]], taxes: 2000, childCost:200},
+  krankenschwester: { bal: [500, 1100], inc: 3100, exp: 2000, ob: [[47000, 400], [6000, 100], [5000, 100], [4000, 200], [0, 0]], taxes: 1200, childCost:200},
+  lehrer: { bal: [400, 1200], inc: 3300, exp: 2100, ob: [[50000, 500], [12000, 100], [5000, 100], [4000, 200], [0, 0]], taxes: 1200, childCost:200},
+  "lkw-fahrer": { bal: [800, 800], inc: 2500, exp: 1700, ob: [[38000, 400], [0, 0], [4000, 100], [3000, 100], [0, 0]], taxes: 1100, childCost:200},
+  manager: { bal: [400, 1600], inc: 4600, exp: 3000, ob: [[75000, 700], [12000, 100], [6000, 100], [4000, 200], [0, 0]], taxes: 1900, childCost:300},
+  mechaniker: { bal: [700, 700], inc: 2000, exp: 1300, ob: [[31000, 300], [0, 0], [3000, 100], [3000, 100], [0, 0]], taxes: 900, childCost:100},
+  pilot: { bal: [2500, 3500], inc: 9500, exp: 6000, ob: [[90000, 1000], [0, 0], [15000, 300], [22000, 700], [0, 0]], taxes: 4000, childCost:400},
+  polizist: { bal: [500, 1100], inc: 3000, exp: 1900, ob: [[46000, 400], [0, 0], [5000, 100], [3000, 100], [0, 0]], taxes: 300, childCost:200},
+  sekretaer: { bal: [700, 800], inc: 2500, exp: 1700, ob: [[38000, 400], [0, 0], [4000, 100], [3000, 100], [0, 0]], taxes: 500, childCost:100 }
 };
 
 let balanceArray = [], baseIncome = 0, baseExpenses = 0, obligations = [];
@@ -104,7 +104,7 @@ function finalizeEntry(inp) {
   sumInp.type = 'text';
   sumInp.readOnly = true;  // Vorzeichen für Kontostand hinzufügen mit Tausendertrennzeichen
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
 
   // Rote Farbe für negative Kontostände
   if (runningBalance < 0) {
@@ -148,11 +148,31 @@ function updateSummary() {
     (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
     (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
     (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
-    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
+    (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0) +
+    (window.parseFormattedNumber(document.getElementById('input-expenses-children').value) || 0);  
+    
+  document.getElementById('sum-salary').textContent = window.formatCurrency(salary);
   document.getElementById('sum-passive').textContent = window.formatCurrency(passive);
   document.getElementById('sum-total-income').textContent = window.formatCurrency(totalInc);
   document.getElementById('sum-total-expenses').textContent = window.formatCurrency(totalExp);
-  document.getElementById('sum-cashflow').textContent = window.formatCurrency(totalInc - totalExp);
+  const cashflowVal = totalInc - totalExp;
+  const cashflowEl = document.getElementById('sum-cashflow');
+  cashflowEl.textContent = window.formatCurrencyWithSign(cashflowVal);
+  cashflowEl.style.color = cashflowVal < 0 ? 'var(--danger)' : (cashflowVal > 0 ? 'var(--primary)' : 'inherit');
+
+  // Update financial freedom progress UI
+  const bar = document.getElementById('freedom-bar');
+  const percentEl = document.getElementById('freedom-percent');
+  const passiveEl = document.getElementById('freedom-passive');
+  const expEl = document.getElementById('freedom-expenses');
+  if (bar && percentEl) {
+    const ratio = totalExp > 0 ? Math.min(1, passive / totalExp) : (passive > 0 ? 1 : 0);
+    const pct = Math.round(ratio * 100);
+    bar.style.width = pct + '%';
+    percentEl.textContent = pct + '%';
+    if (passiveEl) passiveEl.textContent = window.formatCurrency(passive);
+    if (expEl) expEl.textContent = window.formatCurrency(totalExp);
+  }
   
   // Check for financial freedom achievement
   if (typeof window.CongratulationsPopup !== 'undefined') {
@@ -180,6 +200,65 @@ function setupPayButtons() {
 
 function setupAddCashflowButton() {
   const btn = document.getElementById('btn-add-cashflow');
+  const donateBtn = document.getElementById('btn-donate');
+  const jobLossBtn = document.getElementById('btn-job-loss');
+  const multiLvlBtn = document.getElementById('btn-multi-lvl');
+  if (multiLvlBtn) {
+    multiLvlBtn.addEventListener('click', () => {
+      const gain = 500; // Flat Bonus
+      runningBalance += gain;
+      addMultiLvlEntry(gain);
+      updateDisplayBalance();
+      window.lastActionWasManualEntry = true;
+    });
+  }
+  if (jobLossBtn) {
+    jobLossBtn.addEventListener('click', () => {
+      // Gesamtausgaben ermitteln (wie in updateSummary) ohne erneute Formatierung
+      const totalExp =
+        (window.parseFormattedNumber(document.getElementById('input-expenses-taxes').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-mortgage').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-children').value) || 0);
+      if (totalExp <= 0) {
+        alert('Keine Ausgaben vorhanden.');
+        return;
+      }
+      if (!confirm(`Einmaliger Verlust in Höhe Ihrer Gesamtausgaben ${window.formatCurrency(totalExp)} hinzufügen?`)) {
+        return;
+      }
+      runningBalance -= totalExp;
+      addJobLossEntry(totalExp);
+      updateDisplayBalance();
+      window.lastActionWasManualEntry = true;
+    });
+  }
+  if (donateBtn) {
+    donateBtn.addEventListener('click', () => {
+      // Gesamteinkommen holen (Gehalt + passives Einkommen)
+      const salary = baseIncome;
+      const passive = (window.parseFormattedNumber(document.getElementById('input-income-property').value) || 0) +
+                      (window.parseFormattedNumber(document.getElementById('input-income-business').value) || 0);
+      const totalIncome = salary + passive;
+      if (totalIncome <= 0) {
+        alert('Kein Einkommen verfügbar zum Spenden.');
+        return;
+      }
+      const donation = Math.round(totalIncome * 0.10);
+      if (runningBalance < donation) {
+        if (!confirm(`Nicht genug Kontostand (${window.formatCurrency(runningBalance)}). Trotzdem ${window.formatCurrency(donation)} spenden (Kontostand wird negativ)?`)) {
+          return;
+        }
+      }
+      runningBalance -= donation;
+      addDonationEntry(donation);
+      updateDisplayBalance();
+      window.lastActionWasManualEntry = true;
+    });
+  }
   if (btn) {
     btn.addEventListener('click', () => {
       // Calculate current cashflow
@@ -193,7 +272,8 @@ function setupAddCashflowButton() {
         (window.parseFormattedNumber(document.getElementById('input-expenses-bafog').value) || 0) +
         (window.parseFormattedNumber(document.getElementById('input-expenses-autoloan').value) || 0) +
         (window.parseFormattedNumber(document.getElementById('input-expenses-cc').value) || 0) +
-        (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0);
+        (window.parseFormattedNumber(document.getElementById('input-expenses-bank').value) || 0) +
+        (window.parseFormattedNumber(document.getElementById('input-expenses-children').value) || 0);
       
       const cashflow = totalInc - totalExp;
       
@@ -273,7 +353,7 @@ function addLiabilityPaymentToEntries(type, amount) {
   sumInp.type = 'text';
   sumInp.readOnly = true;
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
 
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
@@ -330,7 +410,7 @@ function addCashflowToEntries(cashflow) {
   sumInp.type = 'text';
   sumInp.readOnly = true;
   sumInp.value = window.formatNumberWithSign(runningBalance);
-  sumInp.style.background = '#eee';
+  sumInp.classList.add('balance-snapshot');
 
   if (runningBalance < 0) {
     sumInp.style.color = 'var(--danger)';
@@ -338,6 +418,111 @@ function addCashflowToEntries(cashflow) {
 
   sumLi.append(sumInp);
   // Kontostand-Eintrag vor dem Cashflow-Eintrag einfügen
+  li.before(sumLi);
+}
+
+function addDonationEntry(amount) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
+
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '-' + window.formatNumber(amount);
+  inp.style.color = 'var(--danger)';
+  inp.title = `Spende (10% des Gesamteinkommens)`;
+  inp.dataset.donation = 'true';
+  li.append(inp);
+
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
+  } else {
+    ul.prepend(li);
+  }
+
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(runningBalance);
+  sumInp.classList.add('balance-snapshot');
+  if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
+  sumLi.append(sumInp);
+  li.before(sumLi);
+}
+
+function addJobLossEntry(amount) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
+
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '-' + window.formatNumber(amount);
+  inp.style.color = 'var(--danger)';
+  inp.title = 'Einmaliger Verlust: Gesamtausgaben bei Jobverlust';
+  inp.dataset.jobLoss = 'true';
+  li.append(inp);
+
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
+  } else {
+    ul.prepend(li);
+  }
+
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(runningBalance);
+  sumInp.classList.add('balance-snapshot');
+  if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
+  sumLi.append(sumInp);
+  li.before(sumLi);
+}
+
+function addMultiLvlEntry(amount) {
+  const ul = document.getElementById('entries');
+  const entriesChildren = Array.from(ul.children);
+  const firstEntryIndex = 0;
+  const isFirstEntryEmpty = entriesChildren.length > 0 &&
+    entriesChildren[firstEntryIndex].querySelector('input').type === 'number';
+  const insertAfterElement = isFirstEntryEmpty ? entriesChildren[firstEntryIndex] : null;
+
+  const li = document.createElement('li');
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.readOnly = true;
+  inp.value = '+' + window.formatNumber(amount);
+  inp.style.color = 'var(--primary)';
+  inp.title = 'Multi Lvl Bonus';
+  inp.dataset.multiLvl = 'true';
+  li.append(inp);
+
+  if (insertAfterElement) {
+    insertAfterElement.after(li);
+  } else {
+    ul.prepend(li);
+  }
+
+  const sumLi = document.createElement('li');
+  const sumInp = document.createElement('input');
+  sumInp.type = 'text';
+  sumInp.readOnly = true;
+  sumInp.value = window.formatNumberWithSign(runningBalance);
+  sumInp.classList.add('balance-snapshot');
+  if (runningBalance < 0) sumInp.style.color = 'var(--danger)';
+  sumLi.append(sumInp);
   li.before(sumLi);
 }
 
@@ -376,10 +561,11 @@ function updatePayButtonStates() {
 
 function loadData(profile) {
   const data = profilesData[profile] || profilesData['anwalt'];
-  balanceArray = data.bal;
-  baseIncome = data.inc; 
-  baseExpenses = data.exp;
-  obligations = data.ob;  document.getElementById('input-income-salary').value = window.formatCurrency(baseIncome);
+  balanceArray = data.bal || [];
+  baseIncome = data.inc || 0; 
+  baseExpenses = data.exp || 0;
+  obligations = data.ob || [];
+  document.getElementById('input-income-salary').value = window.formatCurrency(baseIncome);
   document.getElementById('input-income-property').value = window.formatCurrency(0);
   document.getElementById('input-income-business').value = window.formatCurrency(0);
   document.getElementById('input-expenses-taxes').value = window.formatCurrency(data.taxes);
@@ -387,6 +573,19 @@ function loadData(profile) {
   document.getElementById('input-expenses-bafog').value = window.formatCurrency(obligations[1][1]);
   document.getElementById('input-expenses-autoloan').value = window.formatCurrency(obligations[2][1]);
   document.getElementById('input-expenses-cc').value = window.formatCurrency(obligations[3][1]);
+
+  currentChildCostRate = data.childCost || 0;
+  const childCountEl = document.getElementById('input-children-count');
+  const childCostEl  = document.getElementById('input-expenses-children');
+
+  if (childCountEl && childCostEl) {
+    // zurücksetzen + einmal berechnen
+    childCountEl.value = '0';
+    updateChildrenCost();
+
+    // Doppel-Listener vermeiden (optional vorher removeEventListener, hier simpel):
+    childCountEl.addEventListener('input', updateChildrenCost);
+  }
 
   // Bankkredit-Zinszahlung (10% der Schulden)
   const bankLoanAmount = obligations[4][0];
@@ -418,6 +617,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadData(sel.value);
   setupPayButtons();
   setupAddCashflowButton();
+  setupThemeToggle();
+  window.showToast = showToast;
   
   // Call setup functions from other modules if they exist
   if (typeof setupBankLoanButtons === 'function') {
@@ -449,3 +650,47 @@ window.CashflowCore = {
   initialBalance: () => initialBalance,
   updatePayButtonStates
 };
+
+let currentChildCostRate = 0;
+
+function updateChildrenCost() {
+  const countEl = document.getElementById('input-children-count');
+  const costEl  = document.getElementById('input-expenses-children');
+  if (!countEl || !costEl) return;
+
+  const n = parseInt(countEl.value, 10) || 0;
+  const total = n * (currentChildCostRate || 0);
+
+  costEl.value = window.formatCurrency(total);
+  // Kleines UX-Extra: Tooltip mit Rate
+  costEl.title = `Kosten je Kind: ${window.formatCurrency(currentChildCostRate)} × ${n}`;
+  updateSummary();
+}
+
+// THEME TOGGLE
+function setupThemeToggle() {
+  const btn = document.getElementById('theme-toggle');
+  if (!btn) return;
+  const saved = localStorage.getItem('cashflow-theme');
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark-theme');
+    btn.textContent = '☀️';
+  }
+  btn.addEventListener('click', () => {
+    const dark = document.documentElement.classList.toggle('dark-theme');
+    btn.textContent = dark ? '☀️' : '🌙';
+    localStorage.setItem('cashflow-theme', dark ? 'dark' : 'light');
+    showToast(dark ? 'Dark Mode aktiviert' : 'Light Mode aktiviert', 'success');
+  });
+}
+
+// TOASTS
+function showToast(message, type = '') {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => { el.style.pointerEvents = 'none'; el.remove(); }, 5000);
+}

@@ -9,6 +9,23 @@
   --text: #333333;
   --border: #dddddd;
   --danger: #e76f51;
+  --success: #2e7d32;
+  --shadow: 0 2px 8px rgba(0,0,0,0.1);
+  --shadow-strong: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.dark-theme {
+  --bg: #0f1418;
+  --surface: #1c242b;
+  --primary: #2a9d8f;
+  --secondary: #152026;
+  --accent: #d7b354;
+  --text: #e3e7ea;
+  --border: #2e3a42;
+  --danger: #ef5350;
+  --success: #4caf50;
+  --shadow: 0 2px 8px rgba(0,0,0,0.6);
+  --shadow-strong: 0 4px 16px rgba(0,0,0,0.7);
 }
 
 * {
@@ -36,8 +53,37 @@ input, select {
   border: 1px solid var(--border);
   border-radius: 4px;
   padding: 0.5rem;
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease, background-color 0.35s ease, color 0.35s ease;
   width: 100%;
+  background: var(--surface);
+  color: var(--text);
+}
+
+input[readonly] {
+  background: rgba(0,0,0,0.03);
+}
+
+.dark-theme input[readonly] {
+  background: rgba(255,255,255,0.04);
+}
+
+.dark-theme input, .dark-theme select {
+  background: #232b31;
+  color: var(--text);
+  border-color: var(--border);
+}
+
+/* Placeholder colors */
+input::placeholder { color: #888; opacity: 0.85; }
+.dark-theme input::placeholder { color: #9aa4ab; }
+
+/* Entries list inputs inherit themed background */
+#entries input {
+  background: var(--surface);
+}
+.dark-theme #entries input {
+  background: #1f272d;
+  color: var(--text);
 }
 
 input:focus, select:focus {
@@ -152,6 +198,20 @@ label {
   align-items: center;
 }
 
+/* Combined children count + cost row */
+.children-control {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+.children-control #input-children-count {
+  width: 70px;
+  flex: 0 0 auto;
+}
+.children-control #input-expenses-children {
+  flex: 1;
+}
+
 .asset-control {
   display: flex;
   gap: 0.3rem;
@@ -228,6 +288,7 @@ label {
 }
 
 .balance {
+  transition: background-color 0.4s ease, color 0.4s ease;
   font-weight: bold;
   text-align: center;
   font-size: 1.1rem;
@@ -250,6 +311,40 @@ label {
   color: #888888;
 }
 
+.job-loss-btn {
+  background-color: #b3261e;
+  color: var(--surface);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  border: 1px solid #901d17;
+}
+
+.job-loss-btn:hover:not(:disabled) {
+  background-color: #901d17;
+}
+
+.job-loss-btn:active {
+  background-color: #781611;
+}
+
+.multi-lvl-btn {
+  background-color: #374151;
+  color: var(--surface);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  border: 1px solid #1f2937;
+}
+
+.multi-lvl-btn:hover:not(:disabled) {
+  background-color: #1f2937;
+}
+
+.multi-lvl-btn:active {
+  background-color: #111827;
+}
+
 #entries li {
   display: flex;
   margin-bottom: 0.4rem;
@@ -264,6 +359,19 @@ label {
   font-size: 0.95rem;
 }
 
+/* Balance snapshot rows */
+input.balance-snapshot {
+  background: rgba(0,0,0,0.05);
+  font-weight: 600;
+}
+.dark-theme input.balance-snapshot {
+  background: #253037;
+  color: var(--text);
+}
+
+/* Dream label readable in dark */
+.dark-theme .dream-container label { color: var(--accent); }
+
 button {
   background-color: var(--primary);
   color: white;
@@ -272,27 +380,15 @@ button {
   padding: 0.4rem 0.6rem;
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.2s;
   font-size: 0.9rem;
+  box-shadow: var(--shadow);
+  transition: background-color 0.2s, box-shadow 0.3s;
 }
 
-button:hover:not(:disabled) {
-  background-color: #238a7e;
-}
-
-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-button:disabled {
-  background-color: #cccccc;
-  color: #888888;
-  cursor: not-allowed;
-}
-
-button.btn-disabled {
-  opacity: 0.7;
-}
+button:hover:not(:disabled) { background-color: #238a7e; }
+button:active:not(:disabled) { transform: translateY(1px); }
+button:disabled { background-color: #cccccc; color: #888888; cursor: not-allowed; }
+button.btn-disabled { opacity: 0.7; }
 
 .popup-overlay {
   display: none;
@@ -301,6 +397,8 @@ button.btn-disabled {
   left: 0;
   width: 100%;
   height: 100%;
+  border-radius: 6px;
+  box-shadow: var(--shadow);
   background-color: rgba(0, 0, 0, 0.7);
   z-index: 1000;
   justify-content: center;
@@ -308,19 +406,7 @@ button.btn-disabled {
   animation: fadeIn 0.3s ease-out;
 }
 
-.popup-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 450px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-}
-
-.popup-content h3 {
-  margin-top: 0;
-  color: var(--primary);
-}
+/* Remove duplicated malformed popup block retained earlier; cleaned version exists below */
 
 .popup-grid {
   display: grid;
@@ -331,21 +417,50 @@ button.btn-disabled {
 
 /* Styling for stock name select in sell popup */
 #stocks-sell-name {
+  box-shadow: var(--shadow);
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--border);
-  border-radius: 4px;
+  background-color: var(--surface);
   font-size: 1rem;
 }
 
 .popup-buttons {
   display: flex;
+  transition: background-color 0.4s ease;
   justify-content: flex-end;
   gap: 0.8rem;
 }
+.popup-content h3 { margin-top: 0; color: var(--primary); }
+.freedom-progress {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem 0.9rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+}
+.freedom-header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.75rem; letter-spacing: .5px; }
+.progress-bar { background: #e1e5e8; border-radius: 6px; height: 10px; overflow: hidden; position: relative; }
+.progress-bar #freedom-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--primary)); transition: width 0.6s ease; }
+.dark-theme .progress-bar { background: #2a3339; }
+.freedom-stats { display: flex; justify-content: space-between; font-size: 0.7rem; opacity: 0.85; }
 
-/* Stocks summary fields in asset-control */
-#input-asset-stocks-qty,
+/* Theme toggle */
+.theme-toggle { margin-left: .5rem; background: var(--secondary); color: var(--surface); border: none; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; box-shadow: var(--shadow); }
+.theme-toggle:hover { filter: brightness(1.1); }
+
+/* Toast notifications */
+#toast-container { position: fixed; bottom: 1rem; right: 1rem; display: flex; flex-direction: column; gap: .5rem; z-index: 2000; }
+.toast { background: var(--secondary); color: var(--surface); padding: .65rem .9rem; border-radius: 8px; font-size: .8rem; box-shadow: var(--shadow-strong); display: flex; align-items: center; gap: .5rem; animation: slideIn .4s ease, fadeOut .4s ease 4.6s forwards; }
+.toast.success { background: var(--success); }
+.toast.error { background: var(--danger); }
+@keyframes slideIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+@keyframes fadeOut { to { opacity:0; transform: translateY(4px); } }
 #input-asset-stocks-cost,
 #input-asset-stocks-name {
   width: 80px;
@@ -476,6 +591,7 @@ button.btn-disabled {
 #input-expenses-bafog::after,
 #input-expenses-autoloan::after,
 #input-expenses-cc::after,
+#input-expenses-children::after,
 #input-expenses-bank::after,
 #input-liability-mortgage::after,
 #input-liability-bafog::after,
